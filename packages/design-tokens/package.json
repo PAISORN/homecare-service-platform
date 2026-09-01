@@ -1,0 +1,21 @@
+{
+  "name": "@homecare/design-tokens",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./css": "./src/tokens.css"
+  },
+  "scripts": {
+    "lint": "eslint src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "8.68.0",
+    "eslint": "9.39.5",
+    "typescript": "~6.0.3",
+    "vitest": "4.1.11"
+  }
+}

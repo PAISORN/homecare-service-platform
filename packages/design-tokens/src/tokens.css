@@ -1,0 +1,16 @@
+:root {
+  --hc-color-primary: #1e40af;
+  --hc-color-action: #2563eb;
+  --hc-color-accent: #ea580c;
+  --hc-color-background: #f8fafc;
+  --hc-color-surface: #ffffff;
+  --hc-color-text: #0f172a;
+  --hc-color-text-muted: #64748b;
+  --hc-color-border: #e2e8f0;
+  --hc-color-success: #15803d;
+  --hc-color-warning: #b45309;
+  --hc-color-danger: #dc2626;
+  --hc-font-family: 'Noto Sans Thai', system-ui, sans-serif;
+  --hc-radius-button: 12px;
+  --hc-radius-card: 16px;
+}

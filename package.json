@@ -1,0 +1,35 @@
+{
+  "name": "homecare",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=24.19.0 <25"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter @homecare/mobile --filter @homecare/admin dev",
+    "dev:mobile": "pnpm --filter @homecare/mobile dev",
+    "dev:admin": "pnpm --filter @homecare/admin dev",
+    "build": "pnpm --filter @homecare/mobile build && pnpm --filter @homecare/admin build",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "validate:mobile:native": "pnpm --filter @homecare/mobile validate:native",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:cli:version": "node scripts/run-supabase-command.mjs --version",
+    "db:start": "node scripts/start-supabase.mjs",
+    "db:stop": "node scripts/run-supabase-command.mjs stop --no-backup",
+    "db:reset": "node scripts/reset-database.mjs",
+    "db:test": "node scripts/test-database.mjs",
+    "db:test:identity": "node scripts/test-mobile-identity-bootstrap.mjs",
+    "db:test:storage": "node scripts/test-technician-document-storage.mjs && node scripts/test-technician-document-quota.mjs",
+    "db:lint": "node scripts/lint-database.mjs",
+    "db:types": "node scripts/generate-database-types.mjs"
+  },
+  "devDependencies": {
+    "prettier": "3.9.6",
+    "supabase": "2.115.0",
+    "typescript": "~6.0.3"
+  }
+}

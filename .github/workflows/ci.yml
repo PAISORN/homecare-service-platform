@@ -1,0 +1,71 @@
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # actions/checkout v7.0.1: https://github.com/actions/checkout/releases/tag/v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      # pnpm/action-setup v6.0.10: https://github.com/pnpm/action-setup/releases/tag/v6.0.10
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
+        with:
+          version: 11.19.0
+      # actions/setup-node v7.0.0: https://github.com/actions/setup-node/releases/tag/v7.0.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - name: Validate Expo dependencies and native configuration
+        run: pnpm validate:mobile:native
+      - run: pnpm build
+
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      # actions/checkout v7.0.1: https://github.com/actions/checkout/releases/tag/v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      # pnpm/action-setup v6.0.10: https://github.com/pnpm/action-setup/releases/tag/v6.0.10
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
+        with:
+          version: 11.19.0
+      # actions/setup-node v7.0.0: https://github.com/actions/setup-node/releases/tag/v7.0.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Install dependencies and pinned Supabase CLI
+        run: pnpm install --frozen-lockfile
+      - name: Verify Supabase CLI version
+        run: pnpm db:cli:version
+      - name: Start and wait for local Supabase
+        run: pnpm db:start
+      - name: Reset database from migrations and seed
+        run: pnpm db:reset
+      - name: Run pgTAP and RLS tests
+        run: pnpm db:test
+      - name: Run Storage API integration tests
+        run: pnpm db:test:storage
+      - name: Lint database schema
+        run: pnpm db:lint
+      - name: Verify generated database types
+        run: |
+          pnpm db:types
+          git diff --exit-code -- packages/database-types/src/database.types.ts
+      - name: Stop local Supabase
+        if: always()
+        run: pnpm db:stop

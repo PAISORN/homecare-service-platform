@@ -1,0 +1,17 @@
+node_modules
+.next
+.expo
+coverage
+**/next-env.d.ts
+packages/database-types/src/database.types.ts
+pnpm-lock.yaml
+CONTEXT.md
+docs/
+design-system/
+skill-observations/
+cross-cutting-principles.md
+supabase/
+.supabase/
+.supabase-home/
+.npm-cache/
+.pnpm-store/

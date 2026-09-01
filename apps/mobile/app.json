@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "HomeCare",
+    "slug": "homecare",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "homecare",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#F8FAFC"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "อนุญาตให้ HomeCare เลือกรูปเอกสารยืนยันตัวตนที่คุณเป็นผู้ส่งเท่านั้น",
+          "cameraPermission": "อนุญาตให้ HomeCare ใช้กล้องเพื่อถ่ายเอกสารยืนยันตัวตนและภาพใบหน้าของคุณ",
+          "microphonePermission": false
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.homecare.mobile"
+    },
+    "android": {
+      "package": "com.homecare.mobile"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    }
+  }
+}
