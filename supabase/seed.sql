@@ -1,8 +1,8 @@
 insert into public.service_categories (code, name_th, description_th, status, sort_order)
 values
-  ('AIR-CONDITIONING', 'เครื่องปรับอากาศ', 'งานล้าง ตรวจ และดูแลเครื่องปรับอากาศ', 'draft', 10),
-  ('PLUMBING', 'ประปาและสุขภัณฑ์', 'งานติดตั้ง แก้อุดตัน และตรวจน้ำรั่ว', 'draft', 20),
-  ('ELECTRICAL', 'ระบบไฟฟ้า', 'งานติดตั้งและตรวจความผิดปกติของระบบไฟฟ้า', 'draft', 30)
+  ('AIR-CONDITIONING', 'เครื่องปรับอากาศ', 'งานล้าง ตรวจ และดูแลเครื่องปรับอากาศ', 'pilot', 10),
+  ('PLUMBING', 'ประปาและสุขภัณฑ์', 'งานติดตั้ง แก้อุดตัน และตรวจน้ำรั่ว', 'pilot', 20),
+  ('ELECTRICAL', 'ระบบไฟฟ้า', 'งานติดตั้งและตรวจความผิดปกติของระบบไฟฟ้า', 'pilot', 30)
 on conflict (code) do update set
   name_th = excluded.name_th,
   description_th = excluded.description_th,
@@ -18,7 +18,7 @@ insert into public.service_items (
   status
 )
 select category.id, item.code, item.name_th, item.price_model::public.price_model,
-  null, item.warranty_days, 'draft'::public.catalog_status
+  null, item.warranty_days, 'pilot'::public.catalog_status
 from (
   values
     ('AIR-CONDITIONING', 'AC-CLEAN-WALL', 'ล้างแอร์ติดผนัง', 'fixed', 30),

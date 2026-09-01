@@ -164,6 +164,83 @@ export const navigationCopyTh = {
   account: 'บัญชี',
 } as const;
 
+export const serviceRequestCopyTh = {
+  catalogTitle: 'เลือกรายการบริการ',
+  symptomCatalogTitle: 'เลือกหมวดอาการ',
+  catalogDescription:
+    'รายการอยู่ในช่วงทดลอง คุณบันทึกคำขอรับบริการแบบร่างได้ โดยระบบจะยังไม่ส่งหาช่างจนกว่าราคาและขั้นตอนเปิดบริการจะพร้อม',
+  symptomCatalogDescription: 'เลือกหมวดที่ใกล้เคียง แล้วเล่าอาการให้เราทราบ',
+  noCatalog: 'ยังไม่มีรายการบริการที่พร้อมให้ทดลอง',
+  choose: 'เลือก',
+  draftsTitle: 'คำขอรับบริการแบบร่าง',
+  draftsDescription: 'กลับมาแก้รายละเอียดและเพิ่มรูปได้ก่อนเปิดการส่งหาช่าง',
+  emptyDrafts: 'ยังไม่มีคำขอรับบริการแบบร่าง',
+  newCatalogRequest: 'เลือกจากรายการบริการ',
+  newSymptomRequest: 'แจ้งอาการให้ช่วยประเมิน',
+  editDraft: 'แก้ไขแบบร่าง',
+  formTitle: 'รายละเอียดคำขอรับบริการ',
+  editFormTitle: 'แก้ไขคำขอรับบริการแบบร่าง',
+  formDescription:
+    'ข้อมูลนี้ช่วยให้ช่างประเมินงานได้ชัดเจน ระบบยังไม่ส่งงานจนกว่าคุณจะยืนยันในระยะถัดไป',
+  locationLabel: 'สถานที่รับบริการ',
+  addLocation: 'เพิ่มสถานที่รับบริการ',
+  locationRequired: 'กรุณาเลือกสถานที่รับบริการ',
+  descriptionLabel: 'อาการหรือรายละเอียดที่ต้องการให้ช่างช่วย',
+  descriptionPlaceholder: 'เช่น แอร์มีกลิ่นอับและไม่ได้ล้างมา 1 ปี',
+  quantityLabel: 'จำนวนเครื่องหรือจำนวนจุด',
+  urgencyLabel: 'ความเร่งด่วน',
+  urgency: {
+    flexible: 'ยืดหยุ่นได้',
+    within_3_days: 'ภายใน 3 วัน',
+    as_soon_as_possible: 'เร็วที่สุดที่ว่าง',
+  },
+  preferredDateLabel: 'วันที่สะดวก (ไม่บังคับ)',
+  preferredDatePlaceholder: 'YYYY-MM-DD',
+  preferredTimeLabel: 'ช่วงเวลาที่สะดวก (ไม่บังคับ)',
+  preferredTimePlaceholder: 'เช่น 09:00–12:00',
+  safetyTitle: 'ตรวจความปลอดภัยก่อนบันทึก',
+  safetyDescription: 'ตอบตามสภาพปัจจุบัน หากพบความเสี่ยง ระบบจะหยุดการจองปกติ',
+  safetyQuestions: {
+    fireSmoke: 'มีไฟ ควัน ประกายไฟต่อเนื่อง หรือกลิ่นไหม้รุนแรง',
+    waterNearElectricity: 'มีน้ำรั่วหรือน้ำท่วมใกล้ปลั๊ก ตู้ไฟ หรือสายไฟ',
+    externalPowerHazard: 'มีสายไฟภายนอกขาด เสาไฟล้ม หรือไฟดับทั้งบริเวณ',
+    uncontrolledWater: 'มีน้ำไหลรุนแรงและปิดวาล์วไม่ได้',
+    outOfScopeAccess:
+      'งานต้องใช้นั่งร้าน โรยตัว ผู้ช่วย หรือเข้าพื้นที่อับอากาศ',
+  },
+  yes: 'มี',
+  no: 'ไม่มี',
+  safetyStopTitle: 'หยุดการจองปกติเพื่อความปลอดภัย',
+  safetyStops: {
+    FIRE_SMOKE:
+      'ออกจากพื้นที่หากไม่ปลอดภัย โทรแจ้งเหตุเพลิงไหม้ 199 และอย่ารอช่าง HomeCare',
+    WATER_NEAR_ELECTRICITY:
+      'อย่าสัมผัสน้ำหรืออุปกรณ์ไฟฟ้า ตัดไฟเฉพาะเมื่อทำได้อย่างปลอดภัย และติดต่อหน่วยงานไฟฟ้า',
+    EXTERNAL_POWER_HAZARD:
+      'ติดต่อ MEA 1130 หรือ PEA 1129 ตามพื้นที่ผู้ใช้ไฟ ไม่สร้างงานช่างภายในบ้าน',
+    UNCONTROLLED_WATER:
+      'หลีกเลี่ยงพื้นที่ ปิดวาล์วเมนเมื่อปลอดภัย และติดต่อนิติบุคคลหรือหน่วยงานน้ำประปา',
+    OUT_OF_SCOPE_ACCESS:
+      'งานลักษณะนี้อยู่นอกขอบเขตบริการนำร่องและจะไม่ถูกส่งเป็นงานทั่วไป',
+  },
+  emergencyDisclaimer: 'HomeCare ไม่ใช่บริการฉุกเฉิน',
+  photosLabel: 'รูปหน้างาน',
+  photosHelper:
+    'แนะนำอย่างน้อย 2 รูป: ภาพรวมและจุดที่ต้องการให้บริการ รองรับ JPG/PNG ไม่เกิน 6 MB ต่อรูป',
+  choosePhotos: 'เลือกรูปจากเครื่อง',
+  photoLimit: 'แนบได้สูงสุด 6 รูป',
+  saveDraft: 'บันทึกแบบร่าง',
+  savingDraft: 'กำลังบันทึก…',
+  savedDraft: 'บันทึกแบบร่างแล้ว',
+  saveFailed: 'บันทึกแบบร่างไม่สำเร็จ กรุณาตรวจข้อมูลแล้วลองอีกครั้ง',
+  loadFailed: 'โหลดข้อมูลไม่สำเร็จ กรุณาลองอีกครั้ง',
+  required: 'กรุณากรอกข้อมูลนี้',
+  invalid: 'ข้อมูลไม่ถูกต้อง',
+  tooLong: 'ข้อความยาวเกินจำนวนที่กำหนด',
+  back: 'ย้อนกลับ',
+  retry: 'ลองอีกครั้ง',
+} as const;
+
 export const technicianApplicationCopyTh = {
   hubTitle: 'ใบสมัครช่าง',
   hubDescription:

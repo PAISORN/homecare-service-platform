@@ -39,6 +39,7 @@ export function HomeScreen({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={copy.requestService}
+          onPress={() => router.push('/requests')}
           style={({ pressed }) => [
             styles.primaryButton,
             pressed && styles.pressed,
@@ -59,6 +60,12 @@ export function HomeScreen({
                   categoryLabel,
                 )}
                 key={categoryCode}
+                onPress={() =>
+                  router.push({
+                    pathname: '/requests/catalog',
+                    params: { categoryCode },
+                  })
+                }
                 style={({ pressed }) => [
                   styles.card,
                   pressed && styles.pressed,

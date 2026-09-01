@@ -177,6 +177,51 @@ export type Database = {
         }
         Relationships: []
       }
+      request_attachments: {
+        Row: {
+          created_at: string
+          customer_id: string
+          id: string
+          mime_type: string
+          service_request_id: string
+          size_bytes: number
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          id?: string
+          mime_type: string
+          service_request_id: string
+          size_bytes: number
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          id?: string
+          mime_type?: string
+          service_request_id?: string
+          size_bytes?: number
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "request_attachments_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "request_attachments_service_request_id_fkey"
+            columns: ["service_request_id"]
+            isOneToOne: false
+            referencedRelation: "service_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_categories: {
         Row: {
           code: string
@@ -337,6 +382,98 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_requests: {
+        Row: {
+          created_at: string
+          customer_id: string
+          entry_point: Database["public"]["Enums"]["request_entry_point"]
+          id: string
+          intake_answers: Json
+          preferred_date: string | null
+          preferred_time_window: string | null
+          problem_description: string
+          quantity: number
+          safety_answers: Json
+          safety_status: Database["public"]["Enums"]["request_safety_status"]
+          safety_stop_code: string | null
+          service_category_id: string
+          service_item_id: string | null
+          service_location_id: string
+          status: Database["public"]["Enums"]["service_request_status"]
+          updated_at: string
+          urgency: Database["public"]["Enums"]["request_urgency"]
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          entry_point: Database["public"]["Enums"]["request_entry_point"]
+          id?: string
+          intake_answers?: Json
+          preferred_date?: string | null
+          preferred_time_window?: string | null
+          problem_description: string
+          quantity?: number
+          safety_answers?: Json
+          safety_status?: Database["public"]["Enums"]["request_safety_status"]
+          safety_stop_code?: string | null
+          service_category_id: string
+          service_item_id?: string | null
+          service_location_id: string
+          status?: Database["public"]["Enums"]["service_request_status"]
+          updated_at?: string
+          urgency?: Database["public"]["Enums"]["request_urgency"]
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          entry_point?: Database["public"]["Enums"]["request_entry_point"]
+          id?: string
+          intake_answers?: Json
+          preferred_date?: string | null
+          preferred_time_window?: string | null
+          problem_description?: string
+          quantity?: number
+          safety_answers?: Json
+          safety_status?: Database["public"]["Enums"]["request_safety_status"]
+          safety_stop_code?: string | null
+          service_category_id?: string
+          service_item_id?: string | null
+          service_location_id?: string
+          status?: Database["public"]["Enums"]["service_request_status"]
+          updated_at?: string
+          urgency?: Database["public"]["Enums"]["request_urgency"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_requests_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_service_category_id_fkey"
+            columns: ["service_category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_service_item_id_fkey"
+            columns: ["service_item_id"]
+            isOneToOne: false
+            referencedRelation: "service_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_service_location_id_fkey"
+            columns: ["service_location_id"]
+            isOneToOne: false
+            referencedRelation: "service_locations"
             referencedColumns: ["id"]
           },
         ]
@@ -550,6 +687,35 @@ export type Database = {
         Args: { p_storage_path: string }
         Returns: boolean
       }
+      cancel_service_request_draft: {
+        Args: { p_request_id: string }
+        Returns: {
+          created_at: string
+          customer_id: string
+          entry_point: Database["public"]["Enums"]["request_entry_point"]
+          id: string
+          intake_answers: Json
+          preferred_date: string | null
+          preferred_time_window: string | null
+          problem_description: string
+          quantity: number
+          safety_answers: Json
+          safety_status: Database["public"]["Enums"]["request_safety_status"]
+          safety_stop_code: string | null
+          service_category_id: string
+          service_item_id: string | null
+          service_location_id: string
+          status: Database["public"]["Enums"]["service_request_status"]
+          updated_at: string
+          urgency: Database["public"]["Enums"]["request_urgency"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       deactivate_own_account: {
         Args: never
         Returns: Database["public"]["Enums"]["account_status"]
@@ -579,6 +745,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      delete_request_attachment: {
+        Args: { p_attachment_id: string }
+        Returns: string
       }
       delete_service_location: {
         Args: { p_location_id: string }
@@ -675,6 +845,29 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      register_request_attachment: {
+        Args: {
+          p_mime_type: string
+          p_service_request_id: string
+          p_size_bytes: number
+          p_storage_path: string
+        }
+        Returns: {
+          created_at: string
+          customer_id: string
+          id: string
+          mime_type: string
+          service_request_id: string
+          size_bytes: number
+          storage_path: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "request_attachments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       review_technician_document: {
         Args: {
           p_decision: Database["public"]["Enums"]["document_review_status"]
@@ -734,6 +927,48 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      save_service_request_draft: {
+        Args: {
+          p_entry_point: Database["public"]["Enums"]["request_entry_point"]
+          p_intake_answers: Json
+          p_preferred_date: string
+          p_preferred_time_window: string
+          p_problem_description: string
+          p_quantity: number
+          p_request_id?: string
+          p_safety_answers: Json
+          p_service_category_id: string
+          p_service_item_id: string
+          p_service_location_id: string
+          p_urgency: Database["public"]["Enums"]["request_urgency"]
+        }
+        Returns: {
+          created_at: string
+          customer_id: string
+          entry_point: Database["public"]["Enums"]["request_entry_point"]
+          id: string
+          intake_answers: Json
+          preferred_date: string | null
+          preferred_time_window: string | null
+          problem_description: string
+          quantity: number
+          safety_answers: Json
+          safety_status: Database["public"]["Enums"]["request_safety_status"]
+          safety_stop_code: string | null
+          service_category_id: string
+          service_item_id: string | null
+          service_location_id: string
+          status: Database["public"]["Enums"]["service_request_status"]
+          updated_at: string
+          urgency: Database["public"]["Enums"]["request_urgency"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       set_default_service_location: {
         Args: { p_location_id: string }
         Returns: {
@@ -774,6 +1009,10 @@ export type Database = {
       catalog_status: "draft" | "pilot" | "active" | "inactive"
       document_review_status: "pending" | "approved" | "rejected"
       price_model: "fixed" | "evidence_quote" | "onsite_inspection"
+      request_entry_point: "service_catalog" | "symptom"
+      request_safety_status: "clear" | "stopped"
+      request_urgency: "flexible" | "within_3_days" | "as_soon_as_possible"
+      service_request_status: "draft" | "cancelled"
       technician_document_type:
         | "national_id"
         | "selfie"
@@ -927,6 +1166,10 @@ export const Constants = {
       catalog_status: ["draft", "pilot", "active", "inactive"],
       document_review_status: ["pending", "approved", "rejected"],
       price_model: ["fixed", "evidence_quote", "onsite_inspection"],
+      request_entry_point: ["service_catalog", "symptom"],
+      request_safety_status: ["clear", "stopped"],
+      request_urgency: ["flexible", "within_3_days", "as_soon_as_possible"],
+      service_request_status: ["draft", "cancelled"],
       technician_document_type: [
         "national_id",
         "selfie",

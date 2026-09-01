@@ -25,6 +25,11 @@ public projection ที่ไม่เปิดเผย PII, audit ของ�
 Storage object ที่เกี่ยวข้อง และ Audit history ที่จำกัดเฉพาะ target โดยไม่ให้สิทธิ์
 `audit_view` ทั้งระบบ
 
+ไฟล์ `008_service_request_drafts.test.sql` ทดสอบสัญญา Phase 3A สำหรับคำขอรับบริการ
+แบบร่าง ได้แก่ การเลือกแค็ตตาล็อกและสถานที่ของตนเอง การแก้ไขแบบร่าง การคำนวณ
+Safety Stop ฝั่งฐานข้อมูล การกันข้อมูลข้ามบัญชี การจอง metadata รูปใน path ที่ผูกกับ
+ลูกค้าและคำขอ ตลอดจน private bucket, RLS และ audit ที่ไม่บันทึกข้อความละเอียด
+
 คำสั่งตรวจสอบ:
 
 ```sh
@@ -35,7 +40,8 @@ pnpm db:lint
 pnpm db:types
 ```
 
-`db:test:storage` เป็น integration test แยกจาก pgTAP เพราะการลบ `storage.objects` โดยตรง
+`db:test:storage` เป็น integration test แยกจาก pgTAP ครอบคลุมทั้งเอกสาร KYC และรูปของ
+คำขอรับบริการแบบร่าง เพราะการลบ `storage.objects` โดยตรง
 ถูก Supabase ปฏิเสธเสมอ ชุดนี้จึงเรียก Storage API และตรวจว่าไฟล์ถูกลบหรือเนื้อหายังคงเดิมจริง
 รวมถึงตรวจ signed URL อายุสั้นสำหรับ reviewer, ปฏิเสธ caller ที่ไม่มีสิทธิ์/เคสที่ยังเป็น draft
 หรือจบการตรวจแล้ว และรัน quota concurrency test เพื่อยืนยันว่าการลงทะเบียนและอัปโหลดพร้อมกัน
