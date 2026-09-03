@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppFontFamilies } from '../../foundation/font-runtime';
 import { serviceLocationCopyTh as copy } from '../../locales/th';
 import { useSession } from '../../providers/session-provider';
+import { goBackOrReplace } from '../shared/navigation';
 import {
   deleteOwnServiceLocation,
   listOwnServiceLocations,
@@ -88,7 +89,7 @@ export function ServiceLocationsScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <Pressable
           accessibilityRole="button"
-          onPress={() => router.back()}
+          onPress={() => goBackOrReplace(router, '/account')}
           style={({ pressed }) => [
             styles.backButton,
             pressed && styles.pressed,

@@ -19,16 +19,31 @@ export type TechnicianDocument = Pick<
   | 'created_at'
 > & { is_uploaded: boolean };
 
+export type TechnicianBioValidation = Readonly<{
+  value: string;
+  error: 'required' | 'too_short' | 'too_long' | null;
+}>;
+
+export function validateTechnicianBio(
+  bioInput: string,
+): TechnicianBioValidation {
+  const value = bioInput.trim();
+  if (value.length === 0) return { value, error: 'required' };
+  if (value.length < 20) return { value, error: 'too_short' };
+  if (value.length > 500) return { value, error: 'too_long' };
+  return { value, error: null };
+}
+
 export async function updateTechnicianBio(
   client: MobileSupabaseClient,
   userId: string,
   bioInput: string,
 ): Promise<string | null> {
-  const bio = bioInput.trim();
-  if (bio.length > 500) throw new Error('invalid_bio');
+  const validation = validateTechnicianBio(bioInput);
+  if (validation.error) throw new Error('invalid_bio');
   const { data, error } = await client
     .from('technician_profiles')
-    .update({ bio: bio || null })
+    .update({ bio: validation.value })
     .eq('user_id', userId)
     .select('bio')
     .single();

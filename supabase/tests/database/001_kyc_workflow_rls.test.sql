@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(56);
+select plan(58);
 
 insert into auth.users (id, email)
 values
@@ -319,6 +319,19 @@ select lives_ok(
       '00000000-0000-0000-0000-000000000201/selfie.jpg',
       '00000000-0000-0000-0000-000000000201')$$,
   'technician can upload the registered second required document'
+);
+
+select throws_ok(
+  $$select public.submit_technician_profile()$$,
+  'Technician bio must contain 20 to 500 characters',
+  'submission requires a meaningful technician introduction'
+);
+
+select lives_ok(
+  $$update public.technician_profiles
+    set bio = 'มีประสบการณ์ล้างและซ่อมแอร์ที่อยู่อาศัยมากกว่า 5 ปี'
+    where user_id = '00000000-0000-0000-0000-000000000201'$$,
+  'draft technician can add a valid introduction before submission'
 );
 
 select is(

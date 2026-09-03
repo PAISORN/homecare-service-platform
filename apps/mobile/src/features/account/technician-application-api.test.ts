@@ -6,8 +6,23 @@ import {
   removeDraftDocument,
   replaceRequiredKycDocument,
   selectCurrentRequiredDocument,
+  validateTechnicianBio,
   type TechnicianDocument,
 } from './technician-application-api';
+
+describe('validateTechnicianBio', () => {
+  it('requires a meaningful introduction between 20 and 500 characters', () => {
+    expect(validateTechnicianBio('   ').error).toBe('required');
+    expect(validateTechnicianBio('ช่างแอร์').error).toBe('too_short');
+    expect(validateTechnicianBio('ก'.repeat(501)).error).toBe('too_long');
+    expect(
+      validateTechnicianBio('  มีประสบการณ์ล้างและซ่อมแอร์ที่อยู่อาศัย 5 ปี  '),
+    ).toEqual({
+      value: 'มีประสบการณ์ล้างและซ่อมแอร์ที่อยู่อาศัย 5 ปี',
+      error: null,
+    });
+  });
+});
 
 function document(
   id: string,

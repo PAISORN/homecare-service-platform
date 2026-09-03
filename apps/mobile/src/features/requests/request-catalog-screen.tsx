@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppFontFamilies } from '../../foundation/font-runtime';
 import { serviceRequestCopyTh as copy } from '../../locales/th';
 import { useSession } from '../../providers/session-provider';
+import { goBackOrReplace } from '../shared/navigation';
 import {
   formatCatalogPrice,
   listPilotCatalog,
@@ -80,7 +81,7 @@ export function RequestCatalogScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <Pressable
           accessibilityRole="button"
-          onPress={() => router.back()}
+          onPress={() => goBackOrReplace(router, '/requests')}
           style={styles.backButton}
         >
           <Text style={styles.backText}>{copy.back}</Text>

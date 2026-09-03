@@ -16,7 +16,11 @@ import { useAppFontFamilies } from '../../foundation/font-runtime';
 import { technicianApplicationCopyTh as copy } from '../../locales/th';
 import { useSession } from '../../providers/session-provider';
 import { createFormStyles } from '../shared/form-styles';
-import { updateTechnicianBio } from './technician-application-api';
+import { goBackOrReplace } from '../shared/navigation';
+import {
+  updateTechnicianBio,
+  validateTechnicianBio,
+} from './technician-application-api';
 
 export function TechnicianProfileScreen() {
   const router = useRouter();
@@ -33,8 +37,13 @@ export function TechnicianProfileScreen() {
 
   async function save() {
     if (!client || !session || loading) return;
-    if (bio.trim().length > 500) {
-      setError(copy.profileInvalid);
+    const validation = validateTechnicianBio(bio);
+    if (validation.error) {
+      setError(
+        validation.error === 'too_long'
+          ? copy.profileInvalid
+          : copy.profileRequired,
+      );
       return;
     }
     setLoading(true);
@@ -42,7 +51,7 @@ export function TechnicianProfileScreen() {
     try {
       await updateTechnicianBio(client, session.user.id, bio);
       await refreshAccount();
-      router.back();
+      goBackOrReplace(router, '/technician/application');
     } catch {
       setError(copy.saveFailed);
     } finally {
@@ -69,7 +78,20 @@ export function TechnicianProfileScreen() {
             accessibilityLabel={copy.profileLabel}
             maxLength={501}
             multiline
-            onChangeText={setBio}
+            onBlur={() => {
+              const validation = validateTechnicianBio(bio);
+              if (validation.error) {
+                setError(
+                  validation.error === 'too_long'
+                    ? copy.profileInvalid
+                    : copy.profileRequired,
+                );
+              }
+            }}
+            onChangeText={(value) => {
+              setBio(value);
+              setError(null);
+            }}
             placeholder={copy.profilePlaceholder}
             style={[
               styles.input,
@@ -101,7 +123,7 @@ export function TechnicianProfileScreen() {
           </Pressable>
           <Pressable
             accessibilityRole="button"
-            onPress={() => router.back()}
+            onPress={() => goBackOrReplace(router, '/technician/application')}
             style={({ pressed }) => [
               styles.secondaryButton,
               pressed && styles.buttonPressed,

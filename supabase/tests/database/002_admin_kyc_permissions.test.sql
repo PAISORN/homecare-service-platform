@@ -28,11 +28,13 @@ values
 
 insert into public.technician_profiles (
   user_id,
+  bio,
   kyc_notice_version,
   kyc_notice_acknowledged_at
 )
 values (
   '10000000-0000-0000-0000-000000000201',
+  'มีประสบการณ์ดูแลและซ่อมเครื่องใช้ภายในบ้านมากกว่า 5 ปี',
   '2026-08-31-v1',
   transaction_timestamp()
 );

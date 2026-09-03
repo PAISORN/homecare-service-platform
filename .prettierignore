@@ -3,6 +3,7 @@ node_modules
 .expo
 coverage
 **/next-env.d.ts
+**/expo-env.d.ts
 packages/database-types/src/database.types.ts
 pnpm-lock.yaml
 CONTEXT.md

@@ -14,6 +14,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppFontFamilies } from '../../foundation/font-runtime';
 import { serviceRequestCopyTh as copy } from '../../locales/th';
 import { useSession } from '../../providers/session-provider';
+import { goBackOrReplace } from '../shared/navigation';
+import { formatDraftScheduleTh } from './preferred-date';
 import {
   listOwnRequestDrafts,
   type ServiceRequestDraft,
@@ -44,7 +46,7 @@ export function RequestDraftsScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <Pressable
           accessibilityRole="button"
-          onPress={() => router.back()}
+          onPress={() => goBackOrReplace(router, '/')}
           style={styles.backButton}
         >
           <Text style={styles.backText}>{copy.back}</Text>
@@ -95,36 +97,48 @@ export function RequestDraftsScreen() {
           <Text style={styles.empty}>{copy.emptyDrafts}</Text>
         ) : null}
         <View style={styles.list}>
-          {drafts.map((draft) => (
-            <Pressable
-              accessibilityRole="button"
-              key={draft.id}
-              onPress={() =>
-                router.push({
-                  pathname: '/requests/edit',
-                  params: { requestId: draft.id },
-                })
-              }
-              style={({ pressed }) => [styles.card, pressed && styles.pressed]}
-            >
-              <Text style={styles.cardTitle}>
-                {draft.service_items?.name_th ??
-                  draft.service_categories?.name_th ??
-                  copy.newSymptomRequest}
-              </Text>
-              <Text numberOfLines={2} style={styles.cardDescription}>
-                {draft.problem_description}
-              </Text>
-              <Text style={styles.meta}>
-                {draft.service_locations?.label ?? ''} ·{' '}
-                {copy.urgency[draft.urgency]}
-              </Text>
-              {draft.safety_status === 'stopped' ? (
-                <Text style={styles.safetyBadge}>{copy.safetyStopTitle}</Text>
-              ) : null}
-              <Text style={styles.edit}>{copy.editDraft}</Text>
-            </Pressable>
-          ))}
+          {drafts.map((draft) => {
+            const schedule = formatDraftScheduleTh(
+              draft.preferred_date,
+              draft.preferred_time_window,
+            );
+            return (
+              <Pressable
+                accessibilityRole="button"
+                key={draft.id}
+                onPress={() =>
+                  router.push({
+                    pathname: '/requests/edit',
+                    params: { requestId: draft.id },
+                  })
+                }
+                style={({ pressed }) => [
+                  styles.card,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Text style={styles.cardTitle}>
+                  {draft.service_items?.name_th ??
+                    draft.service_categories?.name_th ??
+                    copy.newSymptomRequest}
+                </Text>
+                <Text numberOfLines={2} style={styles.cardDescription}>
+                  {draft.problem_description}
+                </Text>
+                <Text style={styles.meta}>
+                  {draft.service_locations?.label ?? ''} ·{' '}
+                  {copy.urgency[draft.urgency]}
+                </Text>
+                {schedule ? (
+                  <Text style={styles.schedule}>{schedule}</Text>
+                ) : null}
+                {draft.safety_status === 'stopped' ? (
+                  <Text style={styles.safetyBadge}>{copy.safetyStopTitle}</Text>
+                ) : null}
+                <Text style={styles.edit}>{copy.editDraft}</Text>
+              </Pressable>
+            );
+          })}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -226,6 +240,12 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
       fontFamily: fonts.semiBold,
       fontSize: typography.supportSize,
       marginTop: spacing.md,
+    },
+    schedule: {
+      color: colors.textMuted,
+      fontFamily: fonts.regular,
+      fontSize: typography.supportSize,
+      marginTop: spacing.xs,
     },
     safetyBadge: {
       color: colors.danger,

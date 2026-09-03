@@ -17,6 +17,7 @@ import {
 } from '../../locales/th';
 import { useSession } from '../../providers/session-provider';
 import { createFormStyles } from '../shared/form-styles';
+import { goBackOrReplace } from '../shared/navigation';
 import {
   bootstrapTechnicianApplication,
   canUseTechnicianMode,
@@ -128,7 +129,7 @@ export function TechnicianApplicationScreen() {
         ) : null}
         <Pressable
           accessibilityRole="button"
-          onPress={() => router.back()}
+          onPress={() => goBackOrReplace(router, '/account')}
           style={({ pressed }) => [
             styles.secondaryButton,
             pressed && styles.buttonPressed,

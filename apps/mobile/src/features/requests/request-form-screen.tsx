@@ -24,6 +24,8 @@ import {
 import { useAppFontFamilies } from '../../foundation/font-runtime';
 import { serviceRequestCopyTh as copy } from '../../locales/th';
 import { useSession } from '../../providers/session-provider';
+import { goBackOrReplace } from '../shared/navigation';
+import { PreferredDateField } from './preferred-date-field';
 import {
   emptySafetyAnswers,
   deleteOwnRequestAttachment,
@@ -95,7 +97,8 @@ export function RequestFormScreen() {
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const styles = createStyles(useAppFontFamilies());
+  const fonts = useAppFontFamilies();
+  const styles = createStyles(fonts);
 
   useEffect(() => {
     if (!client) return;
@@ -161,6 +164,11 @@ export function RequestFormScreen() {
     (item) => item.id === input.serviceItemId,
   );
   const stopCode = getSafetyStopCode(input.safetyAnswers);
+  const minimumPreferredDate = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  }, []);
 
   function update<Key extends keyof ServiceRequestDraftInput>(
     key: Key,
@@ -273,7 +281,10 @@ export function RequestFormScreen() {
         <Text accessibilityLiveRegion="polite" style={styles.error}>
           {copy.loadFailed}
         </Text>
-        <Pressable onPress={() => router.back()} style={styles.secondaryButton}>
+        <Pressable
+          onPress={() => goBackOrReplace(router, '/requests')}
+          style={styles.secondaryButton}
+        >
           <Text style={styles.secondaryText}>{copy.back}</Text>
         </Pressable>
       </SafeAreaView>
@@ -291,7 +302,7 @@ export function RequestFormScreen() {
         >
           <Pressable
             accessibilityRole="button"
-            onPress={() => router.back()}
+            onPress={() => goBackOrReplace(router, '/requests')}
             style={styles.backButton}
           >
             <Text style={styles.backText}>{copy.back}</Text>
@@ -390,14 +401,12 @@ export function RequestFormScreen() {
           </FormSection>
 
           <FormSection title={copy.preferredDateLabel} styles={styles}>
-            <TextInput
-              accessibilityLabel={copy.preferredDateLabel}
-              autoCapitalize="none"
-              keyboardType="numbers-and-punctuation"
-              onChangeText={(value) => update('preferredDate', value)}
+            <PreferredDateField
+              clearLabel={copy.clearPreferredDate}
+              fontFamily={fonts.regular}
+              minimumDate={minimumPreferredDate}
+              onChange={(value) => update('preferredDate', value)}
               placeholder={copy.preferredDatePlaceholder}
-              placeholderTextColor={colors.textMuted}
-              style={styles.input}
               value={input.preferredDate}
             />
             <FieldError text={errorText('preferredDate')} styles={styles} />

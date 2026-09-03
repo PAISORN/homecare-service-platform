@@ -14,10 +14,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppFontFamilies } from '../../foundation/font-runtime';
 import { technicianApplicationCopyTh as copy } from '../../locales/th';
 import { useSession } from '../../providers/session-provider';
+import { goBackOrReplace } from '../shared/navigation';
 import {
   listOwnTechnicianDocuments,
   selectCurrentRequiredDocument,
   submitTechnicianProfile,
+  validateTechnicianBio,
   type TechnicianDocument,
 } from './technician-application-api';
 import { KYC_NOTICE_VERSION } from './technician-kyc';
@@ -62,11 +64,14 @@ export function TechnicianReviewScreen() {
   const noticeAcknowledged =
     technicianApplication?.kyc_notice_version === KYC_NOTICE_VERSION &&
     technicianApplication.kyc_notice_acknowledged_at !== null;
+  const profileReady =
+    validateTechnicianBio(technicianApplication?.bio ?? '').error === null;
   const canSubmit =
     technicianApplication?.verification_status === 'draft' &&
     noticeAcknowledged &&
     loadState === 'ready' &&
     documentsReady &&
+    profileReady &&
     acknowledged &&
     !loading;
 
@@ -91,7 +96,7 @@ export function TechnicianReviewScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <Pressable
           accessibilityRole="button"
-          onPress={() => router.back()}
+          onPress={() => goBackOrReplace(router, '/technician/application')}
           style={({ pressed }) => [
             styles.topBackButton,
             pressed && styles.pressed,
@@ -130,6 +135,11 @@ export function TechnicianReviewScreen() {
           <>
             <View style={styles.card}>
               <DocumentState
+                label={copy.profileLabel}
+                ready={profileReady}
+                styles={styles}
+              />
+              <DocumentState
                 label={copy.nationalId}
                 ready={nationalId?.is_uploaded === true}
                 styles={styles}
@@ -142,6 +152,9 @@ export function TechnicianReviewScreen() {
               {!documentsReady ? (
                 <Text style={styles.warning}>{copy.notReady}</Text>
               ) : null}
+              {!profileReady ? (
+                <Text style={styles.warning}>{copy.profileNotReady}</Text>
+              ) : null}
             </View>
             <View style={styles.notice}>
               <Text style={styles.cardTitle}>{copy.retentionTitle}</Text>
@@ -150,11 +163,12 @@ export function TechnicianReviewScreen() {
             <Pressable
               accessibilityRole="checkbox"
               accessibilityState={{ checked: acknowledged }}
-              disabled={!documentsReady || loading}
+              disabled={!documentsReady || !profileReady || loading}
               onPress={() => setAcknowledged((value) => !value)}
               style={({ pressed }) => [
                 styles.acknowledgement,
-                (!documentsReady || loading) && styles.disabled,
+                (!documentsReady || !profileReady || loading) &&
+                  styles.disabled,
                 pressed && styles.pressed,
               ]}
             >
@@ -188,7 +202,7 @@ export function TechnicianReviewScreen() {
         </Pressable>
         <Pressable
           accessibilityRole="button"
-          onPress={() => router.back()}
+          onPress={() => goBackOrReplace(router, '/technician/application')}
           style={({ pressed }) => [
             styles.backButton,
             pressed && styles.pressed,

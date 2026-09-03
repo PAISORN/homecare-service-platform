@@ -316,8 +316,11 @@ try {
     values ('${catalogAdministratorId}', 'catalog_management')
   `);
   runLocalFixtureSql(`
-    insert into public.technician_profiles (user_id)
-    values ('${technicianId}')
+    insert into public.technician_profiles (user_id, bio)
+    values (
+      '${technicianId}',
+      'มีประสบการณ์ซ่อมและดูแลระบบภายในบ้านมากกว่า 5 ปี'
+    )
   `);
 
   const technicianToken = await signIn(technicianEmail);

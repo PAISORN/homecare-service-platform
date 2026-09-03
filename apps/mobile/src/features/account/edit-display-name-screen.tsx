@@ -16,6 +16,7 @@ import { useAppFontFamilies } from '../../foundation/font-runtime';
 import { accountCopyTh } from '../../locales/th';
 import { useSession } from '../../providers/session-provider';
 import { createFormStyles } from '../shared/form-styles';
+import { goBackOrReplace } from '../shared/navigation';
 import { updateOwnDisplayName } from './account-api';
 
 export function EditDisplayNameScreen() {
@@ -39,7 +40,7 @@ export function EditDisplayNameScreen() {
     try {
       await updateOwnDisplayName(client, session.user.id, trimmed);
       await refreshAccount();
-      router.back();
+      goBackOrReplace(router, '/account');
     } catch {
       setError(accountCopyTh.saveFailed);
     } finally {

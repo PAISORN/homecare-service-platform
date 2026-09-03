@@ -19,6 +19,7 @@ import { useAppFontFamilies } from '../../foundation/font-runtime';
 import { serviceLocationCopyTh as copy } from '../../locales/th';
 import { useSession } from '../../providers/session-provider';
 import { createFormStyles } from '../shared/form-styles';
+import { goBackOrReplace } from '../shared/navigation';
 import {
   emptyServiceLocationDraft,
   getOwnServiceLocation,
@@ -124,7 +125,7 @@ export function ServiceLocationFormScreen({
         >
           <Pressable
             accessibilityRole="button"
-            onPress={() => router.back()}
+            onPress={() => goBackOrReplace(router, '/account/locations')}
             style={({ pressed }) => [
               styles.secondaryButton,
               locationStyles.backButton,
