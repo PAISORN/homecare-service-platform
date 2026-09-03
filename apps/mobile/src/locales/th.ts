@@ -174,6 +174,14 @@ export const technicianMatchingCopyTh = {
   privacyTitle: 'ข้อมูลลูกค้ายังถูกปิดบัง',
   privacyBody:
     'ก่อนจับคู่ คุณจะไม่เห็นชื่อ เบอร์โทร ที่อยู่ รหัสสถานที่ รูปหน้างาน หรือข้อความอิสระของลูกค้า',
+  selectedTitle: 'ข้อตกลงที่ต้องตรวจสอบ',
+  selectedEmpty: 'ยังไม่มีคำขอที่เลือกคุณเป็นช่าง',
+  selectedCustomer: (name: string) => `ลูกค้า ${name}`,
+  selectedAppointment: (date: string, time: string) => `${date} · ${time}`,
+  selectedNoAppointment: 'ยังไม่มีเวลานัดหมาย',
+  selectedCompleted: 'ทั้งสองฝ่ายยืนยันแล้ว',
+  selectedWaiting: 'กำลังรอการยืนยัน',
+  openAgreement: 'ตรวจข้อตกลง',
   skillsTitle: 'หมวดงานที่ถนัด',
   skillsDescription: 'เลือกอย่างน้อยหนึ่งหมวดเพื่อรับงานที่ตรงกับทักษะ',
   feedTitle: 'คำขอที่กำลังหาช่าง',
@@ -221,6 +229,7 @@ export const serviceRequestCopyTh = {
   technicianSelectedStatus: 'เลือกช่างแล้ว',
   viewShortlist: 'ดูรายชื่อช่างที่สนใจ',
   viewSelectedTechnician: 'ดูช่างที่เลือก',
+  openAgreement: 'ตรวจและยืนยันข้อตกลง',
   submitRequest: 'ส่งคำขอ',
   submitTitle: 'ส่งคำขอให้ช่างหรือไม่',
   submitBody:
@@ -329,6 +338,56 @@ export const requestShortlistCopyTh = {
   selectFailedTitle: 'เลือกช่างไม่สำเร็จ',
   selectFailedBody:
     'รายชื่อหรือสถานะคำขออาจเปลี่ยนแล้ว กรุณาโหลดใหม่และลองอีกครั้ง',
+} as const;
+
+export const serviceAgreementCopyTh = {
+  back: 'ย้อนกลับ',
+  title: 'ยืนยันข้อตกลงงาน',
+  description:
+    'ตรวจขอบเขต ค่าแรง สถานที่ และนัดหมายให้ตรงกัน ทั้งสองฝ่ายต้องยืนยันข้อมูลฉบับเดียวกันก่อนเปิดงานบริการ',
+  scopeTitle: 'ขอบเขตและค่าแรง',
+  serviceLocationTitle: 'สถานที่รับบริการ',
+  appointmentTitle: 'นัดหมาย',
+  appointmentDescription:
+    'ลูกค้าหรือช่างเสนอวันและช่วงเวลาได้ หากแก้ไข ระบบจะขอให้ทั้งสองฝ่ายยืนยันฉบับใหม่',
+  dateLabel: 'วันที่นัดหมาย',
+  datePlaceholder: 'เลือกวันที่นัดหมาย',
+  clearDate: 'ล้างวันที่',
+  timeLabel: 'ช่วงเวลานัดหมาย',
+  timePlaceholder: 'เช่น 09:00–12:00',
+  required: 'กรุณากรอกข้อมูลนี้',
+  invalidDate: 'กรุณาเลือกวันนี้หรือวันที่ในอนาคต',
+  invalidTime: 'ช่วงเวลาต้องไม่เกิน 80 ตัวอักษร',
+  saveAppointment: 'เสนอเวลานัดหมาย',
+  saving: 'กำลังบันทึก…',
+  confirmationTitle: 'สถานะการยืนยัน',
+  customerLabel: 'ลูกค้า',
+  technicianLabel: 'ช่าง',
+  confirmed: 'ยืนยันแล้ว',
+  waiting: 'รอยืนยัน',
+  changedNotice: 'ข้อมูลนัดหมายมีการแก้ไข กรุณาบันทึกก่อนยืนยัน',
+  confirmAgreement: 'ยืนยันข้อตกลงฉบับนี้',
+  confirmTitle: 'ยืนยันข้อตกลงหรือไม่',
+  confirmBody:
+    'คุณยืนยันขอบเขต ค่าแรง สถานที่ วันที่ และช่วงเวลาที่แสดงในหน้านี้',
+  keepReviewing: 'ตรวจสอบต่อ',
+  confirm: 'ยืนยัน',
+  completedTitle: 'ทั้งสองฝ่ายยืนยันแล้ว',
+  completedBody:
+    'ข้อตกลงถูกล็อกไว้แล้ว ขั้นตอนเปิดงานบริการและเลขงานจะแสดงในระยะถัดไป',
+  waitingOtherParty: 'คุณยืนยันแล้ว กำลังรออีกฝ่ายยืนยันข้อมูลฉบับเดียวกัน',
+  loadFailed: 'โหลดข้อตกลงไม่สำเร็จ กรุณาตรวจสถานะคำขอแล้วลองอีกครั้ง',
+  saveFailed: 'บันทึกเวลานัดหมายไม่สำเร็จ กรุณาตรวจข้อมูลแล้วลองอีกครั้ง',
+  confirmFailed: 'ยืนยันข้อตกลงไม่สำเร็จ กรุณาโหลดข้อมูลล่าสุดแล้วลองอีกครั้ง',
+  retry: 'ลองอีกครั้ง',
+  symptomRequest: 'คำขอจากการแจ้งอาการ',
+  quantity: (quantity: number) => `จำนวน ${quantity}`,
+  laborAmount: (amount: number, currency: string) =>
+    new Intl.NumberFormat('th-TH', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 0,
+    }).format(amount),
 } as const;
 
 export const technicianQuotationCopyTh = {

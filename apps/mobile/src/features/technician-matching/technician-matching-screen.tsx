@@ -15,7 +15,14 @@ import { useAppFontFamilies } from '../../foundation/font-runtime';
 import { technicianMatchingCopyTh as copy } from '../../locales/th';
 import { useSession } from '../../providers/session-provider';
 import { canUseTechnicianMode } from '../account/account-api';
-import { formatDraftScheduleTh } from '../requests/preferred-date';
+import {
+  listTechnicianSelectedRequests,
+  type TechnicianSelectedRequest,
+} from '../agreements/service-agreement-api';
+import {
+  formatDraftScheduleTh,
+  formatPreferredDateTh,
+} from '../requests/preferred-date';
 import { goBackOrReplace } from '../shared/navigation';
 import {
   expressTechnicianInterest,
@@ -37,6 +44,9 @@ export function TechnicianMatchingScreen() {
   const [categories, setCategories] = useState<
     readonly TechnicianSkillCategory[]
   >([]);
+  const [selectedRequests, setSelectedRequests] = useState<
+    readonly TechnicianSelectedRequest[]
+  >([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [busyId, setBusyId] = useState<string | null>(null);
   const styles = createStyles(useAppFontFamilies());
@@ -45,12 +55,15 @@ export function TechnicianMatchingScreen() {
     if (!client || !session) return;
     setState('loading');
     try {
-      const [nextRequests, nextCategories] = await Promise.all([
-        listTechnicianMatchingRequests(client),
-        listTechnicianSkillCategories(client, session.user.id),
-      ]);
+      const [nextRequests, nextCategories, nextSelectedRequests] =
+        await Promise.all([
+          listTechnicianMatchingRequests(client),
+          listTechnicianSkillCategories(client, session.user.id),
+          listTechnicianSelectedRequests(client),
+        ]);
       setRequests(nextRequests);
       setCategories(nextCategories);
+      setSelectedRequests(nextSelectedRequests);
       setState('ready');
     } catch {
       setState('error');
@@ -119,6 +132,65 @@ export function TechnicianMatchingScreen() {
         <View style={styles.privacyNotice}>
           <Text style={styles.noticeTitle}>{copy.privacyTitle}</Text>
           <Text style={styles.noticeBody}>{copy.privacyBody}</Text>
+        </View>
+
+        <Text style={styles.sectionTitle}>{copy.selectedTitle}</Text>
+        {state === 'ready' && selectedRequests.length === 0 ? (
+          <Text style={styles.empty}>{copy.selectedEmpty}</Text>
+        ) : null}
+        <View style={styles.requestList}>
+          {selectedRequests.map((request) => {
+            const date = request.appointment_date
+              ? formatPreferredDateTh(request.appointment_date, 'short')
+              : null;
+            return (
+              <View key={request.request_id} style={styles.card}>
+                <Text style={styles.cardCategory}>
+                  {request.category_name_th}
+                </Text>
+                <Text style={styles.cardTitle}>
+                  {request.item_name_th ?? copy.symptomRequest}
+                </Text>
+                <Text style={styles.meta}>
+                  {copy.selectedCustomer(request.customer_display_name)}
+                </Text>
+                <Text style={styles.meta}>
+                  {date && request.appointment_time_window
+                    ? copy.selectedAppointment(
+                        date,
+                        request.appointment_time_window,
+                      )
+                    : copy.selectedNoAppointment}
+                </Text>
+                <Text
+                  style={
+                    request.fully_confirmed_at
+                      ? styles.confirmedText
+                      : styles.waitingText
+                  }
+                >
+                  {request.fully_confirmed_at
+                    ? copy.selectedCompleted
+                    : copy.selectedWaiting}
+                </Text>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() =>
+                    router.push({
+                      pathname: '/technician/agreement' as never,
+                      params: { requestId: request.request_id },
+                    })
+                  }
+                  style={({ pressed }) => [
+                    styles.primaryButton,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <Text style={styles.primaryText}>{copy.openAgreement}</Text>
+                </Pressable>
+              </View>
+            );
+          })}
         </View>
 
         <Text style={styles.sectionTitle}>{copy.skillsTitle}</Text>
@@ -408,6 +480,18 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
     },
     price: {
       color: colors.text,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.supportSize,
+      marginTop: spacing.md,
+    },
+    confirmedText: {
+      color: colors.success,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.supportSize,
+      marginTop: spacing.md,
+    },
+    waitingText: {
+      color: colors.warning,
       fontFamily: fonts.semiBold,
       fontSize: typography.supportSize,
       marginTop: spacing.md,

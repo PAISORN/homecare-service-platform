@@ -440,6 +440,89 @@ export type Database = {
           },
         ]
       }
+      service_request_agreements: {
+        Row: {
+          appointment_date: string | null
+          appointment_time_window: string | null
+          created_at: string
+          currency: string
+          customer_confirmed_revision: number | null
+          customer_id: string
+          fully_confirmed_at: string | null
+          labor_amount: number
+          revision: number
+          scope_description: string
+          service_request_id: string
+          technician_confirmed_revision: number | null
+          technician_id: string
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          appointment_date?: string | null
+          appointment_time_window?: string | null
+          created_at?: string
+          currency: string
+          customer_confirmed_revision?: number | null
+          customer_id: string
+          fully_confirmed_at?: string | null
+          labor_amount: number
+          revision?: number
+          scope_description: string
+          service_request_id: string
+          technician_confirmed_revision?: number | null
+          technician_id: string
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          appointment_date?: string | null
+          appointment_time_window?: string | null
+          created_at?: string
+          currency?: string
+          customer_confirmed_revision?: number | null
+          customer_id?: string
+          fully_confirmed_at?: string | null
+          labor_amount?: number
+          revision?: number
+          scope_description?: string
+          service_request_id?: string
+          technician_confirmed_revision?: number | null
+          technician_id?: string
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_request_agreements_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_request_agreements_service_request_id_fkey"
+            columns: ["service_request_id"]
+            isOneToOne: true
+            referencedRelation: "service_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_request_agreements_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technician_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "service_request_agreements_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_request_selections: {
         Row: {
           agreed_labor_amount: number
@@ -918,6 +1001,32 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      confirm_service_request_agreement: {
+        Args: { p_request_id: string }
+        Returns: {
+          appointment_date: string | null
+          appointment_time_window: string | null
+          created_at: string
+          currency: string
+          customer_confirmed_revision: number | null
+          customer_id: string
+          fully_confirmed_at: string | null
+          labor_amount: number
+          revision: number
+          scope_description: string
+          service_request_id: string
+          technician_confirmed_revision: number | null
+          technician_id: string
+          updated_at: string
+          updated_by: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_request_agreements"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       deactivate_own_account: {
         Args: never
         Returns: Database["public"]["Enums"]["account_status"]
@@ -972,6 +1081,34 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      get_service_request_agreement: {
+        Args: { p_request_id: string }
+        Returns: {
+          actor_role: string
+          address_line: string
+          appointment_date: string
+          appointment_time_window: string
+          building: string
+          category_name_th: string
+          currency: string
+          customer_confirmed: boolean
+          customer_display_name: string
+          floor: string
+          fully_confirmed_at: string
+          item_name_th: string
+          labor_amount: number
+          location_label: string
+          problem_description: string
+          quantity: number
+          request_id: string
+          revision: number
+          scope_description: string
+          technician_confirmed: boolean
+          technician_display_name: string
+          unit: string
+          updated_at: string
+        }[]
       }
       get_technician_review_application: {
         Args: { p_technician_id: string }
@@ -1078,6 +1215,21 @@ export type Database = {
           reason: string
         }[]
       }
+      list_technician_selected_requests: {
+        Args: never
+        Returns: {
+          appointment_date: string
+          appointment_time_window: string
+          category_name_th: string
+          customer_confirmed: boolean
+          customer_display_name: string
+          fully_confirmed_at: string
+          item_name_th: string
+          request_id: string
+          technician_confirmed: boolean
+          updated_at: string
+        }[]
+      }
       promote_required_technician_document: {
         Args: {
           p_current_document_id: string
@@ -1100,6 +1252,36 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "technician_documents"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      propose_service_request_appointment: {
+        Args: {
+          p_appointment_date: string
+          p_appointment_time_window: string
+          p_request_id: string
+        }
+        Returns: {
+          appointment_date: string | null
+          appointment_time_window: string | null
+          created_at: string
+          currency: string
+          customer_confirmed_revision: number | null
+          customer_id: string
+          fully_confirmed_at: string | null
+          labor_amount: number
+          revision: number
+          scope_description: string
+          service_request_id: string
+          technician_confirmed_revision: number | null
+          technician_id: string
+          updated_at: string
+          updated_by: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_request_agreements"
           isOneToOne: true
           isSetofReturn: false
         }

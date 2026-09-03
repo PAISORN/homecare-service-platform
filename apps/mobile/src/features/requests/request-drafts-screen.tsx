@@ -229,7 +229,10 @@ export function RequestDraftsScreen() {
                         disabled={busyRequestId !== null}
                         onPress={() =>
                           router.push({
-                            pathname: '/requests/shortlist' as never,
+                            pathname:
+                              draft.status === 'technician_selected'
+                                ? ('/requests/agreement' as never)
+                                : ('/requests/shortlist' as never),
                             params: { requestId: draft.id },
                           })
                         }
@@ -241,7 +244,7 @@ export function RequestDraftsScreen() {
                       >
                         <Text style={styles.cardPrimaryText}>
                           {draft.status === 'technician_selected'
-                            ? copy.viewSelectedTechnician
+                            ? copy.openAgreement
                             : copy.viewShortlist}
                         </Text>
                       </Pressable>
