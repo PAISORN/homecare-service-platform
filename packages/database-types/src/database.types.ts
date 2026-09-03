@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -176,6 +181,60 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      quotations: {
+        Row: {
+          created_at: string
+          currency: string
+          id: string
+          labor_amount: number
+          scope_description: string
+          service_request_id: string
+          status: Database["public"]["Enums"]["quotation_status"]
+          submitted_at: string
+          technician_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          id?: string
+          labor_amount: number
+          scope_description: string
+          service_request_id: string
+          status?: Database["public"]["Enums"]["quotation_status"]
+          submitted_at?: string
+          technician_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          id?: string
+          labor_amount?: number
+          scope_description?: string
+          service_request_id?: string
+          status?: Database["public"]["Enums"]["quotation_status"]
+          submitted_at?: string
+          technician_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotations_service_request_id_fkey"
+            columns: ["service_request_id"]
+            isOneToOne: false
+            referencedRelation: "service_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotations_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technician_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       request_attachments: {
         Row: {
@@ -383,60 +442,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
-          },
-        ]
-      }
-      quotations: {
-        Row: {
-          created_at: string
-          currency: string
-          id: string
-          labor_amount: number
-          scope_description: string
-          service_request_id: string
-          status: Database["public"]["Enums"]["quotation_status"]
-          submitted_at: string
-          technician_id: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          currency?: string
-          id?: string
-          labor_amount: number
-          scope_description: string
-          service_request_id: string
-          status?: Database["public"]["Enums"]["quotation_status"]
-          submitted_at?: string
-          technician_id: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          currency?: string
-          id?: string
-          labor_amount?: number
-          scope_description?: string
-          service_request_id?: string
-          status?: Database["public"]["Enums"]["quotation_status"]
-          submitted_at?: string
-          technician_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "quotations_service_request_id_fkey"
-            columns: ["service_request_id"]
-            isOneToOne: false
-            referencedRelation: "service_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotations_technician_id_fkey"
-            columns: ["technician_id"]
-            isOneToOne: false
-            referencedRelation: "technician_profiles"
-            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -993,25 +998,6 @@ export type Database = {
         Args: { p_technician_id: string }
         Returns: boolean
       }
-      list_matching_service_requests: {
-        Args: never
-        Returns: {
-          category_name_th: string
-          interest_status: Database["public"]["Enums"]["technician_interest_status"]
-          item_name_th: string
-          preferred_date: string
-          preferred_time_window: string
-          price_model: Database["public"]["Enums"]["price_model"]
-          quantity: number
-          quotation_labor_amount: number
-          quotation_scope_description: string
-          quotation_status: Database["public"]["Enums"]["quotation_status"]
-          quotation_submitted_at: string
-          request_id: string
-          submitted_at: string
-          urgency: Database["public"]["Enums"]["request_urgency"]
-        }[]
-      }
       list_customer_request_shortlist: {
         Args: { p_request_id: string }
         Returns: {
@@ -1031,6 +1017,25 @@ export type Database = {
           technician_bio: string
           technician_id: string
           years_experience: number
+        }[]
+      }
+      list_matching_service_requests: {
+        Args: never
+        Returns: {
+          category_name_th: string
+          interest_status: Database["public"]["Enums"]["technician_interest_status"]
+          item_name_th: string
+          preferred_date: string
+          preferred_time_window: string
+          price_model: Database["public"]["Enums"]["price_model"]
+          quantity: number
+          quotation_labor_amount: number
+          quotation_scope_description: string
+          quotation_status: Database["public"]["Enums"]["quotation_status"]
+          quotation_submitted_at: string
+          request_id: string
+          submitted_at: string
+          urgency: Database["public"]["Enums"]["request_urgency"]
         }[]
       }
       list_pending_technician_applications: {
@@ -1229,6 +1234,26 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      select_technician_for_request: {
+        Args: { p_request_id: string; p_technician_id: string }
+        Returns: {
+          agreed_labor_amount: number
+          currency: string
+          customer_id: string
+          price_model: Database["public"]["Enums"]["price_model"]
+          quotation_id: string | null
+          selected_at: string
+          service_request_id: string
+          technician_id: string
+          technician_interest_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_request_selections"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       set_default_service_location: {
         Args: { p_location_id: string }
         Returns: {
@@ -1293,20 +1318,21 @@ export type Database = {
           p_request_id: string
           p_scope_description: string
         }
-        Returns: Database["public"]["Tables"]["quotations"]["Row"]
+        Returns: {
+          created_at: string
+          currency: string
+          id: string
+          labor_amount: number
+          scope_description: string
+          service_request_id: string
+          status: Database["public"]["Enums"]["quotation_status"]
+          submitted_at: string
+          technician_id: string
+          updated_at: string
+        }
         SetofOptions: {
           from: "*"
           to: "quotations"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
-      select_technician_for_request: {
-        Args: { p_request_id: string; p_technician_id: string }
-        Returns: Database["public"]["Tables"]["service_request_selections"]["Row"]
-        SetofOptions: {
-          from: "*"
-          to: "service_request_selections"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -1377,12 +1403,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1406,11 +1432,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1431,11 +1457,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1456,11 +1482,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1473,11 +1499,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
