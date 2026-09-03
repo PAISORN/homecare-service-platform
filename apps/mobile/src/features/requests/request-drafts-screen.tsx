@@ -3,6 +3,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -17,7 +18,9 @@ import { useSession } from '../../providers/session-provider';
 import { goBackOrReplace } from '../shared/navigation';
 import { formatDraftScheduleTh } from './preferred-date';
 import {
-  listOwnRequestDrafts,
+  cancelOwnMatchingRequest,
+  listOwnServiceRequests,
+  submitOwnServiceRequest,
   type ServiceRequestDraft,
 } from './service-request-api';
 
@@ -26,12 +29,13 @@ export function RequestDraftsScreen() {
   const { client } = useSession();
   const [drafts, setDrafts] = useState<readonly ServiceRequestDraft[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [busyRequestId, setBusyRequestId] = useState<string | null>(null);
   const styles = createStyles(useAppFontFamilies());
 
   const load = useCallback(() => {
     if (!client) return;
     setState('loading');
-    void listOwnRequestDrafts(client)
+    void listOwnServiceRequests(client)
       .then((data) => {
         setDrafts(data);
         setState('ready');
@@ -40,6 +44,47 @@ export function RequestDraftsScreen() {
   }, [client]);
 
   useFocusEffect(useCallback(() => load(), [load]));
+
+  function confirmSubmit(requestId: string) {
+    Alert.alert(copy.submitTitle, copy.submitBody, [
+      { text: copy.cancel, style: 'cancel' },
+      {
+        text: copy.confirmSubmit,
+        onPress: () => void changeRequestStatus(requestId, 'submit'),
+      },
+    ]);
+  }
+
+  function confirmCancel(requestId: string) {
+    Alert.alert(copy.cancelRequestTitle, copy.cancelRequestBody, [
+      { text: copy.keepRequest, style: 'cancel' },
+      {
+        text: copy.confirmCancelRequest,
+        style: 'destructive',
+        onPress: () => void changeRequestStatus(requestId, 'cancel'),
+      },
+    ]);
+  }
+
+  async function changeRequestStatus(
+    requestId: string,
+    action: 'submit' | 'cancel',
+  ) {
+    if (!client || busyRequestId) return;
+    setBusyRequestId(requestId);
+    try {
+      if (action === 'submit') {
+        await submitOwnServiceRequest(client, requestId);
+      } else {
+        await cancelOwnMatchingRequest(client, requestId);
+      }
+      load();
+    } catch {
+      Alert.alert(copy.actionFailedTitle, copy.actionFailedBody);
+    } finally {
+      setBusyRequestId(null);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -103,20 +148,7 @@ export function RequestDraftsScreen() {
               draft.preferred_time_window,
             );
             return (
-              <Pressable
-                accessibilityRole="button"
-                key={draft.id}
-                onPress={() =>
-                  router.push({
-                    pathname: '/requests/edit',
-                    params: { requestId: draft.id },
-                  })
-                }
-                style={({ pressed }) => [
-                  styles.card,
-                  pressed && styles.pressed,
-                ]}
-              >
+              <View key={draft.id} style={styles.card}>
                 <Text style={styles.cardTitle}>
                   {draft.service_items?.name_th ??
                     draft.service_categories?.name_th ??
@@ -135,8 +167,75 @@ export function RequestDraftsScreen() {
                 {draft.safety_status === 'stopped' ? (
                   <Text style={styles.safetyBadge}>{copy.safetyStopTitle}</Text>
                 ) : null}
-                <Text style={styles.edit}>{copy.editDraft}</Text>
-              </Pressable>
+                <Text
+                  accessibilityRole="text"
+                  style={
+                    draft.status === 'matching'
+                      ? styles.matchingBadge
+                      : styles.draftBadge
+                  }
+                >
+                  {draft.status === 'matching'
+                    ? copy.matchingStatus
+                    : copy.draftStatus}
+                </Text>
+                <View style={styles.cardActions}>
+                  {draft.status === 'draft' ? (
+                    <>
+                      <Pressable
+                        accessibilityRole="button"
+                        disabled={busyRequestId !== null}
+                        onPress={() =>
+                          router.push({
+                            pathname: '/requests/edit',
+                            params: { requestId: draft.id },
+                          })
+                        }
+                        style={({ pressed }) => [
+                          styles.cardSecondaryButton,
+                          busyRequestId !== null && styles.disabled,
+                          pressed && styles.pressed,
+                        ]}
+                      >
+                        <Text style={styles.edit}>{copy.editDraft}</Text>
+                      </Pressable>
+                      <Pressable
+                        accessibilityRole="button"
+                        disabled={busyRequestId !== null}
+                        onPress={() => confirmSubmit(draft.id)}
+                        style={({ pressed }) => [
+                          styles.cardPrimaryButton,
+                          busyRequestId !== null && styles.disabled,
+                          pressed && styles.pressed,
+                        ]}
+                      >
+                        {busyRequestId === draft.id ? (
+                          <ActivityIndicator color={colors.surface} />
+                        ) : (
+                          <Text style={styles.cardPrimaryText}>
+                            {copy.submitRequest}
+                          </Text>
+                        )}
+                      </Pressable>
+                    </>
+                  ) : (
+                    <Pressable
+                      accessibilityRole="button"
+                      disabled={busyRequestId !== null}
+                      onPress={() => confirmCancel(draft.id)}
+                      style={({ pressed }) => [
+                        styles.cardSecondaryButton,
+                        busyRequestId !== null && styles.disabled,
+                        pressed && styles.pressed,
+                      ]}
+                    >
+                      <Text style={styles.cancelRequestText}>
+                        {copy.cancelRequest}
+                      </Text>
+                    </Pressable>
+                  )}
+                </View>
+              </View>
             );
           })}
         </View>
@@ -257,8 +356,55 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
       color: colors.action,
       fontFamily: fonts.semiBold,
       fontSize: typography.supportSize,
+    },
+    draftBadge: {
+      alignSelf: 'flex-start',
+      color: colors.textMuted,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.supportSize,
       marginTop: spacing.md,
     },
+    matchingBadge: {
+      alignSelf: 'flex-start',
+      color: colors.success,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.supportSize,
+      marginTop: spacing.md,
+    },
+    cardActions: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+      marginTop: spacing.md,
+    },
+    cardSecondaryButton: {
+      alignItems: 'center',
+      borderColor: colors.border,
+      borderRadius: radii.button,
+      borderWidth: 1,
+      justifyContent: 'center',
+      minHeight: 44,
+      paddingHorizontal: spacing.lg,
+    },
+    cardPrimaryButton: {
+      alignItems: 'center',
+      backgroundColor: colors.action,
+      borderRadius: radii.button,
+      flex: 1,
+      justifyContent: 'center',
+      minHeight: 44,
+      paddingHorizontal: spacing.lg,
+    },
+    cardPrimaryText: {
+      color: colors.surface,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.supportSize,
+    },
+    cancelRequestText: {
+      color: colors.danger,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.supportSize,
+    },
+    disabled: { opacity: 0.5 },
     pressed: { opacity: 0.76 },
   });
 }

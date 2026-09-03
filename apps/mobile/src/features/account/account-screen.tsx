@@ -80,6 +80,20 @@ export function AccountScreen() {
                   ? accountCopyTh.technicianModeReady
                   : accountCopyTh.technicianModeLocked}
               </Text>
+              {canUseTechnicianMode(technicianApplication) ? (
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => router.push('/technician/feed')}
+                  style={({ pressed }) => [
+                    styles.primaryButton,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <Text style={styles.primaryButtonText}>
+                    {accountCopyTh.openTechnicianFeed}
+                  </Text>
+                </Pressable>
+              ) : null}
             </>
           ) : (
             <Text style={styles.supporting}>

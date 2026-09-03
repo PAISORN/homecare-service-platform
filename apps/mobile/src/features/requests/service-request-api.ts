@@ -187,14 +187,36 @@ export async function listPilotCatalog(
 const requestDraftSelect =
   '*, service_categories(name_th), service_items(name_th), service_locations(label)' as const;
 
-export async function listOwnRequestDrafts(
+export async function listOwnServiceRequests(
   client: MobileSupabaseClient,
 ): Promise<readonly ServiceRequestDraft[]> {
   const { data, error } = await client
     .from('service_requests')
     .select(requestDraftSelect)
-    .eq('status', 'draft')
+    .in('status', ['draft', 'matching'])
     .order('updated_at', { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function submitOwnServiceRequest(
+  client: MobileSupabaseClient,
+  requestId: string,
+): Promise<Tables<'service_requests'>> {
+  const { data, error } = await client.rpc('submit_service_request', {
+    p_request_id: requestId,
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function cancelOwnMatchingRequest(
+  client: MobileSupabaseClient,
+  requestId: string,
+): Promise<Tables<'service_requests'>> {
+  const { data, error } = await client.rpc('cancel_service_request', {
+    p_request_id: requestId,
+  });
   if (error) throw error;
   return data;
 }
