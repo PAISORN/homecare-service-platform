@@ -188,6 +188,15 @@ export const technicianMatchingCopyTh = {
   },
   expressInterest: 'แสดงความสนใจรับงาน',
   withdrawInterest: 'ถอนความสนใจ',
+  createQuotation: 'ส่งใบเสนอราคา',
+  editQuotation: 'แก้ไขใบเสนอราคา',
+  quotationSubmitted: 'ส่งใบเสนอราคาแล้ว',
+  quotationAmount: (amount: number) =>
+    new Intl.NumberFormat('th-TH', {
+      style: 'currency',
+      currency: 'THB',
+      maximumFractionDigits: 0,
+    }).format(amount),
   loadFailed: 'โหลดงานไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตแล้วลองอีกครั้ง',
   retry: 'ลองอีกครั้ง',
 } as const;
@@ -209,6 +218,9 @@ export const serviceRequestCopyTh = {
   editDraft: 'แก้ไขแบบร่าง',
   draftStatus: 'แบบร่าง',
   matchingStatus: 'กำลังหาช่างที่เหมาะสม',
+  technicianSelectedStatus: 'เลือกช่างแล้ว',
+  viewShortlist: 'ดูรายชื่อช่างที่สนใจ',
+  viewSelectedTechnician: 'ดูช่างที่เลือก',
   submitRequest: 'ส่งคำขอ',
   submitTitle: 'ส่งคำขอให้ช่างหรือไม่',
   submitBody:
@@ -284,6 +296,68 @@ export const serviceRequestCopyTh = {
   tooLong: 'ข้อความยาวเกินจำนวนที่กำหนด',
   back: 'ย้อนกลับ',
   retry: 'ลองอีกครั้ง',
+} as const;
+
+export const requestShortlistCopyTh = {
+  back: 'ย้อนกลับ',
+  title: 'รายชื่อช่างที่สนใจ',
+  description:
+    'เปรียบเทียบช่างที่ผ่านการตรวจสอบสูงสุด 3 คน ราคาและขอบเขตงานที่แสดงเป็นข้อมูลเฉพาะคำขอนี้',
+  rank: (rank: number) => `ลำดับ ${rank}`,
+  verifiedBadge: 'ยืนยันตัวตนแล้ว',
+  selectedBadge: 'ช่างที่เลือก',
+  experience: (years: number) => `ประสบการณ์ ${years} ปี`,
+  quotationTitle: 'ใบเสนอราคาแบบปิด',
+  catalogPriceTitle: 'ราคาค่าแรงมาตรฐาน',
+  waitingForQuotation: 'รอช่างส่งใบเสนอราคา จึงจะเลือกช่างคนนี้ได้',
+  waitingForCatalogPrice:
+    'ราคาค่าแรงมาตรฐานยังรอการอนุมัติ จึงยังเลือกช่างไม่ได้',
+  chooseTechnician: 'เลือกช่างคนนี้',
+  selectedNotice: 'คุณเลือกช่างคนนี้แล้ว ขั้นตอนยืนยันงานจะแสดงในระยะถัดไป',
+  emptyTitle: 'ยังไม่มีช่างแสดงความสนใจ',
+  emptyBody: 'เมื่อมีช่างที่เหมาะสมสนใจรับงาน รายชื่อจะปรากฏที่หน้านี้',
+  loadFailed: 'โหลดรายชื่อช่างไม่สำเร็จ กรุณาลองอีกครั้ง',
+  retry: 'ลองอีกครั้ง',
+  confirmTitle: 'ยืนยันเลือกช่างคนนี้หรือไม่',
+  confirmBody: (name: string, amount: string) =>
+    `คุณกำลังเลือก ${name} ด้วยค่าแรง ${amount} หลังยืนยันจะเปลี่ยนเป็นช่างคนอื่นไม่ได้`,
+  keepComparing: 'เปรียบเทียบต่อ',
+  confirm: 'ยืนยันเลือกช่าง',
+  selectedTitle: 'เลือกช่างแล้ว',
+  selectedBody:
+    'ระบบบันทึกช่างและราคาไว้แล้ว แต่ยังไม่สร้างงานบริการจนกว่าจะยืนยันขอบเขต ราคา และเวลานัดหมายครบถ้วน',
+  selectFailedTitle: 'เลือกช่างไม่สำเร็จ',
+  selectFailedBody:
+    'รายชื่อหรือสถานะคำขออาจเปลี่ยนแล้ว กรุณาโหลดใหม่และลองอีกครั้ง',
+} as const;
+
+export const technicianQuotationCopyTh = {
+  back: 'ย้อนกลับ',
+  title: 'ใบเสนอราคา',
+  description:
+    'ระบุขอบเขตงานและค่าแรงจากข้อมูลแบบย่อ ลูกค้ายังไม่ได้ยืนยันจ้างในขั้นตอนนี้',
+  sealedTitle: 'ใบเสนอราคาเป็นข้อมูลแบบปิด',
+  sealedBody:
+    'ช่างคนอื่นจะไม่เห็นราคาและรายละเอียดของคุณ ลูกค้าจะเห็นเฉพาะรายชื่อที่ระบบคัดไว้สูงสุด 3 คน',
+  scopeLabel: 'ขอบเขตงานที่เสนอ',
+  scopePlaceholder:
+    'เช่น ล้างคอยล์เย็น คอยล์ร้อน และตรวจระบบระบายน้ำ 1 เครื่อง',
+  scopeHelper:
+    'กรอก 10–2,000 ตัวอักษร และไม่ใส่เบอร์โทรหรือช่องทางติดต่อนอกระบบ',
+  amountLabel: 'ค่าแรงที่เสนอ (บาท)',
+  amountPlaceholder: 'เช่น 650',
+  amountHelper:
+    'ระบุค่าแรงมากกว่า 0 บาท ยังไม่รวมอะไหล่ที่ไม่ได้อยู่ในขอบเขตนี้',
+  required: 'กรุณากรอกข้อมูลนี้',
+  scopeInvalid: 'กรุณาระบุขอบเขตงาน 10–2,000 ตัวอักษร',
+  amountInvalid: 'กรุณาระบุค่าแรงเป็นตัวเลขมากกว่า 0',
+  submit: 'ส่งใบเสนอราคา',
+  savedTitle: 'ส่งใบเสนอราคาแล้ว',
+  savedBody: 'คุณแก้ไขใบเสนอราคาได้ตราบใดที่ลูกค้ายังไม่ได้เลือกช่าง',
+  done: 'กลับไปหน้างาน',
+  saveFailedTitle: 'ส่งใบเสนอราคาไม่สำเร็จ',
+  saveFailedBody:
+    'คำขอหรือความสนใจรับงานอาจเปลี่ยนสถานะแล้ว กรุณากลับไปโหลดหน้างานใหม่',
 } as const;
 
 export const technicianApplicationCopyTh = {

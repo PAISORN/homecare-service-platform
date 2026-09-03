@@ -4,6 +4,8 @@ import {
   createRequestAttachmentPath,
   emptySafetyAnswers,
   formatCatalogPrice,
+  formatLaborAmount,
+  getShortlistPrice,
   getSafetyStopCode,
   validateServiceRequestDraft,
   type CatalogItem,
@@ -81,6 +83,33 @@ describe('service request safety and pricing presentation', () => {
     expect(
       formatCatalogPrice({ price_model: 'onsite_inspection' } as CatalogItem),
     ).toBe('ตรวจหน้างานก่อนเสนอราคา');
+  });
+});
+
+describe('customer shortlist pricing', () => {
+  it('uses the sealed quotation for evidence-priced work', () => {
+    expect(
+      getShortlistPrice({
+        price_model: 'evidence_quote',
+        quotation_id: 'quotation-id',
+        quotation_labor_amount: 750,
+        currency: 'THB',
+      } as never),
+    ).toEqual({ amount: 750, currency: 'THB', ready: true });
+  });
+
+  it('does not enable selection when an approved amount is absent', () => {
+    expect(
+      getShortlistPrice({
+        price_model: 'fixed',
+        catalog_labor_amount: null,
+        currency: 'THB',
+      } as never),
+    ).toEqual({ amount: null, currency: 'THB', ready: false });
+  });
+
+  it('formats the agreed labor amount in the supplied currency', () => {
+    expect(formatLaborAmount(650, 'THB')).toContain('650');
   });
 });
 

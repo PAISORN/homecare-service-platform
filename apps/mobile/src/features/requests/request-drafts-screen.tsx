@@ -170,14 +170,18 @@ export function RequestDraftsScreen() {
                 <Text
                   accessibilityRole="text"
                   style={
-                    draft.status === 'matching'
-                      ? styles.matchingBadge
-                      : styles.draftBadge
+                    draft.status === 'technician_selected'
+                      ? styles.selectedBadge
+                      : draft.status === 'matching'
+                        ? styles.matchingBadge
+                        : styles.draftBadge
                   }
                 >
-                  {draft.status === 'matching'
-                    ? copy.matchingStatus
-                    : copy.draftStatus}
+                  {draft.status === 'technician_selected'
+                    ? copy.technicianSelectedStatus
+                    : draft.status === 'matching'
+                      ? copy.matchingStatus
+                      : copy.draftStatus}
                 </Text>
                 <View style={styles.cardActions}>
                   {draft.status === 'draft' ? (
@@ -219,20 +223,45 @@ export function RequestDraftsScreen() {
                       </Pressable>
                     </>
                   ) : (
-                    <Pressable
-                      accessibilityRole="button"
-                      disabled={busyRequestId !== null}
-                      onPress={() => confirmCancel(draft.id)}
-                      style={({ pressed }) => [
-                        styles.cardSecondaryButton,
-                        busyRequestId !== null && styles.disabled,
-                        pressed && styles.pressed,
-                      ]}
-                    >
-                      <Text style={styles.cancelRequestText}>
-                        {copy.cancelRequest}
-                      </Text>
-                    </Pressable>
+                    <>
+                      <Pressable
+                        accessibilityRole="button"
+                        disabled={busyRequestId !== null}
+                        onPress={() =>
+                          router.push({
+                            pathname: '/requests/shortlist' as never,
+                            params: { requestId: draft.id },
+                          })
+                        }
+                        style={({ pressed }) => [
+                          styles.cardPrimaryButton,
+                          busyRequestId !== null && styles.disabled,
+                          pressed && styles.pressed,
+                        ]}
+                      >
+                        <Text style={styles.cardPrimaryText}>
+                          {draft.status === 'technician_selected'
+                            ? copy.viewSelectedTechnician
+                            : copy.viewShortlist}
+                        </Text>
+                      </Pressable>
+                      {draft.status === 'matching' ? (
+                        <Pressable
+                          accessibilityRole="button"
+                          disabled={busyRequestId !== null}
+                          onPress={() => confirmCancel(draft.id)}
+                          style={({ pressed }) => [
+                            styles.cardSecondaryButton,
+                            busyRequestId !== null && styles.disabled,
+                            pressed && styles.pressed,
+                          ]}
+                        >
+                          <Text style={styles.cancelRequestText}>
+                            {copy.cancelRequest}
+                          </Text>
+                        </Pressable>
+                      ) : null}
+                    </>
                   )}
                 </View>
               </View>
@@ -367,6 +396,13 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
     matchingBadge: {
       alignSelf: 'flex-start',
       color: colors.success,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.supportSize,
+      marginTop: spacing.md,
+    },
+    selectedBadge: {
+      alignSelf: 'flex-start',
+      color: colors.action,
       fontFamily: fonts.semiBold,
       fontSize: typography.supportSize,
       marginTop: spacing.md,

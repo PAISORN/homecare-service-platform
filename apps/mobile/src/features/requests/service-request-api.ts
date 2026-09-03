@@ -29,6 +29,25 @@ export type ServiceRequestDraft = Tables<'service_requests'> & {
   service_locations: { label: string } | null;
 };
 
+export type CustomerRequestShortlistItem = Readonly<{
+  request_id: string;
+  request_status: Enums<'service_request_status'>;
+  price_model: Enums<'price_model'>;
+  catalog_labor_amount: number | null;
+  currency: string;
+  technician_id: string;
+  display_name: string;
+  technician_bio: string | null;
+  years_experience: number | null;
+  interest_created_at: string;
+  quotation_id: string | null;
+  quotation_scope_description: string | null;
+  quotation_labor_amount: number | null;
+  quotation_submitted_at: string | null;
+  shortlist_rank: number;
+  is_selected: boolean;
+}>;
+
 export type RequestAttachment = Tables<'request_attachments'> & {
   signedUrl: string;
 };
@@ -193,10 +212,58 @@ export async function listOwnServiceRequests(
   const { data, error } = await client
     .from('service_requests')
     .select(requestDraftSelect)
-    .in('status', ['draft', 'matching'])
+    .in('status', ['draft', 'matching', 'technician_selected'])
     .order('updated_at', { ascending: false });
   if (error) throw error;
   return data;
+}
+
+export async function listCustomerRequestShortlist(
+  client: MobileSupabaseClient,
+  requestId: string,
+): Promise<readonly CustomerRequestShortlistItem[]> {
+  const { data, error } = await client.rpc('list_customer_request_shortlist', {
+    p_request_id: requestId,
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function selectTechnicianForRequest(
+  client: MobileSupabaseClient,
+  requestId: string,
+  technicianId: string,
+): Promise<void> {
+  const { error } = await client.rpc('select_technician_for_request', {
+    p_request_id: requestId,
+    p_technician_id: technicianId,
+  });
+  if (error) throw error;
+}
+
+export function getShortlistPrice(
+  item: CustomerRequestShortlistItem,
+): Readonly<{ amount: number | null; currency: string; ready: boolean }> {
+  if (item.price_model === 'evidence_quote') {
+    return {
+      amount: item.quotation_labor_amount,
+      currency: item.currency,
+      ready: item.quotation_id !== null && item.quotation_labor_amount !== null,
+    };
+  }
+  return {
+    amount: item.catalog_labor_amount,
+    currency: item.currency,
+    ready: item.catalog_labor_amount !== null,
+  };
+}
+
+export function formatLaborAmount(amount: number, currency: string): string {
+  return new Intl.NumberFormat('th-TH', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 0,
+  }).format(amount);
 }
 
 export async function submitOwnServiceRequest(

@@ -386,6 +386,132 @@ export type Database = {
           },
         ]
       }
+      quotations: {
+        Row: {
+          created_at: string
+          currency: string
+          id: string
+          labor_amount: number
+          scope_description: string
+          service_request_id: string
+          status: Database["public"]["Enums"]["quotation_status"]
+          submitted_at: string
+          technician_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          id?: string
+          labor_amount: number
+          scope_description: string
+          service_request_id: string
+          status?: Database["public"]["Enums"]["quotation_status"]
+          submitted_at?: string
+          technician_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          id?: string
+          labor_amount?: number
+          scope_description?: string
+          service_request_id?: string
+          status?: Database["public"]["Enums"]["quotation_status"]
+          submitted_at?: string
+          technician_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotations_service_request_id_fkey"
+            columns: ["service_request_id"]
+            isOneToOne: false
+            referencedRelation: "service_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotations_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technician_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      service_request_selections: {
+        Row: {
+          agreed_labor_amount: number
+          currency: string
+          customer_id: string
+          price_model: Database["public"]["Enums"]["price_model"]
+          quotation_id: string | null
+          selected_at: string
+          service_request_id: string
+          technician_id: string
+          technician_interest_id: string
+        }
+        Insert: {
+          agreed_labor_amount: number
+          currency?: string
+          customer_id: string
+          price_model: Database["public"]["Enums"]["price_model"]
+          quotation_id?: string | null
+          selected_at?: string
+          service_request_id: string
+          technician_id: string
+          technician_interest_id: string
+        }
+        Update: {
+          agreed_labor_amount?: number
+          currency?: string
+          customer_id?: string
+          price_model?: Database["public"]["Enums"]["price_model"]
+          quotation_id?: string | null
+          selected_at?: string
+          service_request_id?: string
+          technician_id?: string
+          technician_interest_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_request_selections_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_request_selections_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: true
+            referencedRelation: "quotations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_request_selections_service_request_id_fkey"
+            columns: ["service_request_id"]
+            isOneToOne: true
+            referencedRelation: "service_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_request_selections_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technician_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "service_request_selections_technician_interest_id_fkey"
+            columns: ["technician_interest_id"]
+            isOneToOne: true
+            referencedRelation: "technician_interests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_requests: {
         Row: {
           created_at: string
@@ -877,9 +1003,34 @@ export type Database = {
           preferred_time_window: string
           price_model: Database["public"]["Enums"]["price_model"]
           quantity: number
+          quotation_labor_amount: number
+          quotation_scope_description: string
+          quotation_status: Database["public"]["Enums"]["quotation_status"]
+          quotation_submitted_at: string
           request_id: string
           submitted_at: string
           urgency: Database["public"]["Enums"]["request_urgency"]
+        }[]
+      }
+      list_customer_request_shortlist: {
+        Args: { p_request_id: string }
+        Returns: {
+          catalog_labor_amount: number
+          currency: string
+          display_name: string
+          interest_created_at: string
+          is_selected: boolean
+          price_model: Database["public"]["Enums"]["price_model"]
+          quotation_id: string
+          quotation_labor_amount: number
+          quotation_scope_description: string
+          quotation_submitted_at: string
+          request_id: string
+          request_status: Database["public"]["Enums"]["service_request_status"]
+          shortlist_rank: number
+          technician_bio: string
+          technician_id: string
+          years_experience: number
         }[]
       }
       list_pending_technician_applications: {
@@ -1136,6 +1287,30 @@ export type Database = {
         Args: never
         Returns: Database["public"]["Enums"]["technician_verification_status"]
       }
+      submit_technician_quotation: {
+        Args: {
+          p_labor_amount: number
+          p_request_id: string
+          p_scope_description: string
+        }
+        Returns: Database["public"]["Tables"]["quotations"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "quotations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      select_technician_for_request: {
+        Args: { p_request_id: string; p_technician_id: string }
+        Returns: Database["public"]["Tables"]["service_request_selections"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "service_request_selections"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       withdraw_technician_interest: {
         Args: { p_request_id: string }
         Returns: {
@@ -1165,10 +1340,15 @@ export type Database = {
       catalog_status: "draft" | "pilot" | "active" | "inactive"
       document_review_status: "pending" | "approved" | "rejected"
       price_model: "fixed" | "evidence_quote" | "onsite_inspection"
+      quotation_status: "submitted" | "withdrawn" | "accepted" | "declined"
       request_entry_point: "service_catalog" | "symptom"
       request_safety_status: "clear" | "stopped"
       request_urgency: "flexible" | "within_3_days" | "as_soon_as_possible"
-      service_request_status: "draft" | "cancelled" | "matching"
+      service_request_status:
+        | "draft"
+        | "cancelled"
+        | "matching"
+        | "technician_selected"
       technician_document_type:
         | "national_id"
         | "selfie"
@@ -1323,10 +1503,16 @@ export const Constants = {
       catalog_status: ["draft", "pilot", "active", "inactive"],
       document_review_status: ["pending", "approved", "rejected"],
       price_model: ["fixed", "evidence_quote", "onsite_inspection"],
+      quotation_status: ["submitted", "withdrawn", "accepted", "declined"],
       request_entry_point: ["service_catalog", "symptom"],
       request_safety_status: ["clear", "stopped"],
       request_urgency: ["flexible", "within_3_days", "as_soon_as_possible"],
-      service_request_status: ["draft", "cancelled", "matching"],
+      service_request_status: [
+        "draft",
+        "cancelled",
+        "matching",
+        "technician_selected",
+      ],
       technician_document_type: [
         "national_id",
         "selfie",
@@ -1345,4 +1531,3 @@ export const Constants = {
     },
   },
 } as const
-

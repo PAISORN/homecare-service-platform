@@ -13,6 +13,27 @@ export type TechnicianMatchingRequest = Readonly<{
   price_model: Enums<'price_model'> | null;
   submitted_at: string;
   interest_status: Enums<'technician_interest_status'> | null;
+  quotation_status: Enums<'quotation_status'> | null;
+  quotation_scope_description: string | null;
+  quotation_labor_amount: number | null;
+  quotation_submitted_at: string | null;
+}>;
+
+export type TechnicianQuotationInput = Readonly<{
+  requestId: string;
+  scopeDescription: string;
+  laborAmount: string;
+}>;
+
+export type TechnicianQuotationValidation = Readonly<{
+  value: Readonly<{
+    requestId: string;
+    scopeDescription: string;
+    laborAmount: number;
+  }>;
+  errors: Readonly<
+    Partial<Record<'scopeDescription' | 'laborAmount', 'required' | 'invalid'>>
+  >;
 }>;
 
 export type TechnicianSkillCategory = Pick<
@@ -44,6 +65,50 @@ export async function withdrawTechnicianInterest(
 ): Promise<void> {
   const { error } = await client.rpc('withdraw_technician_interest', {
     p_request_id: requestId,
+  });
+  if (error) throw error;
+}
+
+export function validateTechnicianQuotation(
+  input: TechnicianQuotationInput,
+): TechnicianQuotationValidation {
+  const scopeDescription = input.scopeDescription.trim();
+  const normalizedAmount = input.laborAmount.replace(/,/g, '').trim();
+  const laborAmount = Number(normalizedAmount);
+  const errors: TechnicianQuotationValidation['errors'] extends Readonly<
+    infer T
+  >
+    ? T
+    : never = {};
+
+  if (!scopeDescription) errors.scopeDescription = 'required';
+  else if (scopeDescription.length < 10 || scopeDescription.length > 2000) {
+    errors.scopeDescription = 'invalid';
+  }
+  if (!normalizedAmount) errors.laborAmount = 'required';
+  else if (!Number.isFinite(laborAmount) || laborAmount <= 0) {
+    errors.laborAmount = 'invalid';
+  }
+
+  return {
+    value: { requestId: input.requestId, scopeDescription, laborAmount },
+    errors,
+  };
+}
+
+export async function submitTechnicianQuotation(
+  client: MobileSupabaseClient,
+  input: TechnicianQuotationInput,
+): Promise<void> {
+  const validation = validateTechnicianQuotation(input);
+  if (Object.keys(validation.errors).length > 0) {
+    throw new Error('invalid_technician_quotation');
+  }
+  const { value } = validation;
+  const { error } = await client.rpc('submit_technician_quotation', {
+    p_request_id: value.requestId,
+    p_scope_description: value.scopeDescription,
+    p_labor_amount: value.laborAmount,
   });
   if (error) throw error;
 }

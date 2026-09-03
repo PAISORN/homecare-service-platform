@@ -199,6 +199,51 @@ export function TechnicianMatchingScreen() {
                 <Text style={styles.price}>
                   {getMatchingPriceLabel(request.price_model)}
                 </Text>
+                {request.quotation_status === 'submitted' ? (
+                  <View style={styles.quoteSummary}>
+                    <Text style={styles.quoteSummaryTitle}>
+                      {copy.quotationSubmitted}
+                    </Text>
+                    <Text style={styles.quoteSummaryText}>
+                      {copy.quotationAmount(
+                        request.quotation_labor_amount ?? 0,
+                      )}
+                    </Text>
+                    {request.quotation_scope_description ? (
+                      <Text numberOfLines={3} style={styles.quoteSummaryText}>
+                        {request.quotation_scope_description}
+                      </Text>
+                    ) : null}
+                  </View>
+                ) : null}
+                {interested && request.price_model === 'evidence_quote' ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    disabled={busyId !== null}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/technician/quote' as never,
+                        params: {
+                          requestId: request.request_id,
+                          scope: request.quotation_scope_description ?? '',
+                          amount:
+                            request.quotation_labor_amount?.toString() ?? '',
+                        },
+                      })
+                    }
+                    style={({ pressed }) => [
+                      styles.primaryButton,
+                      busyId !== null && styles.disabled,
+                      pressed && styles.pressed,
+                    ]}
+                  >
+                    <Text style={styles.primaryText}>
+                      {request.quotation_status === 'submitted'
+                        ? copy.editQuotation
+                        : copy.createQuotation}
+                    </Text>
+                  </Pressable>
+                ) : null}
                 <Pressable
                   accessibilityRole="button"
                   accessibilityState={{ selected: interested }}
@@ -366,6 +411,25 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
       fontFamily: fonts.semiBold,
       fontSize: typography.supportSize,
       marginTop: spacing.md,
+    },
+    quoteSummary: {
+      borderColor: colors.border,
+      borderRadius: radii.button,
+      borderWidth: 1,
+      marginTop: spacing.md,
+      padding: spacing.md,
+    },
+    quoteSummaryTitle: {
+      color: colors.success,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.supportSize,
+    },
+    quoteSummaryText: {
+      color: colors.text,
+      fontFamily: fonts.regular,
+      fontSize: typography.supportSize,
+      lineHeight: 20,
+      marginTop: spacing.xs,
     },
     primaryButton: {
       alignItems: 'center',
