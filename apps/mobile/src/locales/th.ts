@@ -488,6 +488,30 @@ export const serviceJobDetailCopyTh = {
     'เมื่องานเริ่มเดินทางแล้ว ลูกค้าต้องติดต่อทีม HomeCare เพื่อขอความช่วยเหลือ',
   cancellationLockedTechnician:
     'เมื่อถึงหน้างานแล้ว ช่างต้องติดต่อทีม HomeCare เพื่อขอความช่วยเหลือ',
+  chatCustomer: 'แชตกับช่าง',
+  chatTechnician: 'แชตกับลูกค้า',
+  chatDescription: 'ข้อความจะเก็บไว้กับงานบริการเพื่อใช้อ้างอิงร่วมกัน',
+} as const;
+
+export const serviceJobChatCopyTh = {
+  back: 'ย้อนกลับ',
+  title: 'ข้อความในงาน',
+  technician: (name: string) => `ช่าง ${name}`,
+  customer: (name: string) => `ลูกค้า ${name}`,
+  connecting: 'กำลังเชื่อมต่อข้อความแบบเรียลไทม์…',
+  liveUnavailable:
+    'การอัปเดตสดไม่พร้อมในขณะนี้ ข้อความที่ส่งยังถูกบันทึกตามปกติ',
+  loadFailed: 'โหลดข้อความไม่สำเร็จ กรุณาลองอีกครั้ง',
+  retry: 'ลองอีกครั้ง',
+  emptyTitle: 'ยังไม่มีข้อความในงานนี้',
+  emptyBody: 'เริ่มสนทนาเรื่องนัดหมาย การเข้าถึงสถานที่ หรือรายละเอียดหน้างาน',
+  messageLabel: 'ข้อความ',
+  messagePlaceholder: 'พิมพ์ข้อความถึงอีกฝ่าย',
+  messageHelper: 'สูงสุด 2,000 ตัวอักษร และไม่ควรส่งข้อมูลสำคัญนอกขอบเขตงาน',
+  send: 'ส่ง',
+  sendFailedTitle: 'ส่งข้อความไม่สำเร็จ',
+  sendFailedBody:
+    'ข้อความยังอยู่ในช่องพิมพ์ กรุณาตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง',
 } as const;
 
 export const technicianQuotationCopyTh = {

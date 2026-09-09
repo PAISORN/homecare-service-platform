@@ -216,6 +216,113 @@ export type Database = {
           },
         ]
       }
+      chat_messages: {
+        Row: {
+          body: string
+          chat_room_id: string
+          client_message_id: string
+          created_at: string
+          id: string
+          sender_user_id: string
+        }
+        Insert: {
+          body: string
+          chat_room_id: string
+          client_message_id: string
+          created_at?: string
+          id?: string
+          sender_user_id: string
+        }
+        Update: {
+          body?: string
+          chat_room_id?: string
+          client_message_id?: string
+          created_at?: string
+          id?: string
+          sender_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_chat_room_id_fkey"
+            columns: ["chat_room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_sender_user_id_fkey"
+            columns: ["sender_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_room_memberships: {
+        Row: {
+          chat_room_id: string
+          created_at: string
+          member_role: string
+          user_id: string
+        }
+        Insert: {
+          chat_room_id: string
+          created_at?: string
+          member_role: string
+          user_id: string
+        }
+        Update: {
+          chat_room_id?: string
+          created_at?: string
+          member_role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_room_memberships_chat_room_id_fkey"
+            columns: ["chat_room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_room_memberships_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_rooms: {
+        Row: {
+          created_at: string
+          id: string
+          service_job_id: string
+          topic: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          service_job_id: string
+          topic: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          service_job_id?: string
+          topic?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_rooms_service_job_id_fkey"
+            columns: ["service_job_id"]
+            isOneToOne: true
+            referencedRelation: "service_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_status_events: {
         Row: {
           actor_user_id: string | null
@@ -1743,6 +1850,23 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "service_request_selections"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      send_service_job_message: {
+        Args: { p_body: string; p_client_message_id: string; p_job_id: string }
+        Returns: {
+          body: string
+          chat_room_id: string
+          client_message_id: string
+          created_at: string
+          id: string
+          sender_user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "chat_messages"
           isOneToOne: true
           isSetofReturn: false
         }

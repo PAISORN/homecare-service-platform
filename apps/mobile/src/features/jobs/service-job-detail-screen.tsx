@@ -201,6 +201,34 @@ export function ServiceJobDetailScreen({ mode, fallback }: Props) {
                 </Text>
               </View>
 
+              <View style={styles.chatSection}>
+                <Text style={styles.sectionDescription}>
+                  {copy.chatDescription}
+                </Text>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() =>
+                    router.push({
+                      pathname:
+                        mode === 'customer'
+                          ? ('/jobs/chat' as never)
+                          : ('/technician/jobs/chat' as never),
+                      params: { jobId: job.job_id },
+                    })
+                  }
+                  style={({ pressed }) => [
+                    styles.secondaryButton,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <Text style={styles.secondaryText}>
+                    {mode === 'customer'
+                      ? copy.chatCustomer
+                      : copy.chatTechnician}
+                  </Text>
+                </Pressable>
+              </View>
+
               <Section title={copy.appointmentTitle} styles={styles}>
                 <Text style={styles.cardTitle}>
                   {formatPreferredDateTh(job.appointment_date) ??
@@ -535,6 +563,7 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
       fontFamily: fonts.semiBold,
       fontSize: typography.bodySize,
     },
+    chatSection: { gap: spacing.md, marginTop: spacing.lg },
     cancelSection: { marginTop: spacing.sm },
     label: {
       color: colors.text,
