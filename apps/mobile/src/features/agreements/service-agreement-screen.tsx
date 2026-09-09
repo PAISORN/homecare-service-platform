@@ -24,9 +24,11 @@ import { goBackOrReplace } from '../shared/navigation';
 import {
   confirmServiceRequestAgreement,
   formatServiceAddress,
+  getServiceJobForRequest,
   getServiceRequestAgreement,
   proposeServiceRequestAppointment,
   type ServiceRequestAgreement,
+  type ServiceJobSummary,
   validateAppointmentProposal,
 } from './service-agreement-api';
 
@@ -39,6 +41,7 @@ export function ServiceAgreementScreen({ fallback }: Props) {
   const [agreement, setAgreement] = useState<ServiceRequestAgreement | null>(
     null,
   );
+  const [serviceJob, setServiceJob] = useState<ServiceJobSummary | null>(null);
   const [appointmentDate, setAppointmentDate] = useState('');
   const [appointmentTimeWindow, setAppointmentTimeWindow] = useState('');
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -56,6 +59,11 @@ export function ServiceAgreementScreen({ fallback }: Props) {
     try {
       const next = await getServiceRequestAgreement(client, requestId);
       setAgreement(next);
+      setServiceJob(
+        next.fully_confirmed_at
+          ? await getServiceJobForRequest(client, requestId)
+          : null,
+      );
       setAppointmentDate(next.appointment_date ?? '');
       setAppointmentTimeWindow(next.appointment_time_window ?? '');
       setShowErrors(false);
@@ -291,7 +299,35 @@ export function ServiceAgreementScreen({ fallback }: Props) {
               {agreement.fully_confirmed_at ? (
                 <View style={styles.successCard}>
                   <Text style={styles.successTitle}>{copy.completedTitle}</Text>
-                  <Text style={styles.successBody}>{copy.completedBody}</Text>
+                  {serviceJob ? (
+                    <>
+                      <Text selectable style={styles.jobNumber}>
+                        {copy.jobNumber(serviceJob.job_number)}
+                      </Text>
+                      <Text style={styles.successBody}>
+                        {copy.jobScheduled(
+                          formatPreferredDateTh(serviceJob.appointment_date) ??
+                            serviceJob.appointment_date,
+                          serviceJob.appointment_time_window,
+                        )}
+                      </Text>
+                      <Text style={styles.successBody}>
+                        {serviceJob.actor_role === 'customer'
+                          ? copy.customerJobAmount(
+                              serviceJob.total_amount,
+                              serviceJob.currency,
+                            )
+                          : copy.technicianJobAmount(
+                              serviceJob.labor_amount,
+                              serviceJob.commission_amount,
+                              serviceJob.technician_net_labor_amount,
+                              serviceJob.currency,
+                            )}
+                      </Text>
+                    </>
+                  ) : (
+                    <Text style={styles.successBody}>{copy.completedBody}</Text>
+                  )}
                 </View>
               ) : ownConfirmed ? (
                 <Text style={styles.notice}>{copy.waitingOtherParty}</Text>
@@ -549,6 +585,12 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
       fontSize: typography.supportSize,
       lineHeight: 21,
       marginTop: spacing.xs,
+    },
+    jobNumber: {
+      color: colors.text,
+      fontFamily: fonts.bold,
+      fontSize: typography.sectionTitleSize,
+      marginTop: spacing.md,
     },
     revisionText: {
       color: colors.textMuted,

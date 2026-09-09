@@ -374,7 +374,29 @@ export const serviceAgreementCopyTh = {
   confirm: 'ยืนยัน',
   completedTitle: 'ทั้งสองฝ่ายยืนยันแล้ว',
   completedBody:
-    'ข้อตกลงถูกล็อกไว้แล้ว ขั้นตอนเปิดงานบริการและเลขงานจะแสดงในระยะถัดไป',
+    'ข้อตกลงถูกล็อกแล้ว ระบบกำลังเตรียมข้อมูลงานบริการ กรุณาลองโหลดใหม่',
+  jobNumber: (jobNumber: string) => `เลขงาน ${jobNumber}`,
+  jobScheduled: (date: string, timeWindow: string) =>
+    `นัดหมาย ${date} · ${timeWindow}`,
+  customerJobAmount: (amount: number, currency: string) =>
+    `ยอดงานที่ยืนยัน ${new Intl.NumberFormat('th-TH', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 2,
+    }).format(amount)}`,
+  technicianJobAmount: (
+    laborAmount: number,
+    commissionAmount: number,
+    netAmount: number,
+    currency: string,
+  ) => {
+    const formatter = new Intl.NumberFormat('th-TH', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 2,
+    });
+    return `ค่าแรง ${formatter.format(laborAmount)} · ค่าคอมมิชชัน ${formatter.format(commissionAmount)} · รับสุทธิ ${formatter.format(netAmount)}`;
+  },
   waitingOtherParty: 'คุณยืนยันแล้ว กำลังรออีกฝ่ายยืนยันข้อมูลฉบับเดียวกัน',
   loadFailed: 'โหลดข้อตกลงไม่สำเร็จ กรุณาตรวจสถานะคำขอแล้วลองอีกครั้ง',
   saveFailed: 'บันทึกเวลานัดหมายไม่สำเร็จ กรุณาตรวจข้อมูลแล้วลองอีกครั้ง',

@@ -106,6 +106,78 @@ export type Database = {
           },
         ]
       }
+      appointments: {
+        Row: {
+          access_instructions: string | null
+          address_line: string
+          building: string | null
+          created_at: string
+          floor: string | null
+          id: string
+          latitude: number | null
+          location_label: string
+          longitude: number | null
+          scheduled_date: string
+          service_job_id: string
+          service_location_id: string
+          status: Database["public"]["Enums"]["appointment_status"]
+          time_window: string
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          access_instructions?: string | null
+          address_line: string
+          building?: string | null
+          created_at?: string
+          floor?: string | null
+          id?: string
+          latitude?: number | null
+          location_label: string
+          longitude?: number | null
+          scheduled_date: string
+          service_job_id: string
+          service_location_id: string
+          status?: Database["public"]["Enums"]["appointment_status"]
+          time_window: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access_instructions?: string | null
+          address_line?: string
+          building?: string | null
+          created_at?: string
+          floor?: string | null
+          id?: string
+          latitude?: number | null
+          location_label?: string
+          longitude?: number | null
+          scheduled_date?: string
+          service_job_id?: string
+          service_location_id?: string
+          status?: Database["public"]["Enums"]["appointment_status"]
+          time_window?: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_service_job_id_fkey"
+            columns: ["service_job_id"]
+            isOneToOne: true
+            referencedRelation: "service_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_service_location_id_fkey"
+            columns: ["service_location_id"]
+            isOneToOne: false
+            referencedRelation: "service_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_log: {
         Row: {
           action: string
@@ -140,6 +212,51 @@ export type Database = {
             columns: ["actor_user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_status_events: {
+        Row: {
+          actor_user_id: string | null
+          created_at: string
+          from_status: Database["public"]["Enums"]["service_job_status"] | null
+          id: string
+          reason: string | null
+          service_job_id: string
+          to_status: Database["public"]["Enums"]["service_job_status"]
+        }
+        Insert: {
+          actor_user_id?: string | null
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["service_job_status"] | null
+          id?: string
+          reason?: string | null
+          service_job_id: string
+          to_status: Database["public"]["Enums"]["service_job_status"]
+        }
+        Update: {
+          actor_user_id?: string | null
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["service_job_status"] | null
+          id?: string
+          reason?: string | null
+          service_job_id?: string
+          to_status?: Database["public"]["Enums"]["service_job_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_status_events_actor_user_id_fkey"
+            columns: ["actor_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_status_events_service_job_id_fkey"
+            columns: ["service_job_id"]
+            isOneToOne: false
+            referencedRelation: "service_jobs"
             referencedColumns: ["id"]
           },
         ]
@@ -381,6 +498,114 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "service_categories"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_jobs: {
+        Row: {
+          agreement_revision: number
+          commission_amount: number | null
+          created_at: string
+          currency: string
+          customer_id: string
+          id: string
+          job_number: string
+          labor_amount: number
+          labor_commission_rate: number
+          materials_amount: number
+          price_model: Database["public"]["Enums"]["price_model"]
+          scope_description: string
+          service_category_id: string
+          service_item_id: string | null
+          service_request_id: string
+          status: Database["public"]["Enums"]["service_job_status"]
+          technician_id: string
+          technician_net_labor_amount: number | null
+          total_amount: number | null
+          updated_at: string
+          warranty_days: number | null
+        }
+        Insert: {
+          agreement_revision: number
+          commission_amount?: number | null
+          created_at?: string
+          currency: string
+          customer_id: string
+          id?: string
+          job_number: string
+          labor_amount: number
+          labor_commission_rate: number
+          materials_amount?: number
+          price_model: Database["public"]["Enums"]["price_model"]
+          scope_description: string
+          service_category_id: string
+          service_item_id?: string | null
+          service_request_id: string
+          status?: Database["public"]["Enums"]["service_job_status"]
+          technician_id: string
+          technician_net_labor_amount?: number | null
+          total_amount?: number | null
+          updated_at?: string
+          warranty_days?: number | null
+        }
+        Update: {
+          agreement_revision?: number
+          commission_amount?: number | null
+          created_at?: string
+          currency?: string
+          customer_id?: string
+          id?: string
+          job_number?: string
+          labor_amount?: number
+          labor_commission_rate?: number
+          materials_amount?: number
+          price_model?: Database["public"]["Enums"]["price_model"]
+          scope_description?: string
+          service_category_id?: string
+          service_item_id?: string | null
+          service_request_id?: string
+          status?: Database["public"]["Enums"]["service_job_status"]
+          technician_id?: string
+          technician_net_labor_amount?: number | null
+          total_amount?: number | null
+          updated_at?: string
+          warranty_days?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_jobs_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_jobs_service_category_id_fkey"
+            columns: ["service_category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_jobs_service_item_id_fkey"
+            columns: ["service_item_id"]
+            isOneToOne: false
+            referencedRelation: "service_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_jobs_service_request_id_fkey"
+            columns: ["service_request_id"]
+            isOneToOne: true
+            referencedRelation: "service_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_jobs_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technician_profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1082,6 +1307,34 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_service_job_for_request: {
+        Args: { p_request_id: string }
+        Returns: {
+          actor_role: string
+          address_line: string
+          appointment_date: string
+          appointment_time_window: string
+          building: string
+          commission_amount: number
+          created_at: string
+          currency: string
+          customer_display_name: string
+          floor: string
+          job_id: string
+          job_number: string
+          job_status: Database["public"]["Enums"]["service_job_status"]
+          labor_amount: number
+          labor_commission_rate: number
+          location_label: string
+          materials_amount: number
+          scope_description: string
+          technician_display_name: string
+          technician_net_labor_amount: number
+          total_amount: number
+          unit: string
+          warranty_days: number
+        }[]
+      }
       get_service_request_agreement: {
         Args: { p_request_id: string }
         Returns: {
@@ -1514,6 +1767,43 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      transition_service_job: {
+        Args: {
+          p_expected_status: Database["public"]["Enums"]["service_job_status"]
+          p_job_id: string
+          p_new_status: Database["public"]["Enums"]["service_job_status"]
+          p_reason?: string
+        }
+        Returns: {
+          agreement_revision: number
+          commission_amount: number | null
+          created_at: string
+          currency: string
+          customer_id: string
+          id: string
+          job_number: string
+          labor_amount: number
+          labor_commission_rate: number
+          materials_amount: number
+          price_model: Database["public"]["Enums"]["price_model"]
+          scope_description: string
+          service_category_id: string
+          service_item_id: string | null
+          service_request_id: string
+          status: Database["public"]["Enums"]["service_job_status"]
+          technician_id: string
+          technician_net_labor_amount: number | null
+          total_amount: number | null
+          updated_at: string
+          warranty_days: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_jobs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       withdraw_technician_interest: {
         Args: { p_request_id: string }
         Returns: {
@@ -1540,6 +1830,7 @@ export type Database = {
         | "role_management"
         | "catalog_management"
         | "audit_view"
+      appointment_status: "scheduled" | "cancelled"
       catalog_status: "draft" | "pilot" | "active" | "inactive"
       document_review_status: "pending" | "approved" | "rejected"
       price_model: "fixed" | "evidence_quote" | "onsite_inspection"
@@ -1547,6 +1838,7 @@ export type Database = {
       request_entry_point: "service_catalog" | "symptom"
       request_safety_status: "clear" | "stopped"
       request_urgency: "flexible" | "within_3_days" | "as_soon_as_possible"
+      service_job_status: "scheduled" | "cancelled"
       service_request_status:
         | "draft"
         | "cancelled"
@@ -1703,6 +1995,7 @@ export const Constants = {
         "catalog_management",
         "audit_view",
       ],
+      appointment_status: ["scheduled", "cancelled"],
       catalog_status: ["draft", "pilot", "active", "inactive"],
       document_review_status: ["pending", "approved", "rejected"],
       price_model: ["fixed", "evidence_quote", "onsite_inspection"],
@@ -1710,6 +2003,7 @@ export const Constants = {
       request_entry_point: ["service_catalog", "symptom"],
       request_safety_status: ["clear", "stopped"],
       request_urgency: ["flexible", "within_3_days", "as_soon_as_possible"],
+      service_job_status: ["scheduled", "cancelled"],
       service_request_status: [
         "draft",
         "cancelled",

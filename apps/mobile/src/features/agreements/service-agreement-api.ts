@@ -40,6 +40,32 @@ export type TechnicianSelectedRequest = Readonly<{
   updated_at: string;
 }>;
 
+export type ServiceJobSummary = Readonly<{
+  job_id: string;
+  job_number: string;
+  actor_role: 'customer' | 'technician';
+  customer_display_name: string;
+  technician_display_name: string;
+  scope_description: string;
+  labor_amount: number;
+  materials_amount: number;
+  total_amount: number;
+  currency: string;
+  labor_commission_rate: number;
+  commission_amount: number;
+  technician_net_labor_amount: number;
+  warranty_days: number | null;
+  job_status: 'scheduled' | 'cancelled';
+  appointment_date: string;
+  appointment_time_window: string;
+  location_label: string;
+  address_line: string;
+  building: string | null;
+  floor: string | null;
+  unit: string | null;
+  created_at: string;
+}>;
+
 export type AppointmentProposalValidation = Readonly<{
   value: { appointmentDate: string; appointmentTimeWindow: string };
   errors: Partial<
@@ -142,4 +168,17 @@ export async function confirmServiceRequestAgreement(
     p_request_id: requestId,
   });
   if (error) throw error;
+}
+
+export async function getServiceJobForRequest(
+  client: MobileSupabaseClient,
+  requestId: string,
+): Promise<ServiceJobSummary> {
+  const { data, error } = await client.rpc('get_service_job_for_request', {
+    p_request_id: requestId,
+  });
+  if (error) throw error;
+  const job = data[0] as ServiceJobSummary | undefined;
+  if (!job) throw new Error('service_job_not_found');
+  return job;
 }
