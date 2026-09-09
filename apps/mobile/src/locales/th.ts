@@ -5,6 +5,7 @@ export type MobileHomeCopy = Readonly<{
   title: string;
   description: string;
   requestService: string;
+  serviceJobs: string;
   account: string;
   pilotServicesTitle: string;
   viewService: string;
@@ -21,6 +22,7 @@ export const mobileHomeCopyTh: MobileHomeCopy = {
   description:
     'เลือกบริการหรือค้นหาช่างที่ผ่านการตรวจสอบ งานทุกชิ้นมีขอบเขต ราคา และหลักฐานที่ตรวจสอบได้',
   requestService: 'เริ่มขอรับบริการ',
+  serviceJobs: 'งานบริการของฉัน',
   account: 'บัญชีของฉัน',
   pilotServicesTitle: 'บริการนำร่อง',
   viewService: 'ดูบริการ',
@@ -171,6 +173,7 @@ export const technicianMatchingCopyTh = {
   title: 'งานที่เหมาะกับคุณ',
   description:
     'แสดงคำขอที่ตรงกับหมวดทักษะของคุณ โดยยังไม่ใช้พื้นที่หรือเวลาว่างเป็นเงื่อนไขในช่วงทดสอบนี้',
+  openServiceJobs: 'ดูงานบริการที่ได้รับ',
   privacyTitle: 'ข้อมูลลูกค้ายังถูกปิดบัง',
   privacyBody:
     'ก่อนจับคู่ คุณจะไม่เห็นชื่อ เบอร์โทร ที่อยู่ รหัสสถานที่ รูปหน้างาน หรือข้อความอิสระของลูกค้า',
@@ -378,6 +381,7 @@ export const serviceAgreementCopyTh = {
   jobNumber: (jobNumber: string) => `เลขงาน ${jobNumber}`,
   jobScheduled: (date: string, timeWindow: string) =>
     `นัดหมาย ${date} · ${timeWindow}`,
+  openServiceJob: 'เปิดรายละเอียดงานบริการ',
   customerJobAmount: (amount: number, currency: string) =>
     `ยอดงานที่ยืนยัน ${new Intl.NumberFormat('th-TH', {
       style: 'currency',
@@ -410,6 +414,80 @@ export const serviceAgreementCopyTh = {
       currency,
       maximumFractionDigits: 0,
     }).format(amount),
+} as const;
+
+export const serviceJobsCopyTh = {
+  customerTitle: 'งานบริการของฉัน',
+  customerDescription: 'ติดตามนัดหมาย สถานะงาน และรายละเอียดที่ยืนยันกับช่าง',
+  technicianTitle: 'งานบริการที่ได้รับ',
+  technicianDescription:
+    'ดูนัดหมายและอัปเดตสถานะงานตามลำดับเมื่อปฏิบัติงานจริง',
+  back: 'ย้อนกลับ',
+  emptyCustomer: 'ยังไม่มีงานบริการที่ทั้งสองฝ่ายยืนยันแล้ว',
+  emptyTechnician: 'ยังไม่มีงานบริการที่มอบหมายให้คุณ',
+  loadFailed: 'โหลดรายการงานไม่สำเร็จ กรุณาลองอีกครั้ง',
+  retry: 'ลองอีกครั้ง',
+  symptomRequest: 'งานจากการแจ้งอาการ',
+  counterpartCustomer: (name: string) => `ลูกค้า ${name}`,
+  counterpartTechnician: (name: string) => `ช่าง ${name}`,
+  appointment: (date: string, time: string) => `${date} · ${time}`,
+  open: 'ดูรายละเอียดงาน',
+  statusLabels: {
+    scheduled: 'รอถึงเวลานัดหมาย',
+    technician_en_route: 'ช่างกำลังเดินทาง',
+    technician_arrived: 'ช่างถึงหน้างานแล้ว',
+    in_progress: 'กำลังดำเนินงาน',
+    cancelled: 'ยกเลิกแล้ว',
+  },
+} as const;
+
+export const serviceJobDetailCopyTh = {
+  back: 'ย้อนกลับ',
+  title: 'รายละเอียดงานบริการ',
+  loadFailed:
+    'โหลดรายละเอียดงานไม่สำเร็จ กรุณากลับไปที่รายการงานแล้วลองอีกครั้ง',
+  retry: 'ลองอีกครั้ง',
+  symptomRequest: 'งานจากการแจ้งอาการ',
+  appointmentTitle: 'นัดหมายและสถานที่',
+  scopeTitle: 'ขอบเขตงาน',
+  priceTitle: 'สรุปราคา',
+  customerAmount: (amount: string) => `ยอดงานที่ยืนยัน ${amount}`,
+  technicianAmount: (labor: string, commission: string, net: string) =>
+    `ค่าแรง ${labor}\nค่าคอมมิชชัน ${commission}\nรับสุทธิ ${net}`,
+  materialsAmount: (amount: string) => `ค่าวัสดุ ${amount}`,
+  warranty: (days: number) => `รับประกันงาน ${days} วัน`,
+  noWarranty: 'ยังไม่มีระยะเวลารับประกันสำหรับรายการนี้',
+  accessInstructions: 'คำแนะนำการเข้าถึง',
+  statusTitle: 'สถานะงาน',
+  historyTitle: 'ประวัติสถานะ',
+  changedBy: (name: string) => `ดำเนินการโดย ${name}`,
+  initialEvent: 'เปิดงานบริการ',
+  nextActions: {
+    technician_en_route: 'เริ่มเดินทาง',
+    technician_arrived: 'ถึงหน้างานแล้ว',
+    in_progress: 'เริ่มดำเนินงาน',
+  },
+  confirmTransitionTitle: 'ยืนยันอัปเดตสถานะหรือไม่',
+  confirmTransitionBody: 'สถานะนี้จะบันทึกในประวัติงานและย้อนกลับไม่ได้',
+  keepReviewing: 'ตรวจสอบต่อ',
+  confirm: 'ยืนยัน',
+  transitionFailed: 'อัปเดตสถานะไม่สำเร็จ สถานะงานอาจเปลี่ยนแล้ว กรุณาโหลดใหม่',
+  cancelTitle: 'ยกเลิกงานบริการ',
+  cancelDescription:
+    'ระบุเหตุผลให้ชัดเจน 10–500 ตัวอักษร เหตุผลจะแสดงให้อีกฝ่ายเห็นในประวัติงาน',
+  cancelReasonLabel: 'เหตุผลการยกเลิก',
+  cancelReasonPlaceholder: 'เช่น ไม่สะดวกตามเวลานัดหมายและต้องการยกเลิกงานนี้',
+  cancelReasonInvalid: 'กรุณาระบุเหตุผล 10–500 ตัวอักษร',
+  cancelButton: 'ยกเลิกงานนี้',
+  cancelConfirmTitle: 'ยืนยันยกเลิกงานหรือไม่',
+  cancelConfirmBody: 'เมื่อยืนยัน งานและนัดหมายจะถูกยกเลิกและย้อนกลับไม่ได้',
+  keepJob: 'เก็บงานไว้',
+  confirmCancel: 'ยืนยันยกเลิก',
+  cancelFailed: 'ยกเลิกงานไม่สำเร็จ กรุณาโหลดสถานะล่าสุดแล้วลองอีกครั้ง',
+  cancellationLockedCustomer:
+    'เมื่องานเริ่มเดินทางแล้ว ลูกค้าต้องติดต่อทีม HomeCare เพื่อขอความช่วยเหลือ',
+  cancellationLockedTechnician:
+    'เมื่อถึงหน้างานแล้ว ช่างต้องติดต่อทีม HomeCare เพื่อขอความช่วยเหลือ',
 } as const;
 
 export const technicianQuotationCopyTh = {

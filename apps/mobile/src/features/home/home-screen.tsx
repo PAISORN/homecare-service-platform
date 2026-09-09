@@ -48,6 +48,18 @@ export function HomeScreen({
           <Text style={styles.primaryButtonText}>{copy.requestService}</Text>
         </Pressable>
 
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={copy.serviceJobs}
+          onPress={() => router.push('/jobs' as never)}
+          style={({ pressed }) => [
+            styles.secondaryButton,
+            pressed && styles.pressed,
+          ]}
+        >
+          <Text style={styles.secondaryButtonText}>{copy.serviceJobs}</Text>
+        </Pressable>
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{copy.pilotServicesTitle}</Text>
           {model.serviceCategoryCodes.map((categoryCode) => {
@@ -138,6 +150,21 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
     },
     primaryButtonText: {
       color: colors.surface,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.bodySize,
+    },
+    secondaryButton: {
+      alignItems: 'center',
+      borderColor: colors.action,
+      borderRadius: radii.button,
+      borderWidth: 1,
+      justifyContent: 'center',
+      marginTop: spacing.md,
+      minHeight: 52,
+      paddingHorizontal: spacing.lg,
+    },
+    secondaryButtonText: {
+      color: colors.action,
       fontFamily: fonts.semiBold,
       fontSize: typography.bodySize,
     },

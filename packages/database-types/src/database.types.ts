@@ -1307,6 +1307,39 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_service_job: {
+        Args: { p_job_id: string }
+        Returns: {
+          access_instructions: string
+          actor_role: string
+          address_line: string
+          appointment_date: string
+          appointment_time_window: string
+          building: string
+          category_name_th: string
+          commission_amount: number
+          created_at: string
+          currency: string
+          customer_display_name: string
+          floor: string
+          item_name_th: string
+          job_id: string
+          job_number: string
+          job_status: Database["public"]["Enums"]["service_job_status"]
+          labor_amount: number
+          labor_commission_rate: number
+          location_label: string
+          materials_amount: number
+          scope_description: string
+          service_request_id: string
+          technician_display_name: string
+          technician_net_labor_amount: number
+          total_amount: number
+          unit: string
+          updated_at: string
+          warranty_days: number
+        }[]
+      }
       get_service_job_for_request: {
         Args: { p_request_id: string }
         Returns: {
@@ -1443,6 +1476,36 @@ export type Database = {
           display_name: string
           technician_id: string
           verified_at: string
+        }[]
+      }
+      list_service_job_status_events: {
+        Args: { p_job_id: string }
+        Returns: {
+          actor_display_name: string
+          created_at: string
+          event_id: string
+          from_status: Database["public"]["Enums"]["service_job_status"]
+          reason: string
+          to_status: Database["public"]["Enums"]["service_job_status"]
+        }[]
+      }
+      list_service_jobs: {
+        Args: never
+        Returns: {
+          actor_role: string
+          appointment_date: string
+          appointment_time_window: string
+          category_name_th: string
+          counterpart_display_name: string
+          currency: string
+          item_name_th: string
+          job_id: string
+          job_number: string
+          job_status: Database["public"]["Enums"]["service_job_status"]
+          location_label: string
+          service_request_id: string
+          total_amount: number
+          updated_at: string
         }[]
       }
       list_technician_review_documents: {
@@ -1838,7 +1901,12 @@ export type Database = {
       request_entry_point: "service_catalog" | "symptom"
       request_safety_status: "clear" | "stopped"
       request_urgency: "flexible" | "within_3_days" | "as_soon_as_possible"
-      service_job_status: "scheduled" | "cancelled"
+      service_job_status:
+        | "scheduled"
+        | "technician_en_route"
+        | "technician_arrived"
+        | "in_progress"
+        | "cancelled"
       service_request_status:
         | "draft"
         | "cancelled"
@@ -2003,7 +2071,13 @@ export const Constants = {
       request_entry_point: ["service_catalog", "symptom"],
       request_safety_status: ["clear", "stopped"],
       request_urgency: ["flexible", "within_3_days", "as_soon_as_possible"],
-      service_job_status: ["scheduled", "cancelled"],
+      service_job_status: [
+        "scheduled",
+        "technician_en_route",
+        "technician_arrived",
+        "in_progress",
+        "cancelled",
+      ],
       service_request_status: [
         "draft",
         "cancelled",

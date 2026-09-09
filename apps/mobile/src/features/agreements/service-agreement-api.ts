@@ -55,7 +55,12 @@ export type ServiceJobSummary = Readonly<{
   commission_amount: number;
   technician_net_labor_amount: number;
   warranty_days: number | null;
-  job_status: 'scheduled' | 'cancelled';
+  job_status:
+    | 'scheduled'
+    | 'technician_en_route'
+    | 'technician_arrived'
+    | 'in_progress'
+    | 'cancelled';
   appointment_date: string;
   appointment_time_window: string;
   location_label: string;

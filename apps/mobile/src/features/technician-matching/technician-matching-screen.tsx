@@ -129,6 +129,16 @@ export function TechnicianMatchingScreen() {
           {copy.title}
         </Text>
         <Text style={styles.description}>{copy.description}</Text>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.push('/technician/jobs' as never)}
+          style={({ pressed }) => [
+            styles.primaryButton,
+            pressed && styles.pressed,
+          ]}
+        >
+          <Text style={styles.primaryText}>{copy.openServiceJobs}</Text>
+        </Pressable>
         <View style={styles.privacyNotice}>
           <Text style={styles.noticeTitle}>{copy.privacyTitle}</Text>
           <Text style={styles.noticeBody}>{copy.privacyBody}</Text>

@@ -324,6 +324,26 @@ export function ServiceAgreementScreen({ fallback }: Props) {
                               serviceJob.currency,
                             )}
                       </Text>
+                      <Pressable
+                        accessibilityRole="button"
+                        onPress={() =>
+                          router.push({
+                            pathname:
+                              serviceJob.actor_role === 'customer'
+                                ? ('/jobs/detail' as never)
+                                : ('/technician/jobs/detail' as never),
+                            params: { jobId: serviceJob.job_id },
+                          })
+                        }
+                        style={({ pressed }) => [
+                          styles.secondaryButton,
+                          pressed && styles.pressed,
+                        ]}
+                      >
+                        <Text style={styles.secondaryText}>
+                          {copy.openServiceJob}
+                        </Text>
+                      </Pressable>
                     </>
                   ) : (
                     <Text style={styles.successBody}>{copy.completedBody}</Text>
