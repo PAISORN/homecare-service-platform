@@ -862,6 +862,89 @@ export type Database = {
           },
         ]
       }
+      service_job_acceptances: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          currency: string
+          customer_id: string
+          help_reason: string | null
+          help_requested_at: string | null
+          payment_mode: string
+          review_deadline_at: string
+          review_started_at: string
+          service_job_id: string
+          status: Database["public"]["Enums"]["service_job_acceptance_status"]
+          technician_id: string
+          total_amount_snapshot: number
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          currency: string
+          customer_id: string
+          help_reason?: string | null
+          help_requested_at?: string | null
+          payment_mode: string
+          review_deadline_at: string
+          review_started_at: string
+          service_job_id: string
+          status?: Database["public"]["Enums"]["service_job_acceptance_status"]
+          technician_id: string
+          total_amount_snapshot: number
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          currency?: string
+          customer_id?: string
+          help_reason?: string | null
+          help_requested_at?: string | null
+          payment_mode?: string
+          review_deadline_at?: string
+          review_started_at?: string
+          service_job_id?: string
+          status?: Database["public"]["Enums"]["service_job_acceptance_status"]
+          technician_id?: string
+          total_amount_snapshot?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_job_acceptances_accepted_by_fkey"
+            columns: ["accepted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_job_acceptances_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_job_acceptances_service_job_id_fkey"
+            columns: ["service_job_id"]
+            isOneToOne: true
+            referencedRelation: "service_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_job_acceptances_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_job_evidence: {
         Row: {
           created_at: string
@@ -1745,6 +1828,16 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      confirm_service_job_acceptance: {
+        Args: { p_job_id: string }
+        Returns: Database["public"]["Tables"]["service_job_acceptances"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "service_job_acceptances"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_service_job_additional_work_request: {
         Args: {
           p_evidence_id: string
@@ -1871,6 +1964,16 @@ export type Database = {
           updated_at: string
           warranty_days: number
         }[]
+      }
+      get_service_job_acceptance: {
+        Args: { p_job_id: string }
+        Returns: Database["public"]["Tables"]["service_job_acceptances"]["Row"][]
+        SetofOptions: {
+          from: "*"
+          to: "service_job_acceptances"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       get_service_job_for_request: {
         Args: { p_request_id: string }
@@ -2062,6 +2165,20 @@ export type Database = {
           total_amount: number
           updated_at: string
         }[]
+      }
+      process_due_service_job_acceptances: {
+        Args: { p_limit?: number }
+        Returns: number
+      }
+      request_service_job_acceptance_help: {
+        Args: { p_job_id: string; p_reason: string }
+        Returns: Database["public"]["Tables"]["service_job_acceptances"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "service_job_acceptances"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       list_technician_review_documents: {
         Args: { p_technician_id: string }
@@ -2593,6 +2710,11 @@ export type Database = {
         | "after"
         | "additional_work"
       service_job_pin_purpose: "start" | "completion"
+      service_job_acceptance_status:
+        | "pending"
+        | "help_requested"
+        | "customer_accepted"
+        | "automatic_accepted"
       service_job_status:
         | "scheduled"
         | "technician_en_route"
@@ -2600,6 +2722,7 @@ export type Database = {
         | "in_progress"
         | "awaiting_additional_work_approval"
         | "awaiting_acceptance"
+        | "completed"
         | "cancelled"
       service_request_status:
         | "draft"
@@ -2780,6 +2903,12 @@ export const Constants = {
         "additional_work",
       ],
       service_job_pin_purpose: ["start", "completion"],
+      service_job_acceptance_status: [
+        "pending",
+        "help_requested",
+        "customer_accepted",
+        "automatic_accepted",
+      ],
       service_job_status: [
         "scheduled",
         "technician_en_route",
@@ -2787,6 +2916,7 @@ export const Constants = {
         "in_progress",
         "awaiting_additional_work_approval",
         "awaiting_acceptance",
+        "completed",
         "cancelled",
       ],
       service_request_status: [
@@ -2813,4 +2943,3 @@ export const Constants = {
     },
   },
 } as const
-

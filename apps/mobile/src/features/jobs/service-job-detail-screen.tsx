@@ -36,6 +36,7 @@ import {
   type ServiceJobStatusEvent,
 } from './service-jobs-api';
 import { ServiceJobTravelPanel } from './service-job-travel-panel';
+import { ServiceJobAcceptancePanel } from './service-job-acceptance-panel';
 
 type Props = Readonly<{
   mode: ServiceJobActorRole;
@@ -313,6 +314,26 @@ export function ServiceJobDetailScreen({ mode, fallback }: Props) {
                 ) : null}
               </Section>
 
+              {job.job_status === 'awaiting_acceptance' ||
+              job.job_status === 'completed' ? (
+                <ServiceJobAcceptancePanel
+                  client={client}
+                  jobId={job.job_id}
+                  jobStatus={job.job_status}
+                  mode={mode}
+                  onChanged={load}
+                  onOpenEvidence={() =>
+                    router.push({
+                      pathname:
+                        mode === 'customer'
+                          ? ('/jobs/work' as never)
+                          : ('/technician/jobs/work' as never),
+                      params: { jobId: job.job_id },
+                    })
+                  }
+                />
+              ) : null}
+
               <Text style={styles.sectionTitle}>{copy.statusTitle}</Text>
               {nextStatus ? (
                 <Pressable
@@ -382,7 +403,7 @@ export function ServiceJobDetailScreen({ mode, fallback }: Props) {
                     )}
                   </Pressable>
                 </View>
-              ) : job.job_status !== 'cancelled' ? (
+              ) : !['cancelled', 'completed'].includes(job.job_status) ? (
                 <Text style={styles.lockedNotice}>
                   {mode === 'customer'
                     ? copy.cancellationLockedCustomer

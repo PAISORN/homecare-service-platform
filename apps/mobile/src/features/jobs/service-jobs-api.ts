@@ -8,6 +8,7 @@ export type ServiceJobStatus =
   | 'in_progress'
   | 'awaiting_additional_work_approval'
   | 'awaiting_acceptance'
+  | 'completed'
   | 'cancelled';
 
 export type ServiceJobActorRole = 'customer' | 'technician';
