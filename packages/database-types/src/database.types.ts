@@ -608,6 +608,185 @@ export type Database = {
           },
         ]
       }
+      service_job_additional_work_requests: {
+        Row: {
+          created_at: string
+          currency: string
+          evidence_id: string
+          id: string
+          labor_amount: number
+          materials_amount: number
+          reason: string
+          responded_at: string | null
+          responded_by: string | null
+          scope_description: string
+          service_job_id: string
+          status: Database["public"]["Enums"]["additional_work_request_status"]
+          technician_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency: string
+          evidence_id: string
+          id?: string
+          labor_amount?: number
+          materials_amount?: number
+          reason: string
+          responded_at?: string | null
+          responded_by?: string | null
+          scope_description: string
+          service_job_id: string
+          status?: Database["public"]["Enums"]["additional_work_request_status"]
+          technician_id: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          evidence_id?: string
+          id?: string
+          labor_amount?: number
+          materials_amount?: number
+          reason?: string
+          responded_at?: string | null
+          responded_by?: string | null
+          scope_description?: string
+          service_job_id?: string
+          status?: Database["public"]["Enums"]["additional_work_request_status"]
+          technician_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_job_additional_work_requests_evidence_id_fkey"
+            columns: ["evidence_id"]
+            isOneToOne: true
+            referencedRelation: "service_job_evidence"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_job_additional_work_requests_responded_by_fkey"
+            columns: ["responded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_job_additional_work_requests_service_job_id_fkey"
+            columns: ["service_job_id"]
+            isOneToOne: false
+            referencedRelation: "service_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_job_additional_work_requests_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technician_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      service_job_evidence: {
+        Row: {
+          created_at: string
+          created_by: string
+          evidence_type: Database["public"]["Enums"]["service_job_evidence_type"]
+          id: string
+          mime_type: string
+          service_job_id: string
+          size_bytes: number
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          evidence_type: Database["public"]["Enums"]["service_job_evidence_type"]
+          id?: string
+          mime_type: string
+          service_job_id: string
+          size_bytes: number
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          evidence_type?: Database["public"]["Enums"]["service_job_evidence_type"]
+          id?: string
+          mime_type?: string
+          service_job_id?: string
+          size_bytes?: number
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_job_evidence_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_job_evidence_service_job_id_fkey"
+            columns: ["service_job_id"]
+            isOneToOne: false
+            referencedRelation: "service_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_job_pins: {
+        Row: {
+          consumed_at: string | null
+          created_at: string
+          created_by: string
+          expires_at: string
+          failed_attempts: number
+          id: string
+          invalidated_at: string | null
+          pin_hash: string
+          purpose: Database["public"]["Enums"]["service_job_pin_purpose"]
+          service_job_id: string
+        }
+        Insert: {
+          consumed_at?: string | null
+          created_at?: string
+          created_by: string
+          expires_at: string
+          failed_attempts?: number
+          id?: string
+          invalidated_at?: string | null
+          pin_hash: string
+          purpose: Database["public"]["Enums"]["service_job_pin_purpose"]
+          service_job_id: string
+        }
+        Update: {
+          consumed_at?: string | null
+          created_at?: string
+          created_by?: string
+          expires_at?: string
+          failed_attempts?: number
+          id?: string
+          invalidated_at?: string | null
+          pin_hash?: string
+          purpose?: Database["public"]["Enums"]["service_job_pin_purpose"]
+          service_job_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_job_pins_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_job_pins_service_job_id_fkey"
+            columns: ["service_job_id"]
+            isOneToOne: false
+            referencedRelation: "service_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_jobs: {
         Row: {
           agreement_revision: number
@@ -1359,6 +1538,37 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_service_job_additional_work_request: {
+        Args: {
+          p_evidence_id: string
+          p_job_id: string
+          p_labor_amount: number
+          p_materials_amount: number
+          p_reason: string
+          p_scope_description: string
+        }
+        Returns: {
+          created_at: string
+          currency: string
+          evidence_id: string
+          id: string
+          labor_amount: number
+          materials_amount: number
+          reason: string
+          responded_at: string | null
+          responded_by: string | null
+          scope_description: string
+          service_job_id: string
+          status: Database["public"]["Enums"]["additional_work_request_status"]
+          technician_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_job_additional_work_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       deactivate_own_account: {
         Args: never
         Returns: Database["public"]["Enums"]["account_status"]
@@ -1396,6 +1606,10 @@ export type Database = {
       delete_service_location: {
         Args: { p_location_id: string }
         Returns: string
+      }
+      delete_unuploaded_service_job_evidence: {
+        Args: { p_evidence_id: string }
+        Returns: undefined
       }
       express_technician_interest: {
         Args: { p_request_id: string }
@@ -1522,6 +1736,13 @@ export type Database = {
       has_required_technician_documents: {
         Args: { p_technician_id: string }
         Returns: boolean
+      }
+      issue_service_job_pin: {
+        Args: {
+          p_job_id: string
+          p_purpose: Database["public"]["Enums"]["service_job_pin_purpose"]
+        }
+        Returns: string
       }
       list_customer_request_shortlist: {
         Args: { p_request_id: string }
@@ -1728,6 +1949,55 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "request_attachments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      register_service_job_evidence: {
+        Args: {
+          p_evidence_type: Database["public"]["Enums"]["service_job_evidence_type"]
+          p_job_id: string
+          p_mime_type: string
+          p_size_bytes: number
+          p_storage_path: string
+        }
+        Returns: {
+          created_at: string
+          created_by: string
+          evidence_type: Database["public"]["Enums"]["service_job_evidence_type"]
+          id: string
+          mime_type: string
+          service_job_id: string
+          size_bytes: number
+          storage_path: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_job_evidence"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      respond_to_service_job_additional_work: {
+        Args: { p_approve: boolean; p_request_id: string }
+        Returns: {
+          created_at: string
+          currency: string
+          evidence_id: string
+          id: string
+          labor_amount: number
+          materials_amount: number
+          reason: string
+          responded_at: string | null
+          responded_by: string | null
+          scope_description: string
+          service_job_id: string
+          status: Database["public"]["Enums"]["additional_work_request_status"]
+          technician_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_job_additional_work_requests"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -1991,6 +2261,14 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      verify_service_job_pin: {
+        Args: {
+          p_job_id: string
+          p_pin: string
+          p_purpose: Database["public"]["Enums"]["service_job_pin_purpose"]
+        }
+        Returns: Json
+      }
       withdraw_technician_interest: {
         Args: { p_request_id: string }
         Returns: {
@@ -2012,6 +2290,7 @@ export type Database = {
     Enums: {
       account_role: "customer" | "technician" | "administrator"
       account_status: "active" | "deactivated"
+      additional_work_request_status: "pending" | "approved" | "rejected"
       admin_permission:
         | "technician_review"
         | "role_management"
@@ -2025,11 +2304,19 @@ export type Database = {
       request_entry_point: "service_catalog" | "symptom"
       request_safety_status: "clear" | "stopped"
       request_urgency: "flexible" | "within_3_days" | "as_soon_as_possible"
+      service_job_evidence_type:
+        | "before"
+        | "during"
+        | "after"
+        | "additional_work"
+      service_job_pin_purpose: "start" | "completion"
       service_job_status:
         | "scheduled"
         | "technician_en_route"
         | "technician_arrived"
         | "in_progress"
+        | "awaiting_additional_work_approval"
+        | "awaiting_acceptance"
         | "cancelled"
       service_request_status:
         | "draft"
@@ -2181,6 +2468,7 @@ export const Constants = {
     Enums: {
       account_role: ["customer", "technician", "administrator"],
       account_status: ["active", "deactivated"],
+      additional_work_request_status: ["pending", "approved", "rejected"],
       admin_permission: [
         "technician_review",
         "role_management",
@@ -2195,11 +2483,20 @@ export const Constants = {
       request_entry_point: ["service_catalog", "symptom"],
       request_safety_status: ["clear", "stopped"],
       request_urgency: ["flexible", "within_3_days", "as_soon_as_possible"],
+      service_job_evidence_type: [
+        "before",
+        "during",
+        "after",
+        "additional_work",
+      ],
+      service_job_pin_purpose: ["start", "completion"],
       service_job_status: [
         "scheduled",
         "technician_en_route",
         "technician_arrived",
         "in_progress",
+        "awaiting_additional_work_approval",
+        "awaiting_acceptance",
         "cancelled",
       ],
       service_request_status: [

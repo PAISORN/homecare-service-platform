@@ -23,8 +23,9 @@ describe('service job workflow helpers', () => {
     expect(getNextTechnicianStatus('technician_en_route')).toBe(
       'technician_arrived',
     );
-    expect(getNextTechnicianStatus('technician_arrived')).toBe('in_progress');
+    expect(getNextTechnicianStatus('technician_arrived')).toBeNull();
     expect(getNextTechnicianStatus('in_progress')).toBeNull();
+    expect(getNextTechnicianStatus('awaiting_acceptance')).toBeNull();
     expect(getNextTechnicianStatus('cancelled')).toBeNull();
   });
 

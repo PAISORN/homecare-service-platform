@@ -229,6 +229,30 @@ export function ServiceJobDetailScreen({ mode, fallback }: Props) {
                 </Pressable>
               </View>
 
+              <View style={styles.chatSection}>
+                <Text style={styles.sectionDescription}>
+                  {copy.workFlowDescription}
+                </Text>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() =>
+                    router.push({
+                      pathname:
+                        mode === 'customer'
+                          ? ('/jobs/work' as never)
+                          : ('/technician/jobs/work' as never),
+                      params: { jobId: job.job_id },
+                    })
+                  }
+                  style={({ pressed }) => [
+                    styles.secondaryButton,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <Text style={styles.secondaryText}>{copy.workFlow}</Text>
+                </Pressable>
+              </View>
+
               <Section title={copy.appointmentTitle} styles={styles}>
                 <Text style={styles.cardTitle}>
                   {formatPreferredDateTh(job.appointment_date) ??

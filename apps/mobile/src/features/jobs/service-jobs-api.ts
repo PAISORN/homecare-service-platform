@@ -5,6 +5,8 @@ export type ServiceJobStatus =
   | 'technician_en_route'
   | 'technician_arrived'
   | 'in_progress'
+  | 'awaiting_additional_work_approval'
+  | 'awaiting_acceptance'
   | 'cancelled';
 
 export type ServiceJobActorRole = 'customer' | 'technician';
@@ -76,7 +78,6 @@ export function getNextTechnicianStatus(
 ): ServiceJobStatus | null {
   if (status === 'scheduled') return 'technician_en_route';
   if (status === 'technician_en_route') return 'technician_arrived';
-  if (status === 'technician_arrived') return 'in_progress';
   return null;
 }
 

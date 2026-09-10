@@ -188,11 +188,12 @@ select set_config('request.jwt.claim.sub', 'd0000000-0000-0000-0000-000000000201
 select lives_ok(
   $$select public.transition_service_job('d3000000-0000-0000-0000-000000000101', 'technician_en_route', 'technician_arrived')$$,
   'technician records arrival');
-select lives_ok(
-  $$select public.transition_service_job('d3000000-0000-0000-0000-000000000101', 'technician_arrived', 'in_progress')$$,
-  'technician starts the work');
 select throws_ok(
-  $$select public.transition_service_job('d3000000-0000-0000-0000-000000000101', 'in_progress', 'cancelled', 'ช่างขอยกเลิกหลังเริ่มปฏิบัติงานแล้ว')$$,
+  $$select public.transition_service_job('d3000000-0000-0000-0000-000000000101', 'technician_arrived', 'in_progress')$$,
+  'Service job status transition not allowed',
+  'technician cannot start work without the customer PIN');
+select throws_ok(
+  $$select public.transition_service_job('d3000000-0000-0000-0000-000000000101', 'technician_arrived', 'cancelled', 'ช่างขอยกเลิกหลังถึงหน้างานแล้ว')$$,
   'Service job cancellation not allowed', 'technician cannot cancel after work starts');
 
 select throws_ok(
