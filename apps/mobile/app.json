@@ -29,7 +29,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.homecare.mobile"
+      "bundleIdentifier": "com.homecare.mobile",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.homecare.mobile"
@@ -37,6 +40,13 @@
     "web": {
       "bundler": "metro",
       "output": "static"
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "61eb4406-c211-4119-9857-4add2593d070"
+      }
+    },
+    "owner": "amsol"
   }
 }
