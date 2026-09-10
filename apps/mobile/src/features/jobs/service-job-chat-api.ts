@@ -1,6 +1,7 @@
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
 import type { MobileSupabaseClient } from '../../lib/supabase';
+import { requestJobNotificationDispatch } from '../notifications/push-device-api';
 
 export const serviceJobMessageMaxLength = 2000;
 
@@ -84,6 +85,7 @@ export async function sendServiceJobMessage(
     p_body: validBody,
   });
   if (error) throw error;
+  requestJobNotificationDispatch(client);
   return data as ServiceJobMessage;
 }
 

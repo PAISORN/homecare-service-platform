@@ -15,6 +15,7 @@ import {
   resolveFontStartupState,
 } from '../foundation/font-runtime';
 import { AuthDraftProvider } from '../providers/auth-draft-provider';
+import { NotificationProvider } from '../providers/notification-provider';
 import { SessionProvider } from '../providers/session-provider';
 
 void SplashScreen.preventAutoHideAsync().catch(() => undefined);
@@ -39,9 +40,11 @@ export default function RootLayout() {
     <AppFontProvider value={fontFamiliesFor(fontStartupState)}>
       <SafeAreaProvider>
         <SessionProvider>
-          <AuthDraftProvider>
-            <Stack screenOptions={{ headerShown: false }} />
-          </AuthDraftProvider>
+          <NotificationProvider>
+            <AuthDraftProvider>
+              <Stack screenOptions={{ headerShown: false }} />
+            </AuthDraftProvider>
+          </NotificationProvider>
         </SessionProvider>
       </SafeAreaProvider>
     </AppFontProvider>

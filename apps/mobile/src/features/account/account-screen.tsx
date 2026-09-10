@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAppFontFamilies } from '../../foundation/font-runtime';
 import { accountCopyTh } from '../../locales/th';
+import { useNotifications } from '../../providers/notification-provider';
 import { useSession } from '../../providers/session-provider';
 import { formatThaiPhoneForDisplay } from '../auth/phone';
 import { canUseTechnicianMode } from './account-api';
@@ -12,6 +13,7 @@ import { canUseTechnicianMode } from './account-api';
 export function AccountScreen() {
   const router = useRouter();
   const { client, profile, technicianApplication } = useSession();
+  const notifications = useNotifications();
   const fonts = useAppFontFamilies();
   const styles = createStyles(fonts);
   const applicationStatus = technicianApplication?.verification_status;
@@ -42,6 +44,73 @@ export function AccountScreen() {
               {accountCopyTh.editName}
             </Text>
           </Pressable>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>
+            {accountCopyTh.notificationsTitle}
+          </Text>
+          <Text style={styles.supporting}>
+            {accountCopyTh.notificationsDescription}
+          </Text>
+          <Text
+            accessibilityLiveRegion="polite"
+            style={styles.notificationStatus}
+          >
+            {accountCopyTh.notificationStates[notifications.state]}
+          </Text>
+          {notifications.state === 'enabled' ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ disabled: notifications.busy }}
+              disabled={notifications.busy}
+              onPress={() => void notifications.disable()}
+              style={({ pressed }) => [
+                styles.secondaryButton,
+                pressed && styles.pressed,
+                notifications.busy && styles.disabled,
+              ]}
+            >
+              <Text style={styles.secondaryButtonText}>
+                {accountCopyTh.disableNotifications}
+              </Text>
+            </Pressable>
+          ) : notifications.state === 'permission_denied' ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => void notifications.openSettings()}
+              style={({ pressed }) => [
+                styles.primaryButton,
+                pressed && styles.pressed,
+              ]}
+            >
+              <Text style={styles.primaryButtonText}>
+                {accountCopyTh.openNotificationSettings}
+              </Text>
+            </Pressable>
+          ) : ['permission_required', 'disabled', 'error'].includes(
+              notifications.state,
+            ) ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ disabled: notifications.busy }}
+              disabled={notifications.busy}
+              onPress={() => void notifications.enable()}
+              style={({ pressed }) => [
+                styles.primaryButton,
+                pressed && styles.pressed,
+                notifications.busy && styles.disabled,
+              ]}
+            >
+              <Text style={styles.primaryButtonText}>
+                {notifications.busy
+                  ? accountCopyTh.enablingNotifications
+                  : notifications.state === 'error'
+                    ? accountCopyTh.retryNotifications
+                    : accountCopyTh.enableNotifications}
+              </Text>
+            </Pressable>
+          ) : null}
         </View>
 
         <View style={styles.card}>
@@ -130,7 +199,12 @@ export function AccountScreen() {
         </Pressable>
         <Pressable
           accessibilityRole="button"
-          onPress={() => void client?.auth.signOut()}
+          onPress={() => {
+            void (async () => {
+              await notifications.prepareForSignOut();
+              await client?.auth.signOut();
+            })();
+          }}
           style={({ pressed }) => [
             styles.signOutButton,
             pressed && styles.pressed,
@@ -192,6 +266,13 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
       lineHeight: 24,
       marginTop: spacing.sm,
     },
+    notificationStatus: {
+      color: colors.text,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.bodySize,
+      lineHeight: 24,
+      marginTop: spacing.lg,
+    },
     primaryButton: {
       alignItems: 'center',
       backgroundColor: colors.action,
@@ -235,5 +316,6 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
       fontSize: typography.bodySize,
     },
     pressed: { opacity: 0.76 },
+    disabled: { opacity: 0.5 },
   });
 }

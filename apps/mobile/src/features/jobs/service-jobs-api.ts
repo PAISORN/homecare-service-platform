@@ -1,4 +1,5 @@
 import type { MobileSupabaseClient } from '../../lib/supabase';
+import { requestJobNotificationDispatch } from '../notifications/push-device-api';
 
 export type ServiceJobStatus =
   | 'scheduled'
@@ -136,4 +137,5 @@ export async function transitionServiceJob(
     p_reason: reason ?? undefined,
   });
   if (error) throw error;
+  requestJobNotificationDispatch(client);
 }

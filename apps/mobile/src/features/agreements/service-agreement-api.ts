@@ -1,4 +1,5 @@
 import type { MobileSupabaseClient } from '../../lib/supabase';
+import { requestJobNotificationDispatch } from '../notifications/push-device-api';
 import { parsePreferredDate } from '../requests/preferred-date';
 
 export type ServiceRequestAgreement = Readonly<{
@@ -173,6 +174,7 @@ export async function confirmServiceRequestAgreement(
     p_request_id: requestId,
   });
   if (error) throw error;
+  requestJobNotificationDispatch(client);
 }
 
 export async function getServiceJobForRequest(

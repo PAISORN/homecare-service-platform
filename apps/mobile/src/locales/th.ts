@@ -94,6 +94,29 @@ export const accountCopyTh = {
   serviceLocationsDescription:
     'บันทึกบ้าน คอนโด หรือสถานที่ที่ต้องการให้ช่างเข้าให้บริการ',
   manageServiceLocations: 'จัดการสถานที่',
+  notificationsTitle: 'การแจ้งเตือนงานบริการ',
+  notificationsDescription:
+    'รับการอัปเดตสถานะงาน ข้อความ และคำขอเพิ่มงาน โดยแตะการแจ้งเตือนเพื่อเปิดงานที่เกี่ยวข้องได้ทันที',
+  notificationStates: {
+    checking: 'กำลังตรวจสอบสถานะการแจ้งเตือน…',
+    permission_required: 'ยังไม่ได้อนุญาตให้ HomeCare ส่งการแจ้งเตือน',
+    enabled: 'เปิดรับการแจ้งเตือนบนอุปกรณ์นี้แล้ว',
+    disabled: 'ปิดการแจ้งเตือนจาก HomeCare บนอุปกรณ์นี้แล้ว',
+    permission_denied:
+      'อุปกรณ์ปิดสิทธิ์การแจ้งเตือน กรุณาเปิดสิทธิ์ให้ HomeCare ในการตั้งค่า',
+    development_build_required:
+      'Push Notification ต้องทดสอบด้วย HomeCare Development Build ไม่ใช่ Expo Go',
+    configuration_required:
+      'ยังไม่ได้เชื่อมแอปกับ EAS Project จึงยังสร้าง Push Token ไม่ได้',
+    unsupported:
+      'Push Notification ใช้ได้บนแอป HomeCare สำหรับ iOS และ Android',
+    error: 'เชื่อมต่อบริการแจ้งเตือนไม่สำเร็จ กรุณาลองอีกครั้ง',
+  },
+  enableNotifications: 'เปิดการแจ้งเตือน',
+  enablingNotifications: 'กำลังเปิดการแจ้งเตือน…',
+  disableNotifications: 'ปิดการแจ้งเตือนบนอุปกรณ์นี้',
+  openNotificationSettings: 'เปิดการตั้งค่าอุปกรณ์',
+  retryNotifications: 'ลองเชื่อมต่ออีกครั้ง',
   saveName: 'บันทึกชื่อ',
   savingName: 'กำลังบันทึก…',
   invalidName: 'กรุณากรอกชื่อ 1–120 ตัวอักษร',

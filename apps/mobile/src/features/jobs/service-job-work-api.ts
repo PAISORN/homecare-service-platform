@@ -5,6 +5,7 @@ import {
   type PreparedKycImage,
 } from '../account/technician-kyc';
 import type { MobileSupabaseClient } from '../../lib/supabase';
+import { requestJobNotificationDispatch } from '../notifications/push-device-api';
 
 const EVIDENCE_BUCKET = 'service-job-evidence';
 
@@ -119,6 +120,9 @@ export async function verifyServiceJobPin(
     p_pin: pin,
   });
   if (error) throw error;
+  if ((data as { verified?: boolean }).verified) {
+    requestJobNotificationDispatch(client);
+  }
   return data as { verified: boolean; attempts_remaining?: number };
 }
 
@@ -158,6 +162,7 @@ export async function createAdditionalWorkRequest(
     },
   );
   if (error) throw error;
+  requestJobNotificationDispatch(client);
   return data;
 }
 
@@ -171,5 +176,6 @@ export async function respondToAdditionalWork(
     { p_request_id: requestId, p_approve: approve },
   );
   if (error) throw error;
+  requestJobNotificationDispatch(client);
   return data;
 }

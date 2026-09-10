@@ -368,6 +368,94 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          actor_user_id: string
+          attempt_count: number
+          body: string
+          created_at: string
+          data: Json
+          deep_link: string
+          delivery_status: Database["public"]["Enums"]["notification_delivery_status"]
+          event_key: string
+          id: string
+          last_attempt_at: string | null
+          last_error: string | null
+          next_attempt_at: string
+          provider_response: Json | null
+          read_at: string | null
+          recipient_user_id: string
+          service_job_id: string
+          source_record_id: string
+          submitted_at: string | null
+          title: string
+        }
+        Insert: {
+          actor_user_id: string
+          attempt_count?: number
+          body: string
+          created_at?: string
+          data?: Json
+          deep_link: string
+          delivery_status?: Database["public"]["Enums"]["notification_delivery_status"]
+          event_key: string
+          id?: string
+          last_attempt_at?: string | null
+          last_error?: string | null
+          next_attempt_at?: string
+          provider_response?: Json | null
+          read_at?: string | null
+          recipient_user_id: string
+          service_job_id: string
+          source_record_id: string
+          submitted_at?: string | null
+          title: string
+        }
+        Update: {
+          actor_user_id?: string
+          attempt_count?: number
+          body?: string
+          created_at?: string
+          data?: Json
+          deep_link?: string
+          delivery_status?: Database["public"]["Enums"]["notification_delivery_status"]
+          event_key?: string
+          id?: string
+          last_attempt_at?: string | null
+          last_error?: string | null
+          next_attempt_at?: string
+          provider_response?: Json | null
+          read_at?: string | null
+          recipient_user_id?: string
+          service_job_id?: string
+          source_record_id?: string
+          submitted_at?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_actor_user_id_fkey"
+            columns: ["actor_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_recipient_user_id_fkey"
+            columns: ["recipient_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_service_job_id_fkey"
+            columns: ["service_job_id"]
+            isOneToOne: false
+            referencedRelation: "service_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           account_status: Database["public"]["Enums"]["account_status"]
@@ -400,6 +488,50 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      push_devices: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          expo_push_token: string
+          id: string
+          installation_id: string
+          last_registered_at: string
+          platform: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          expo_push_token: string
+          id?: string
+          installation_id: string
+          last_registered_at?: string
+          platform: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          expo_push_token?: string
+          id?: string
+          installation_id?: string
+          last_registered_at?: string
+          platform?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_devices_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quotations: {
         Row: {
@@ -1512,6 +1644,36 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      claim_job_notifications_for_actor: {
+        Args: { p_actor_id: string; p_limit?: number }
+        Returns: {
+          actor_user_id: string
+          attempt_count: number
+          body: string
+          created_at: string
+          data: Json
+          deep_link: string
+          delivery_status: Database["public"]["Enums"]["notification_delivery_status"]
+          event_key: string
+          id: string
+          last_attempt_at: string | null
+          last_error: string | null
+          next_attempt_at: string
+          provider_response: Json | null
+          read_at: string | null
+          recipient_user_id: string
+          service_job_id: string
+          source_record_id: string
+          submitted_at: string | null
+          title: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "notifications"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       confirm_service_request_agreement: {
         Args: { p_request_id: string }
         Returns: {
@@ -1610,6 +1772,10 @@ export type Database = {
       delete_unuploaded_service_job_evidence: {
         Args: { p_evidence_id: string }
         Returns: undefined
+      }
+      disable_push_device: {
+        Args: { p_installation_id: string }
+        Returns: boolean
       }
       express_technician_interest: {
         Args: { p_request_id: string }
@@ -1874,6 +2040,10 @@ export type Database = {
           updated_at: string
         }[]
       }
+      mark_notification_read: {
+        Args: { p_notification_id: string }
+        Returns: boolean
+      }
       promote_required_technician_document: {
         Args: {
           p_current_document_id: string
@@ -1929,6 +2099,14 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      register_push_device: {
+        Args: {
+          p_expo_push_token: string
+          p_installation_id: string
+          p_platform: string
+        }
+        Returns: string
       }
       register_request_attachment: {
         Args: {
@@ -2299,6 +2477,12 @@ export type Database = {
       appointment_status: "scheduled" | "cancelled"
       catalog_status: "draft" | "pilot" | "active" | "inactive"
       document_review_status: "pending" | "approved" | "rejected"
+      notification_delivery_status:
+        | "pending"
+        | "processing"
+        | "submitted"
+        | "failed"
+        | "skipped"
       price_model: "fixed" | "evidence_quote" | "onsite_inspection"
       quotation_status: "submitted" | "withdrawn" | "accepted" | "declined"
       request_entry_point: "service_catalog" | "symptom"
@@ -2478,6 +2662,13 @@ export const Constants = {
       appointment_status: ["scheduled", "cancelled"],
       catalog_status: ["draft", "pilot", "active", "inactive"],
       document_review_status: ["pending", "approved", "rejected"],
+      notification_delivery_status: [
+        "pending",
+        "processing",
+        "submitted",
+        "failed",
+        "skipped",
+      ],
       price_model: ["fixed", "evidence_quote", "onsite_inspection"],
       quotation_status: ["submitted", "withdrawn", "accepted", "declined"],
       request_entry_point: ["service_catalog", "symptom"],
