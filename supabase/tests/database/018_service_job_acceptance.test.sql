@@ -1,6 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
+set search_path = public, extensions;
 select plan(32);
 
 insert into auth.users (id, email) values
@@ -132,10 +133,13 @@ select is((select status from public.service_job_acceptances
   where service_job_id = 'c3000000-0000-0000-0000-000000000101'),
   'help_requested'::public.service_job_acceptance_status,
   'the help request is durable');
+reset role;
 select is((select status from public.service_jobs
   where id = 'c3000000-0000-0000-0000-000000000101'),
   'awaiting_acceptance'::public.service_job_status,
   'a help request keeps the job in acceptance');
+set local role authenticated;
+select set_config('request.jwt.claim.sub', 'c0000000-0000-0000-0000-000000000101', true);
 select throws_ok(
   $$select public.confirm_service_job_acceptance(
     'c3000000-0000-0000-0000-000000000101')$$,
@@ -161,6 +165,7 @@ select is((select status from public.service_job_acceptances
   where service_job_id = 'c3000000-0000-0000-0000-000000000102'),
   'customer_accepted'::public.service_job_acceptance_status,
   'customer confirmation is recorded');
+reset role;
 select is((select status from public.service_jobs
   where id = 'c3000000-0000-0000-0000-000000000102'),
   'completed'::public.service_job_status,
@@ -174,15 +179,17 @@ select is((select metadata->>'real_money_moved' from public.audit_log
   where action = 'service_job.acceptance_confirmed'
   order by created_at desc limit 1), 'false',
   'the audit proves no real money moved');
+set local role authenticated;
+select set_config('request.jwt.claim.sub', 'c0000000-0000-0000-0000-000000000101', true);
 select lives_ok(
   $$select public.confirm_service_job_acceptance(
     'c3000000-0000-0000-0000-000000000102')$$,
   'repeated customer confirmation is idempotent');
+reset role;
 select is((select count(*)::integer from public.job_status_events
   where service_job_id = 'c3000000-0000-0000-0000-000000000102'
     and to_status = 'completed'), 1,
   'idempotent confirmation does not duplicate status history');
-reset role;
 
 set local role service_role;
 select is(public.process_due_service_job_acceptances(), 1,
