@@ -22,6 +22,12 @@
           "cameraPermission": "อนุญาตให้ HomeCare ใช้กล้องเพื่อถ่ายเอกสารยืนยันตัวตนและภาพใบหน้าของคุณ",
           "microphonePermission": false
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "อนุญาตให้ HomeCare ใช้ตำแหน่งขณะเปิดแอปเพื่อปักหมุดสถานที่และแชร์ตำแหน่งช่างระหว่างเดินทาง"
+        }
       ]
     ],
     "experiments": {

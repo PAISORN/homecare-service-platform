@@ -11,6 +11,8 @@ export type ServiceLocation = Pick<
   | 'floor'
   | 'unit'
   | 'access_instructions'
+  | 'latitude'
+  | 'longitude'
   | 'is_default'
   | 'created_at'
   | 'updated_at'
@@ -24,6 +26,8 @@ export type ServiceLocationDraft = Readonly<{
   unit: string;
   accessInstructions: string;
   isDefault: boolean;
+  latitude: number | null;
+  longitude: number | null;
 }>;
 
 export type ServiceLocationField =
@@ -49,6 +53,8 @@ export const emptyServiceLocationDraft: ServiceLocationDraft = {
   unit: '',
   accessInstructions: '',
   isDefault: false,
+  latitude: null,
+  longitude: null,
 };
 
 function trimmed(value: string) {
@@ -94,6 +100,8 @@ export function serviceLocationToDraft(
     unit: location.unit ?? '',
     accessInstructions: location.access_instructions ?? '',
     isDefault: location.is_default,
+    latitude: location.latitude,
+    longitude: location.longitude,
   };
 }
 
@@ -103,7 +111,7 @@ export async function listOwnServiceLocations(
   const { data, error } = await client
     .from('service_locations')
     .select(
-      'id, label, address_line, building, floor, unit, access_instructions, is_default, created_at, updated_at',
+      'id, label, address_line, building, floor, unit, access_instructions, latitude, longitude, is_default, created_at, updated_at',
     )
     .order('is_default', { ascending: false })
     .order('created_at', { ascending: true });
@@ -118,7 +126,7 @@ export async function getOwnServiceLocation(
   const { data, error } = await client
     .from('service_locations')
     .select(
-      'id, label, address_line, building, floor, unit, access_instructions, is_default, created_at, updated_at',
+      'id, label, address_line, building, floor, unit, access_instructions, latitude, longitude, is_default, created_at, updated_at',
     )
     .eq('id', locationId)
     .maybeSingle();
@@ -130,6 +138,7 @@ export async function saveOwnServiceLocation(
   client: MobileSupabaseClient,
   draft: ServiceLocationDraft,
   locationId?: string,
+  coordinatesChanged = !locationId,
 ): Promise<ServiceLocation> {
   const validation = validateServiceLocationDraft(draft);
   if (Object.keys(validation.errors).length > 0) {
@@ -147,6 +156,22 @@ export async function saveOwnServiceLocation(
     p_location_id: locationId,
   });
   if (error) throw error;
+  if (
+    coordinatesChanged &&
+    value.latitude !== null &&
+    value.longitude !== null
+  ) {
+    const { data: located, error: coordinateError } = await client.rpc(
+      'update_service_location_coordinates',
+      {
+        p_location_id: data.id,
+        p_latitude: value.latitude,
+        p_longitude: value.longitude,
+      },
+    );
+    if (coordinateError) throw coordinateError;
+    return located;
+  }
   return data;
 }
 

@@ -25,6 +25,8 @@ describe('service-location validation', () => {
       unit: '',
       accessInstructions: '  โทรก่อนถึง  ',
       isDefault: true,
+      latitude: null,
+      longitude: null,
     });
 
     expect(result.errors).toEqual({});
@@ -46,6 +48,8 @@ describe('service-location validation', () => {
       unit: 'จ'.repeat(41),
       accessInstructions: 'ฉ'.repeat(501),
       isDefault: false,
+      latitude: null,
+      longitude: null,
     });
 
     expect(result.errors).toEqual({
@@ -68,6 +72,8 @@ describe('service-location validation', () => {
         floor: null,
         unit: null,
         access_instructions: null,
+        latitude: 13.756331,
+        longitude: 100.501762,
         is_default: true,
         created_at: '2026-09-01T00:00:00Z',
         updated_at: '2026-09-01T00:00:00Z',
@@ -80,6 +86,8 @@ describe('service-location validation', () => {
       unit: '',
       accessInstructions: '',
       isDefault: true,
+      latitude: 13.756331,
+      longitude: 100.501762,
     });
   });
 });

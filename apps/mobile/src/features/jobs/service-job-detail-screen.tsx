@@ -35,6 +35,7 @@ import {
   type ServiceJobStatus,
   type ServiceJobStatusEvent,
 } from './service-jobs-api';
+import { ServiceJobTravelPanel } from './service-job-travel-panel';
 
 type Props = Readonly<{
   mode: ServiceJobActorRole;
@@ -181,7 +182,7 @@ export function ServiceJobDetailScreen({ mode, fallback }: Props) {
             </View>
           ) : null}
 
-          {state === 'ready' && job ? (
+          {state === 'ready' && job && client ? (
             <>
               <View style={styles.summaryCard}>
                 <Text selectable style={styles.jobNumber}>
@@ -270,6 +271,14 @@ export function ServiceJobDetailScreen({ mode, fallback }: Props) {
                   </>
                 ) : null}
               </Section>
+
+              {job.job_status === 'technician_en_route' ? (
+                <ServiceJobTravelPanel
+                  client={client}
+                  jobId={job.job_id}
+                  mode={mode}
+                />
+              ) : null}
 
               <Section title={copy.scopeTitle} styles={styles}>
                 <Text style={styles.body}>{job.scope_description}</Text>

@@ -368,6 +368,51 @@ export type Database = {
           },
         ]
       }
+      job_travel_locations: {
+        Row: {
+          accuracy_meters: number | null
+          captured_at: string
+          latitude: number
+          longitude: number
+          service_job_id: string
+          technician_id: string
+          updated_at: string
+        }
+        Insert: {
+          accuracy_meters?: number | null
+          captured_at: string
+          latitude: number
+          longitude: number
+          service_job_id: string
+          technician_id: string
+          updated_at?: string
+        }
+        Update: {
+          accuracy_meters?: number | null
+          captured_at?: string
+          latitude?: number
+          longitude?: number
+          service_job_id?: string
+          technician_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_travel_locations_service_job_id_fkey"
+            columns: ["service_job_id"]
+            isOneToOne: true
+            referencedRelation: "service_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_travel_locations_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technician_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           actor_user_id: string
@@ -1855,6 +1900,22 @@ export type Database = {
           warranty_days: number
         }[]
       }
+      get_service_job_travel_progress: {
+        Args: { p_job_id: string }
+        Returns: {
+          accuracy_meters: number
+          captured_at: string
+          destination_ready: boolean
+          estimated_minutes: number
+          is_stale: boolean
+          job_status: Database["public"]["Enums"]["service_job_status"]
+          latitude: number
+          longitude: number
+          refresh_interval_seconds: number
+          sharing_active: boolean
+          straight_line_distance_km: number
+        }[]
+      }
       get_service_request_agreement: {
         Args: { p_request_id: string }
         Returns: {
@@ -2100,6 +2161,16 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      publish_service_job_travel_location: {
+        Args: {
+          p_accuracy_meters: number
+          p_captured_at: string
+          p_job_id: string
+          p_latitude: number
+          p_longitude: number
+        }
+        Returns: undefined
+      }
       register_push_device: {
         Args: {
           p_expo_push_token: string
@@ -2343,6 +2414,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      stop_service_job_travel_sharing: {
+        Args: { p_job_id: string }
+        Returns: undefined
+      }
       submit_service_request: {
         Args: { p_request_id: string }
         Returns: {
@@ -2435,6 +2510,30 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "service_jobs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_service_location_coordinates: {
+        Args: { p_latitude: number; p_location_id: string; p_longitude: number }
+        Returns: {
+          access_instructions: string | null
+          address_line: string
+          building: string | null
+          created_at: string
+          customer_id: string
+          floor: string | null
+          id: string
+          is_default: boolean
+          label: string
+          latitude: number | null
+          longitude: number | null
+          unit: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_locations"
           isOneToOne: true
           isSetofReturn: false
         }

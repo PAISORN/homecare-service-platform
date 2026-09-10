@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppFontFamilies } from '../../foundation/font-runtime';
 import { serviceLocationCopyTh as copy } from '../../locales/th';
 import { useSession } from '../../providers/session-provider';
+import { getCurrentForegroundCoordinates } from '../location/foreground-location';
 import { createFormStyles } from '../shared/form-styles';
 import { goBackOrReplace } from '../shared/navigation';
 import {
@@ -48,6 +49,9 @@ export function ServiceLocationFormScreen({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [existingDefault, setExistingDefault] = useState(false);
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [coordinatesChanged, setCoordinatesChanged] = useState(false);
   const styles = createFormStyles(useAppFontFamilies());
 
   useEffect(() => {
@@ -97,12 +101,36 @@ export function ServiceLocationFormScreen({
     setSaving(true);
     setSaveError(null);
     try {
-      await saveOwnServiceLocation(client, result.value, locationId);
+      await saveOwnServiceLocation(
+        client,
+        result.value,
+        locationId,
+        coordinatesChanged,
+      );
       router.replace('/account/locations');
     } catch {
       setSaveError(copy.saveFailed);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function captureLocation() {
+    if (locating) return;
+    setLocating(true);
+    setLocationError(null);
+    try {
+      const coordinates = await getCurrentForegroundCoordinates();
+      setDraft((current) => ({
+        ...current,
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude,
+      }));
+      setCoordinatesChanged(true);
+    } catch {
+      setLocationError(copy.locationFailed);
+    } finally {
+      setLocating(false);
     }
   }
 
@@ -206,6 +234,43 @@ export function ServiceLocationFormScreen({
                 value={draft.accessInstructions}
               />
 
+              <View style={[styles.card, locationStyles.locationCard]}>
+                <Text style={styles.cardTitle}>{copy.pinTitle}</Text>
+                <Text style={styles.cardBody}>{copy.pinDescription}</Text>
+                {draft.latitude !== null && draft.longitude !== null ? (
+                  <Text accessibilityLiveRegion="polite" style={styles.helper}>
+                    {copy.pinReady}
+                  </Text>
+                ) : null}
+                {locationError ? (
+                  <Text accessibilityLiveRegion="polite" style={styles.error}>
+                    {locationError}
+                  </Text>
+                ) : null}
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityState={{ disabled: locating }}
+                  disabled={locating}
+                  onPress={() => void captureLocation()}
+                  style={({ pressed }) => [
+                    styles.secondaryButton,
+                    locationStyles.locationButton,
+                    locating && styles.buttonDisabled,
+                    pressed && styles.buttonPressed,
+                  ]}
+                >
+                  {locating ? (
+                    <ActivityIndicator color={colors.action} />
+                  ) : (
+                    <Text style={styles.secondaryButtonText}>
+                      {draft.latitude === null
+                        ? copy.useCurrentLocation
+                        : copy.updateCurrentLocation}
+                    </Text>
+                  )}
+                </Pressable>
+              </View>
+
               <View style={[styles.card, locationStyles.defaultCard]}>
                 <View style={locationStyles.defaultRow}>
                   <View style={locationStyles.defaultText}>
@@ -306,6 +371,8 @@ function LocationField({
 const locationStyles = StyleSheet.create({
   backButton: { alignSelf: 'flex-start', marginTop: 0 },
   defaultCard: { marginTop: spacing.xl },
+  locationCard: { gap: spacing.sm, marginTop: spacing.xl },
+  locationButton: { marginTop: spacing.sm },
   defaultRow: {
     alignItems: 'center',
     flexDirection: 'row',
