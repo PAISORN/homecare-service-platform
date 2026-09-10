@@ -785,83 +785,6 @@ export type Database = {
           },
         ]
       }
-      service_job_additional_work_requests: {
-        Row: {
-          created_at: string
-          currency: string
-          evidence_id: string
-          id: string
-          labor_amount: number
-          materials_amount: number
-          reason: string
-          responded_at: string | null
-          responded_by: string | null
-          scope_description: string
-          service_job_id: string
-          status: Database["public"]["Enums"]["additional_work_request_status"]
-          technician_id: string
-        }
-        Insert: {
-          created_at?: string
-          currency: string
-          evidence_id: string
-          id?: string
-          labor_amount?: number
-          materials_amount?: number
-          reason: string
-          responded_at?: string | null
-          responded_by?: string | null
-          scope_description: string
-          service_job_id: string
-          status?: Database["public"]["Enums"]["additional_work_request_status"]
-          technician_id: string
-        }
-        Update: {
-          created_at?: string
-          currency?: string
-          evidence_id?: string
-          id?: string
-          labor_amount?: number
-          materials_amount?: number
-          reason?: string
-          responded_at?: string | null
-          responded_by?: string | null
-          scope_description?: string
-          service_job_id?: string
-          status?: Database["public"]["Enums"]["additional_work_request_status"]
-          technician_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "service_job_additional_work_requests_evidence_id_fkey"
-            columns: ["evidence_id"]
-            isOneToOne: true
-            referencedRelation: "service_job_evidence"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "service_job_additional_work_requests_responded_by_fkey"
-            columns: ["responded_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "service_job_additional_work_requests_service_job_id_fkey"
-            columns: ["service_job_id"]
-            isOneToOne: false
-            referencedRelation: "service_jobs"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "service_job_additional_work_requests_technician_id_fkey"
-            columns: ["technician_id"]
-            isOneToOne: false
-            referencedRelation: "technician_profiles"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
       service_job_acceptances: {
         Row: {
           accepted_at: string | null
@@ -942,6 +865,83 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_job_additional_work_requests: {
+        Row: {
+          created_at: string
+          currency: string
+          evidence_id: string
+          id: string
+          labor_amount: number
+          materials_amount: number
+          reason: string
+          responded_at: string | null
+          responded_by: string | null
+          scope_description: string
+          service_job_id: string
+          status: Database["public"]["Enums"]["additional_work_request_status"]
+          technician_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency: string
+          evidence_id: string
+          id?: string
+          labor_amount?: number
+          materials_amount?: number
+          reason: string
+          responded_at?: string | null
+          responded_by?: string | null
+          scope_description: string
+          service_job_id: string
+          status?: Database["public"]["Enums"]["additional_work_request_status"]
+          technician_id: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          evidence_id?: string
+          id?: string
+          labor_amount?: number
+          materials_amount?: number
+          reason?: string
+          responded_at?: string | null
+          responded_by?: string | null
+          scope_description?: string
+          service_job_id?: string
+          status?: Database["public"]["Enums"]["additional_work_request_status"]
+          technician_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_job_additional_work_requests_evidence_id_fkey"
+            columns: ["evidence_id"]
+            isOneToOne: true
+            referencedRelation: "service_job_evidence"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_job_additional_work_requests_responded_by_fkey"
+            columns: ["responded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_job_additional_work_requests_service_job_id_fkey"
+            columns: ["service_job_id"]
+            isOneToOne: false
+            referencedRelation: "service_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_job_additional_work_requests_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technician_profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1802,6 +1802,32 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      confirm_service_job_acceptance: {
+        Args: { p_job_id: string }
+        Returns: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          currency: string
+          customer_id: string
+          help_reason: string | null
+          help_requested_at: string | null
+          payment_mode: string
+          review_deadline_at: string
+          review_started_at: string
+          service_job_id: string
+          status: Database["public"]["Enums"]["service_job_acceptance_status"]
+          technician_id: string
+          total_amount_snapshot: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_job_acceptances"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       confirm_service_request_agreement: {
         Args: { p_request_id: string }
         Returns: {
@@ -1824,16 +1850,6 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "service_request_agreements"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
-      confirm_service_job_acceptance: {
-        Args: { p_job_id: string }
-        Returns: Database["public"]["Tables"]["service_job_acceptances"]["Row"]
-        SetofOptions: {
-          from: "*"
-          to: "service_job_acceptances"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -1967,7 +1983,23 @@ export type Database = {
       }
       get_service_job_acceptance: {
         Args: { p_job_id: string }
-        Returns: Database["public"]["Tables"]["service_job_acceptances"]["Row"][]
+        Returns: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          currency: string
+          customer_id: string
+          help_reason: string | null
+          help_requested_at: string | null
+          payment_mode: string
+          review_deadline_at: string
+          review_started_at: string
+          service_job_id: string
+          status: Database["public"]["Enums"]["service_job_acceptance_status"]
+          technician_id: string
+          total_amount_snapshot: number
+          updated_at: string
+        }[]
         SetofOptions: {
           from: "*"
           to: "service_job_acceptances"
@@ -2166,20 +2198,6 @@ export type Database = {
           updated_at: string
         }[]
       }
-      process_due_service_job_acceptances: {
-        Args: { p_limit?: number }
-        Returns: number
-      }
-      request_service_job_acceptance_help: {
-        Args: { p_job_id: string; p_reason: string }
-        Returns: Database["public"]["Tables"]["service_job_acceptances"]["Row"]
-        SetofOptions: {
-          from: "*"
-          to: "service_job_acceptances"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
       list_technician_review_documents: {
         Args: { p_technician_id: string }
         Returns: {
@@ -2221,6 +2239,10 @@ export type Database = {
       mark_notification_read: {
         Args: { p_notification_id: string }
         Returns: boolean
+      }
+      process_due_service_job_acceptances: {
+        Args: { p_limit?: number }
+        Returns: number
       }
       promote_required_technician_document: {
         Args: {
@@ -2340,6 +2362,32 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "service_job_evidence"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      request_service_job_acceptance_help: {
+        Args: { p_job_id: string; p_reason: string }
+        Returns: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          currency: string
+          customer_id: string
+          help_reason: string | null
+          help_requested_at: string | null
+          payment_mode: string
+          review_deadline_at: string
+          review_started_at: string
+          service_job_id: string
+          status: Database["public"]["Enums"]["service_job_acceptance_status"]
+          technician_id: string
+          total_amount_snapshot: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_job_acceptances"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -2704,17 +2752,17 @@ export type Database = {
       request_entry_point: "service_catalog" | "symptom"
       request_safety_status: "clear" | "stopped"
       request_urgency: "flexible" | "within_3_days" | "as_soon_as_possible"
+      service_job_acceptance_status:
+        | "pending"
+        | "help_requested"
+        | "customer_accepted"
+        | "automatic_accepted"
       service_job_evidence_type:
         | "before"
         | "during"
         | "after"
         | "additional_work"
       service_job_pin_purpose: "start" | "completion"
-      service_job_acceptance_status:
-        | "pending"
-        | "help_requested"
-        | "customer_accepted"
-        | "automatic_accepted"
       service_job_status:
         | "scheduled"
         | "technician_en_route"
@@ -2757,12 +2805,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2786,11 +2834,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2811,11 +2859,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2836,11 +2884,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2853,11 +2901,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2896,6 +2944,12 @@ export const Constants = {
       request_entry_point: ["service_catalog", "symptom"],
       request_safety_status: ["clear", "stopped"],
       request_urgency: ["flexible", "within_3_days", "as_soon_as_possible"],
+      service_job_acceptance_status: [
+        "pending",
+        "help_requested",
+        "customer_accepted",
+        "automatic_accepted",
+      ],
       service_job_evidence_type: [
         "before",
         "during",
@@ -2903,12 +2957,6 @@ export const Constants = {
         "additional_work",
       ],
       service_job_pin_purpose: ["start", "completion"],
-      service_job_acceptance_status: [
-        "pending",
-        "help_requested",
-        "customer_accepted",
-        "automatic_accepted",
-      ],
       service_job_status: [
         "scheduled",
         "technician_en_route",
