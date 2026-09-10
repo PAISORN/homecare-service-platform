@@ -28,7 +28,8 @@ if (!generated.stdout.includes('export type Database')) {
   process.exit(1);
 }
 
-writeFileSync(temporary, generated.stdout, 'utf8');
+const normalized = `${generated.stdout.replaceAll('\r\n', '\n').trimEnd()}\n`;
+writeFileSync(temporary, normalized, 'utf8');
 
 try {
   // Node maps rename to an atomic replacement on supported local filesystems.
