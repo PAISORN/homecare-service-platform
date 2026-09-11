@@ -9,6 +9,7 @@ import {
 import { getQualityCase } from '@/features/service-quality/case-dal';
 import {
   formatQualityDeadline,
+  qualityCaseStatusLabels,
   qualityEventLabels,
   qualityNextActorLabels,
   qualitySlaLabels,
@@ -40,7 +41,7 @@ export default async function QualityCaseDetailPage({
           <p className="lead">Job ID: {item.service_job_id}</p>
         </div>
         <span className={`status-badge status-${item.status}`}>
-          {item.status}
+          {qualityCaseStatusLabels[item.status]}
         </span>
       </section>
       <div className="detail-grid">
@@ -134,7 +135,7 @@ export default async function QualityCaseDetailPage({
                 <input name="caseId" type="hidden" value={item.id} />
                 <label>
                   สถานะ
-                  <select defaultValue="under_review" name="status">
+                  <select defaultValue={item.status} name="status">
                     <option value="under_review">กำลังตรวจสอบ</option>
                     <option value="awaiting_customer">รอข้อมูลลูกค้า</option>
                     <option value="awaiting_technician">รอข้อมูลช่าง</option>

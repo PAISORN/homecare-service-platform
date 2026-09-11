@@ -1,9 +1,12 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 
 import { requireCaseManager } from '@/features/auth/auth';
 import { createAdminSupabaseClient } from '@/lib/supabase-server';
+
+import { qualityCasePath } from './routes';
 
 const openStatuses = new Set([
   'under_review',
@@ -56,7 +59,8 @@ export async function updateQualityCaseAction(formData: FormData) {
   if (error) throw error;
   await client.functions.invoke('dispatch-job-notifications');
   revalidatePath('/cases');
-  revalidatePath(`/cases/${caseId}`);
+  revalidatePath(qualityCasePath(caseId));
+  redirect(qualityCasePath(caseId));
 }
 
 export async function escalateQualityCaseAction(formData: FormData) {
@@ -70,7 +74,8 @@ export async function escalateQualityCaseAction(formData: FormData) {
   if (error) throw error;
   await client.functions.invoke('dispatch-job-notifications');
   revalidatePath('/cases');
-  revalidatePath(`/cases/${caseId}`);
+  revalidatePath(qualityCasePath(caseId));
+  redirect(qualityCasePath(caseId));
 }
 
 export async function moderateReviewAction(formData: FormData) {
@@ -94,4 +99,5 @@ export async function moderateReviewAction(formData: FormData) {
   });
   if (error) throw error;
   revalidatePath('/cases');
+  redirect('/cases');
 }

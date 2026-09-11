@@ -12,6 +12,7 @@ import {
   qualityNextActorLabels,
   qualitySlaLabels,
 } from '@/features/service-quality/service-quality-copy';
+import { qualityCasePath } from '@/features/service-quality/routes';
 import { ReviewShell } from '@/features/technician-review/review-shell';
 
 export default async function QualityCasesPage() {
@@ -101,13 +102,7 @@ export default async function QualityCasesPage() {
                   </div>
                 </dl>
               </div>
-              <Link
-                className="primary-link"
-                href={{
-                  pathname: '/cases/[caseId]',
-                  query: { caseId: item.id },
-                }}
-              >
+              <Link className="primary-link" href={qualityCasePath(item.id)}>
                 เปิดเคส
               </Link>
             </article>
