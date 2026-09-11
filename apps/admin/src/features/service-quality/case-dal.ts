@@ -7,9 +7,9 @@ export async function listQualityCases() {
   const { data, error } = await client
     .from('service_quality_cases')
     .select(
-      'id, service_job_id, kind, category, status, details, payment_hold_simulated, created_at, updated_at',
+      'id, service_job_id, kind, category, status, details, payment_hold_simulated, next_action_by, sla_due_at, sla_state, created_at, updated_at',
     )
-    .order('updated_at', { ascending: false });
+    .order('sla_due_at', { ascending: true, nullsFirst: false });
   if (error) throw error;
   return data;
 }

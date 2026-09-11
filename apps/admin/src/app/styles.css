@@ -188,6 +188,9 @@ h3 {
   color: var(--hc-color-primary);
   font-size: 30px;
 }
+.metric-danger strong {
+  color: var(--hc-color-danger);
+}
 .metric-card span {
   color: var(--hc-color-text-muted);
   font-size: 14px;
@@ -272,6 +275,19 @@ dd {
 .status-dismissed,
 .status-escalated {
   color: var(--hc-color-danger);
+}
+.sla-on_track,
+.sla-closed {
+  color: var(--hc-color-success);
+}
+.sla-due_soon {
+  color: var(--hc-color-warning);
+}
+.sla-overdue {
+  color: var(--hc-color-danger);
+}
+.sla-summary {
+  border-left: 4px solid var(--hc-color-action);
 }
 .empty-state {
   padding: 48px 24px;

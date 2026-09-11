@@ -1,6 +1,7 @@
 import type { Tables } from '@homecare/database-types';
 
 import { prepareKycImage } from '../account/technician-kyc';
+import { requestJobNotificationDispatch } from '../notifications/push-device-api';
 import type { MobileSupabaseClient } from '../../lib/supabase';
 
 const QUALITY_BUCKET = 'service-quality-evidence';
@@ -68,6 +69,7 @@ export async function openServiceQualityCase(
     p_details: input.details,
   });
   if (error) throw error;
+  requestJobNotificationDispatch(client);
   return data;
 }
 
@@ -81,6 +83,7 @@ export async function respondToServiceQualityCase(
     p_response: response.trim(),
   });
   if (error) throw error;
+  requestJobNotificationDispatch(client);
   return data;
 }
 
@@ -108,6 +111,7 @@ export async function submitServiceJobReview(
     p_review_text: input.text?.trim() || undefined,
   });
   if (error) throw error;
+  requestJobNotificationDispatch(client);
   return data;
 }
 
@@ -121,6 +125,7 @@ export async function respondToServiceJobReview(
     p_response: response.trim(),
   });
   if (error) throw error;
+  requestJobNotificationDispatch(client);
   return data;
 }
 

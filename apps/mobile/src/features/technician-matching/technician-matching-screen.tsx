@@ -24,6 +24,7 @@ import {
   formatPreferredDateTh,
 } from '../requests/preferred-date';
 import { goBackOrReplace } from '../shared/navigation';
+import { NotificationInboxLink } from '../notifications/notification-inbox-link';
 import {
   expressTechnicianInterest,
   getMatchingPriceLabel,
@@ -125,6 +126,7 @@ export function TechnicianMatchingScreen() {
         >
           <Text style={styles.backText}>{copy.back}</Text>
         </Pressable>
+        <NotificationInboxLink mode="technician" />
         <Text accessibilityRole="header" style={styles.title}>
           {copy.title}
         </Text>

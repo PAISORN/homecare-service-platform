@@ -415,7 +415,7 @@ export type Database = {
       }
       notifications: {
         Row: {
-          actor_user_id: string
+          actor_user_id: string | null
           attempt_count: number
           body: string
           created_at: string
@@ -431,12 +431,13 @@ export type Database = {
           read_at: string | null
           recipient_user_id: string
           service_job_id: string
+          service_quality_case_id: string | null
           source_record_id: string
           submitted_at: string | null
           title: string
         }
         Insert: {
-          actor_user_id: string
+          actor_user_id?: string | null
           attempt_count?: number
           body: string
           created_at?: string
@@ -452,12 +453,13 @@ export type Database = {
           read_at?: string | null
           recipient_user_id: string
           service_job_id: string
+          service_quality_case_id?: string | null
           source_record_id: string
           submitted_at?: string | null
           title: string
         }
         Update: {
-          actor_user_id?: string
+          actor_user_id?: string | null
           attempt_count?: number
           body?: string
           created_at?: string
@@ -473,6 +475,7 @@ export type Database = {
           read_at?: string | null
           recipient_user_id?: string
           service_job_id?: string
+          service_quality_case_id?: string | null
           source_record_id?: string
           submitted_at?: string | null
           title?: string
@@ -497,6 +500,13 @@ export type Database = {
             columns: ["service_job_id"]
             isOneToOne: false
             referencedRelation: "service_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_service_quality_case_id_fkey"
+            columns: ["service_quality_case_id"]
+            isOneToOne: false
+            referencedRelation: "service_quality_cases"
             referencedColumns: ["id"]
           },
         ]
@@ -1557,12 +1567,16 @@ export type Database = {
           details: string
           id: string
           kind: Database["public"]["Enums"]["service_quality_case_kind"]
+          next_action_by: Database["public"]["Enums"]["service_quality_next_actor"]
           opened_by: string
           payment_hold_simulated: boolean
           payment_mode: string
           real_money_moved: boolean
           service_job_id: string
           simulated_refund_amount: number | null
+          sla_due_at: string | null
+          sla_state: Database["public"]["Enums"]["service_quality_sla_state"]
+          sla_warning_at: string | null
           status: Database["public"]["Enums"]["service_quality_case_status"]
           technician_id: string
           technician_response: string | null
@@ -1582,12 +1596,16 @@ export type Database = {
           details: string
           id?: string
           kind: Database["public"]["Enums"]["service_quality_case_kind"]
+          next_action_by?: Database["public"]["Enums"]["service_quality_next_actor"]
           opened_by: string
           payment_hold_simulated?: boolean
           payment_mode?: string
           real_money_moved?: boolean
           service_job_id: string
           simulated_refund_amount?: number | null
+          sla_due_at?: string | null
+          sla_state?: Database["public"]["Enums"]["service_quality_sla_state"]
+          sla_warning_at?: string | null
           status?: Database["public"]["Enums"]["service_quality_case_status"]
           technician_id: string
           technician_response?: string | null
@@ -1607,12 +1625,16 @@ export type Database = {
           details?: string
           id?: string
           kind?: Database["public"]["Enums"]["service_quality_case_kind"]
+          next_action_by?: Database["public"]["Enums"]["service_quality_next_actor"]
           opened_by?: string
           payment_hold_simulated?: boolean
           payment_mode?: string
           real_money_moved?: boolean
           service_job_id?: string
           simulated_refund_amount?: number | null
+          sla_due_at?: string | null
+          sla_state?: Database["public"]["Enums"]["service_quality_sla_state"]
+          sla_warning_at?: string | null
           status?: Database["public"]["Enums"]["service_quality_case_status"]
           technician_id?: string
           technician_response?: string | null
@@ -2212,12 +2234,16 @@ export type Database = {
           details: string
           id: string
           kind: Database["public"]["Enums"]["service_quality_case_kind"]
+          next_action_by: Database["public"]["Enums"]["service_quality_next_actor"]
           opened_by: string
           payment_hold_simulated: boolean
           payment_mode: string
           real_money_moved: boolean
           service_job_id: string
           simulated_refund_amount: number | null
+          sla_due_at: string | null
+          sla_state: Database["public"]["Enums"]["service_quality_sla_state"]
+          sla_warning_at: string | null
           status: Database["public"]["Enums"]["service_quality_case_status"]
           technician_id: string
           technician_response: string | null
@@ -2319,7 +2345,7 @@ export type Database = {
       claim_job_notifications_for_actor: {
         Args: { p_actor_id: string; p_limit?: number }
         Returns: {
-          actor_user_id: string
+          actor_user_id: string | null
           attempt_count: number
           body: string
           created_at: string
@@ -2335,6 +2361,38 @@ export type Database = {
           read_at: string | null
           recipient_user_id: string
           service_job_id: string
+          service_quality_case_id: string | null
+          source_record_id: string
+          submitted_at: string | null
+          title: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "notifications"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      claim_pending_notifications: {
+        Args: { p_limit?: number }
+        Returns: {
+          actor_user_id: string | null
+          attempt_count: number
+          body: string
+          created_at: string
+          data: Json
+          deep_link: string
+          delivery_status: Database["public"]["Enums"]["notification_delivery_status"]
+          event_key: string
+          id: string
+          last_attempt_at: string | null
+          last_error: string | null
+          next_attempt_at: string
+          provider_response: Json | null
+          read_at: string | null
+          recipient_user_id: string
+          service_job_id: string
+          service_quality_case_id: string | null
           source_record_id: string
           submitted_at: string | null
           title: string
@@ -2784,6 +2842,7 @@ export type Database = {
           updated_at: string
         }[]
       }
+      mark_all_notifications_read: { Args: never; Returns: number }
       mark_notification_read: {
         Args: { p_notification_id: string }
         Returns: boolean
@@ -2809,12 +2868,16 @@ export type Database = {
           details: string
           id: string
           kind: Database["public"]["Enums"]["service_quality_case_kind"]
+          next_action_by: Database["public"]["Enums"]["service_quality_next_actor"]
           opened_by: string
           payment_hold_simulated: boolean
           payment_mode: string
           real_money_moved: boolean
           service_job_id: string
           simulated_refund_amount: number | null
+          sla_due_at: string | null
+          sla_state: Database["public"]["Enums"]["service_quality_sla_state"]
+          sla_warning_at: string | null
           status: Database["public"]["Enums"]["service_quality_case_status"]
           technician_id: string
           technician_response: string | null
@@ -2830,6 +2893,13 @@ export type Database = {
       process_due_service_job_acceptances: {
         Args: { p_limit?: number }
         Returns: number
+      }
+      process_service_quality_sla: {
+        Args: { p_limit?: number; p_now?: string }
+        Returns: {
+          due_soon_count: number
+          overdue_count: number
+        }[]
       }
       promote_required_technician_document: {
         Args: {
@@ -3073,12 +3143,16 @@ export type Database = {
           details: string
           id: string
           kind: Database["public"]["Enums"]["service_quality_case_kind"]
+          next_action_by: Database["public"]["Enums"]["service_quality_next_actor"]
           opened_by: string
           payment_hold_simulated: boolean
           payment_mode: string
           real_money_moved: boolean
           service_job_id: string
           simulated_refund_amount: number | null
+          sla_due_at: string | null
+          sla_state: Database["public"]["Enums"]["service_quality_sla_state"]
+          sla_warning_at: string | null
           status: Database["public"]["Enums"]["service_quality_case_status"]
           technician_id: string
           technician_response: string | null
@@ -3505,6 +3579,11 @@ export type Database = {
         | "resolved"
         | "dismissed"
         | "escalated"
+      service_quality_next_actor:
+        | "homecare"
+        | "customer"
+        | "technician"
+        | "none"
       service_quality_resolution:
         | "no_action"
         | "warranty_rework"
@@ -3512,6 +3591,7 @@ export type Database = {
         | "partial_refund_simulated"
         | "full_refund_simulated"
         | "other"
+      service_quality_sla_state: "on_track" | "due_soon" | "overdue" | "closed"
       service_request_status:
         | "draft"
         | "cancelled"
@@ -3727,6 +3807,12 @@ export const Constants = {
         "dismissed",
         "escalated",
       ],
+      service_quality_next_actor: [
+        "homecare",
+        "customer",
+        "technician",
+        "none",
+      ],
       service_quality_resolution: [
         "no_action",
         "warranty_rework",
@@ -3735,6 +3821,7 @@ export const Constants = {
         "full_refund_simulated",
         "other",
       ],
+      service_quality_sla_state: ["on_track", "due_soon", "overdue", "closed"],
       service_request_status: [
         "draft",
         "cancelled",

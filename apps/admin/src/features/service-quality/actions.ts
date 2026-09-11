@@ -54,6 +54,7 @@ export async function updateQualityCaseAction(formData: FormData) {
     p_simulated_refund_amount: amount ?? undefined,
   });
   if (error) throw error;
+  await client.functions.invoke('dispatch-job-notifications');
   revalidatePath('/cases');
   revalidatePath(`/cases/${caseId}`);
 }
@@ -67,6 +68,7 @@ export async function escalateQualityCaseAction(formData: FormData) {
     p_case_id: caseId,
   });
   if (error) throw error;
+  await client.functions.invoke('dispatch-job-notifications');
   revalidatePath('/cases');
   revalidatePath(`/cases/${caseId}`);
 }

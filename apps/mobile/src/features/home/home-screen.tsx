@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { MobileHomeScaffold } from '../../data/mobile-home-scaffold';
 import { useAppFontFamilies } from '../../foundation/font-runtime';
 import type { MobileHomeCopy } from '../../locales/th';
+import { NotificationInboxLink } from '../notifications/notification-inbox-link';
 
 export function HomeScreen({
   copy,
@@ -23,6 +24,8 @@ export function HomeScreen({
         <Text style={styles.eyebrow}>{copy.brand}</Text>
         <Text style={styles.title}>{copy.title}</Text>
         <Text style={styles.description}>{copy.description}</Text>
+
+        <NotificationInboxLink mode="customer" />
 
         <Pressable
           accessibilityRole="button"

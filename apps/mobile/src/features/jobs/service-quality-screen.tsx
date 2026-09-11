@@ -57,6 +57,18 @@ const categoryLabels: Record<ServiceQualityCategory, string> = {
   safety: 'ความปลอดภัย',
   other: 'อื่น ๆ',
 };
+const slaLabels: Record<ServiceQualityCase['sla_state'], string> = {
+  on_track: 'อยู่ในเวลา',
+  due_soon: 'ใกล้ครบกำหนด',
+  overdue: 'เกินกำหนด',
+  closed: 'หยุดจับเวลาแล้ว',
+};
+const nextActorLabels: Record<ServiceQualityCase['next_action_by'], string> = {
+  homecare: 'HomeCare กำลังดำเนินการ',
+  customer: 'รอข้อมูลจากลูกค้า',
+  technician: 'รอข้อมูลจากช่าง',
+  none: 'ไม่มีรายการค้าง',
+};
 
 export function ServiceQualityScreen({ mode, fallback }: Props) {
   const { jobId } = useLocalSearchParams<{ jobId?: string }>();
@@ -349,6 +361,27 @@ export function ServiceQualityScreen({ mode, fallback }: Props) {
                   <Text style={styles.muted}>
                     {categoryLabels[item.category]}
                   </Text>
+                  <View style={styles.slaPanel}>
+                    <Text
+                      style={
+                        item.sla_state === 'overdue'
+                          ? styles.slaDanger
+                          : item.sla_state === 'due_soon'
+                            ? styles.slaWarning
+                            : styles.slaNormal
+                      }
+                    >
+                      SLA: {slaLabels[item.sla_state]}
+                    </Text>
+                    <Text style={styles.muted}>
+                      {nextActorLabels[item.next_action_by]}
+                    </Text>
+                    {item.sla_due_at ? (
+                      <Text style={styles.muted}>
+                        ครบกำหนด {formatDateTime(item.sla_due_at)}
+                      </Text>
+                    ) : null}
+                  </View>
                   <Text style={styles.body}>{item.details}</Text>
                   {item.technician_response ? (
                     <Text style={styles.response}>
@@ -608,6 +641,13 @@ function formatDate(value: string) {
   );
 }
 
+function formatDateTime(value: string) {
+  return new Intl.DateTimeFormat('th-TH', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(value));
+}
+
 function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
   return StyleSheet.create({
     flex: { flex: 1 },
@@ -677,6 +717,28 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
       fontFamily: fonts.regular,
       fontSize: typography.supportSize,
       lineHeight: 22,
+    },
+    slaPanel: {
+      borderColor: colors.border,
+      borderRadius: radii.button,
+      borderWidth: 1,
+      gap: spacing.xs,
+      padding: spacing.md,
+    },
+    slaNormal: {
+      color: colors.success,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.supportSize,
+    },
+    slaWarning: {
+      color: colors.warning,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.supportSize,
+    },
+    slaDanger: {
+      color: colors.danger,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.supportSize,
     },
     label: {
       color: colors.text,

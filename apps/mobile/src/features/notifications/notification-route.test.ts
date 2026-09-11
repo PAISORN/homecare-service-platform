@@ -12,6 +12,9 @@ describe('parseJobNotificationRoute', () => {
     `/technician/jobs/detail?jobId=${jobId}`,
     `/technician/jobs/chat?jobId=${jobId}`,
     `/technician/jobs/work?jobId=${jobId}`,
+    `/jobs/quality?jobId=${jobId}`,
+    `/jobs/quality?jobId=${jobId}&caseId=${jobId}`,
+    `/technician/jobs/quality?jobId=${jobId}&caseId=${jobId}`,
   ])('accepts an allowlisted service-job route: %s', (route) => {
     expect(parseJobNotificationRoute(route)).toBe(route);
   });
@@ -20,6 +23,7 @@ describe('parseJobNotificationRoute', () => {
     'https://example.com/jobs/detail',
     '/account',
     `/jobs/detail?jobId=${jobId}&redirect=https://example.com`,
+    `/jobs/quality?jobId=${jobId}&caseId=not-a-uuid`,
     '/jobs/detail?jobId=not-a-uuid',
     null,
   ])('rejects an untrusted notification route: %s', (route) => {

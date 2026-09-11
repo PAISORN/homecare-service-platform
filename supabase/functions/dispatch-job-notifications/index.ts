@@ -23,13 +23,16 @@ const expoPushEndpoint = 'https://exp.host/--/api/v2/push/send';
 export default {
   fetch: withSupabase({ auth: 'user' }, async (_request, context) => {
     const actorId = String(context.userClaims?.sub ?? '');
-    if (!actorId) {
+    const isServiceRole = context.userClaims?.role === 'service_role';
+    if (!actorId && !isServiceRole) {
       return Response.json({ error: 'authenticated_actor_required' }, { status: 401 });
     }
 
     const { data: claimed, error: claimError } = await context.supabaseAdmin.rpc(
-      'claim_job_notifications_for_actor',
-      { p_actor_id: actorId, p_limit: 25 },
+      isServiceRole
+        ? 'claim_pending_notifications'
+        : 'claim_job_notifications_for_actor',
+      isServiceRole ? { p_limit: 100 } : { p_actor_id: actorId, p_limit: 25 },
     );
     if (claimError) {
       console.error('notification_claim_failed', claimError.code);

@@ -7,6 +7,12 @@ import {
   updateQualityCaseAction,
 } from '@/features/service-quality/actions';
 import { getQualityCase } from '@/features/service-quality/case-dal';
+import {
+  formatQualityDeadline,
+  qualityEventLabels,
+  qualityNextActorLabels,
+  qualitySlaLabels,
+} from '@/features/service-quality/service-quality-copy';
 import { ReviewShell } from '@/features/technician-review/review-shell';
 
 export default async function QualityCaseDetailPage({
@@ -39,6 +45,23 @@ export default async function QualityCaseDetailPage({
       </section>
       <div className="detail-grid">
         <div className="detail-main">
+          <section className="content-section sla-summary">
+            <h2>กรอบเวลาดำเนินการ</h2>
+            <dl className="inline-facts">
+              <div>
+                <dt>สถานะ SLA</dt>
+                <dd>{qualitySlaLabels[item.sla_state]}</dd>
+              </div>
+              <div>
+                <dt>ผู้ดำเนินการถัดไป</dt>
+                <dd>{qualityNextActorLabels[item.next_action_by]}</dd>
+              </div>
+              <div>
+                <dt>ครบกำหนด</dt>
+                <dd>{formatQualityDeadline(item.sla_due_at)}</dd>
+              </div>
+            </dl>
+          </section>
           <section className="content-section">
             <h2>ข้อมูลจากลูกค้า</h2>
             <p>{item.details}</p>
@@ -77,7 +100,9 @@ export default async function QualityCaseDetailPage({
             <ol className="history-list">
               {detail.events.map((event) => (
                 <li key={event.id}>
-                  <strong>{event.event_type}</strong>
+                  <strong>
+                    {qualityEventLabels[event.event_type] ?? event.event_type}
+                  </strong>
                   {event.note ? <p>{event.note}</p> : null}
                   <time>
                     {new Intl.DateTimeFormat('th-TH', {

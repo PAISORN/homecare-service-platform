@@ -6,17 +6,13 @@ import {
   listPendingReviews,
   listQualityCases,
 } from '@/features/service-quality/case-dal';
+import {
+  formatQualityDeadline,
+  qualityCaseStatusLabels,
+  qualityNextActorLabels,
+  qualitySlaLabels,
+} from '@/features/service-quality/service-quality-copy';
 import { ReviewShell } from '@/features/technician-review/review-shell';
-
-const labels = {
-  submitted: 'ส่งเรื่องแล้ว',
-  under_review: 'กำลังตรวจสอบ',
-  awaiting_customer: 'รอลูกค้า',
-  awaiting_technician: 'รอช่าง',
-  resolved: 'แก้ไขแล้ว',
-  dismissed: 'ยุติเรื่อง',
-  escalated: 'ข้อพิพาท',
-} as const;
 
 export default async function QualityCasesPage() {
   const viewer = await requireCaseManager();
@@ -26,6 +22,9 @@ export default async function QualityCasesPage() {
   ]);
   const openCount = cases.filter(
     (item) => !['resolved', 'dismissed'].includes(item.status),
+  ).length;
+  const overdueCount = cases.filter(
+    (item) => item.sla_state === 'overdue',
   ).length;
   return (
     <ReviewShell
@@ -38,12 +37,16 @@ export default async function QualityCasesPage() {
           <h1>เคสคุณภาพงาน</h1>
           <p className="lead">
             ตรวจหลักฐาน ขอข้อมูลเพิ่ม หรือบันทึกคำตัดสิน โดยทุกยอดเงินใน Phase
-            5A เป็นแบบจำลอง
+            5A เป็นแบบจำลอง ระบบเรียงเคสตามกำหนด SLA ที่ต้องดำเนินการก่อน
           </p>
         </div>
         <div className="metric-card">
           <strong>{openCount}</strong>
           <span>เคสที่ยังเปิด</span>
+        </div>
+        <div className="metric-card metric-danger">
+          <strong>{overdueCount}</strong>
+          <span>เคสเกินกำหนด</span>
         </div>
       </section>
       <div className="queue-list">
@@ -57,7 +60,10 @@ export default async function QualityCasesPage() {
             <article className="queue-card" key={item.id}>
               <div className="queue-card-main">
                 <span className={`status-badge status-${item.status}`}>
-                  {labels[item.status]}
+                  {qualityCaseStatusLabels[item.status]}
+                </span>
+                <span className={`status-badge sla-${item.sla_state}`}>
+                  SLA: {qualitySlaLabels[item.sla_state]}
                 </span>
                 <h2>
                   {item.kind === 'warranty_claim'
@@ -84,6 +90,14 @@ export default async function QualityCasesPage() {
                         timeStyle: 'short',
                       }).format(new Date(item.updated_at))}
                     </dd>
+                  </div>
+                  <div>
+                    <dt>ผู้ดำเนินการถัดไป</dt>
+                    <dd>{qualityNextActorLabels[item.next_action_by]}</dd>
+                  </div>
+                  <div>
+                    <dt>กำหนด SLA</dt>
+                    <dd>{formatQualityDeadline(item.sla_due_at)}</dd>
                   </div>
                 </dl>
               </div>
