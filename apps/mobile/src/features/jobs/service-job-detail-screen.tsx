@@ -334,6 +334,37 @@ export function ServiceJobDetailScreen({ mode, fallback }: Props) {
                 />
               ) : null}
 
+              {job.job_status === 'awaiting_acceptance' ||
+              job.job_status === 'completed' ? (
+                <View style={styles.chatSection}>
+                  <Text style={styles.sectionTitle}>ดูแลคุณภาพหลังงาน</Text>
+                  <Text style={styles.sectionDescription}>
+                    ตรวจสอบการรับประกัน ส่งข้อร้องเรียน รีวิวงาน
+                    หรือติดตามคำตัดสินของ HomeCare
+                  </Text>
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={() =>
+                      router.push({
+                        pathname:
+                          mode === 'customer'
+                            ? ('/jobs/quality' as never)
+                            : ('/technician/jobs/quality' as never),
+                        params: { jobId: job.job_id },
+                      })
+                    }
+                    style={({ pressed }) => [
+                      styles.secondaryButton,
+                      pressed && styles.pressed,
+                    ]}
+                  >
+                    <Text style={styles.secondaryText}>
+                      เปิดศูนย์ดูแลคุณภาพงาน
+                    </Text>
+                  </Pressable>
+                </View>
+              ) : null}
+
               <Text style={styles.sectionTitle}>{copy.statusTitle}</Text>
               {nextStatus ? (
                 <Pressable

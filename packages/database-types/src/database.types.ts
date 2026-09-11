@@ -710,6 +710,97 @@ export type Database = {
         }
         Relationships: []
       }
+      service_disputes: {
+        Row: {
+          case_id: string
+          created_at: string
+          customer_id: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_note: string | null
+          id: string
+          opened_by: string
+          real_money_moved: boolean
+          service_job_id: string
+          status: Database["public"]["Enums"]["service_dispute_status"]
+          technician_id: string
+          updated_at: string
+        }
+        Insert: {
+          case_id: string
+          created_at?: string
+          customer_id: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          id?: string
+          opened_by: string
+          real_money_moved?: boolean
+          service_job_id: string
+          status?: Database["public"]["Enums"]["service_dispute_status"]
+          technician_id: string
+          updated_at?: string
+        }
+        Update: {
+          case_id?: string
+          created_at?: string
+          customer_id?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          id?: string
+          opened_by?: string
+          real_money_moved?: boolean
+          service_job_id?: string
+          status?: Database["public"]["Enums"]["service_dispute_status"]
+          technician_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_disputes_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: true
+            referencedRelation: "service_quality_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_disputes_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_disputes_decided_by_fkey"
+            columns: ["decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_disputes_opened_by_fkey"
+            columns: ["opened_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_disputes_service_job_id_fkey"
+            columns: ["service_job_id"]
+            isOneToOne: false
+            referencedRelation: "service_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_disputes_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_items: {
         Row: {
           approved_by: string | null
@@ -1047,6 +1138,156 @@ export type Database = {
           },
         ]
       }
+      service_job_reviews: {
+        Row: {
+          created_at: string
+          customer_id: string
+          editable_until: string
+          id: string
+          manners_rating: number
+          moderated_at: string | null
+          moderated_by: string | null
+          moderation_note: string | null
+          overall_rating: number
+          price_clarity_rating: number
+          punctuality_rating: number
+          quality_rating: number
+          review_text: string | null
+          service_job_id: string
+          status: Database["public"]["Enums"]["service_job_review_status"]
+          tags: string[]
+          technician_id: string
+          technician_responded_at: string | null
+          technician_response: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          editable_until?: string
+          id?: string
+          manners_rating: number
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_note?: string | null
+          overall_rating: number
+          price_clarity_rating: number
+          punctuality_rating: number
+          quality_rating: number
+          review_text?: string | null
+          service_job_id: string
+          status?: Database["public"]["Enums"]["service_job_review_status"]
+          tags?: string[]
+          technician_id: string
+          technician_responded_at?: string | null
+          technician_response?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          editable_until?: string
+          id?: string
+          manners_rating?: number
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_note?: string | null
+          overall_rating?: number
+          price_clarity_rating?: number
+          punctuality_rating?: number
+          quality_rating?: number
+          review_text?: string | null
+          service_job_id?: string
+          status?: Database["public"]["Enums"]["service_job_review_status"]
+          tags?: string[]
+          technician_id?: string
+          technician_responded_at?: string | null
+          technician_response?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_job_reviews_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_job_reviews_moderated_by_fkey"
+            columns: ["moderated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_job_reviews_service_job_id_fkey"
+            columns: ["service_job_id"]
+            isOneToOne: true
+            referencedRelation: "service_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_job_reviews_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_job_warranties: {
+        Row: {
+          created_at: string
+          customer_id: string
+          ends_at: string
+          service_job_id: string
+          starts_at: string
+          technician_id: string
+          warranty_days: number
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          ends_at: string
+          service_job_id: string
+          starts_at: string
+          technician_id: string
+          warranty_days: number
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          ends_at?: string
+          service_job_id?: string
+          starts_at?: string
+          technician_id?: string
+          warranty_days?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_job_warranties_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_job_warranties_service_job_id_fkey"
+            columns: ["service_job_id"]
+            isOneToOne: true
+            referencedRelation: "service_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_job_warranties_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_jobs: {
         Row: {
           agreement_revision: number
@@ -1205,6 +1446,210 @@ export type Database = {
           {
             foreignKeyName: "service_locations_customer_id_fkey"
             columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_quality_case_attachments: {
+        Row: {
+          case_id: string
+          created_at: string
+          id: string
+          mime_type: string
+          size_bytes: number
+          storage_path: string
+          uploaded_by: string
+        }
+        Insert: {
+          case_id: string
+          created_at?: string
+          id?: string
+          mime_type: string
+          size_bytes: number
+          storage_path: string
+          uploaded_by: string
+        }
+        Update: {
+          case_id?: string
+          created_at?: string
+          id?: string
+          mime_type?: string
+          size_bytes?: number
+          storage_path?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_quality_case_attachments_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "service_quality_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_quality_case_attachments_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_quality_case_events: {
+        Row: {
+          actor_user_id: string | null
+          case_id: string
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json
+          note: string | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          case_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json
+          note?: string | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          case_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_quality_case_events_actor_user_id_fkey"
+            columns: ["actor_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_quality_case_events_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "service_quality_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_quality_cases: {
+        Row: {
+          category: Database["public"]["Enums"]["service_quality_case_category"]
+          created_at: string
+          customer_id: string
+          customer_response: string | null
+          decided_at: string | null
+          decided_by: string | null
+          decision:
+            | Database["public"]["Enums"]["service_quality_resolution"]
+            | null
+          decision_note: string | null
+          details: string
+          id: string
+          kind: Database["public"]["Enums"]["service_quality_case_kind"]
+          opened_by: string
+          payment_hold_simulated: boolean
+          payment_mode: string
+          real_money_moved: boolean
+          service_job_id: string
+          simulated_refund_amount: number | null
+          status: Database["public"]["Enums"]["service_quality_case_status"]
+          technician_id: string
+          technician_response: string | null
+          updated_at: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["service_quality_case_category"]
+          created_at?: string
+          customer_id: string
+          customer_response?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
+          decision?:
+            | Database["public"]["Enums"]["service_quality_resolution"]
+            | null
+          decision_note?: string | null
+          details: string
+          id?: string
+          kind: Database["public"]["Enums"]["service_quality_case_kind"]
+          opened_by: string
+          payment_hold_simulated?: boolean
+          payment_mode?: string
+          real_money_moved?: boolean
+          service_job_id: string
+          simulated_refund_amount?: number | null
+          status?: Database["public"]["Enums"]["service_quality_case_status"]
+          technician_id: string
+          technician_response?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["service_quality_case_category"]
+          created_at?: string
+          customer_id?: string
+          customer_response?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
+          decision?:
+            | Database["public"]["Enums"]["service_quality_resolution"]
+            | null
+          decision_note?: string | null
+          details?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["service_quality_case_kind"]
+          opened_by?: string
+          payment_hold_simulated?: boolean
+          payment_mode?: string
+          real_money_moved?: boolean
+          service_job_id?: string
+          simulated_refund_amount?: number | null
+          status?: Database["public"]["Enums"]["service_quality_case_status"]
+          technician_id?: string
+          technician_response?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_quality_cases_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_quality_cases_decided_by_fkey"
+            columns: ["decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_quality_cases_opened_by_fkey"
+            columns: ["opened_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_quality_cases_service_job_id_fkey"
+            columns: ["service_job_id"]
+            isOneToOne: false
+            referencedRelation: "service_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_quality_cases_technician_id_fkey"
+            columns: ["technician_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1686,6 +2131,105 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      admin_escalate_service_quality_case: {
+        Args: { p_case_id: string }
+        Returns: {
+          case_id: string
+          created_at: string
+          customer_id: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_note: string | null
+          id: string
+          opened_by: string
+          real_money_moved: boolean
+          service_job_id: string
+          status: Database["public"]["Enums"]["service_dispute_status"]
+          technician_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_disputes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      admin_moderate_service_job_review: {
+        Args: {
+          p_note: string
+          p_review_id: string
+          p_status: Database["public"]["Enums"]["service_job_review_status"]
+        }
+        Returns: {
+          created_at: string
+          customer_id: string
+          editable_until: string
+          id: string
+          manners_rating: number
+          moderated_at: string | null
+          moderated_by: string | null
+          moderation_note: string | null
+          overall_rating: number
+          price_clarity_rating: number
+          punctuality_rating: number
+          quality_rating: number
+          review_text: string | null
+          service_job_id: string
+          status: Database["public"]["Enums"]["service_job_review_status"]
+          tags: string[]
+          technician_id: string
+          technician_responded_at: string | null
+          technician_response: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_job_reviews"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      admin_update_service_quality_case: {
+        Args: {
+          p_case_id: string
+          p_decision?: Database["public"]["Enums"]["service_quality_resolution"]
+          p_decision_note?: string
+          p_simulated_refund_amount?: number
+          p_status: Database["public"]["Enums"]["service_quality_case_status"]
+        }
+        Returns: {
+          category: Database["public"]["Enums"]["service_quality_case_category"]
+          created_at: string
+          customer_id: string
+          customer_response: string | null
+          decided_at: string | null
+          decided_by: string | null
+          decision:
+            | Database["public"]["Enums"]["service_quality_resolution"]
+            | null
+          decision_note: string | null
+          details: string
+          id: string
+          kind: Database["public"]["Enums"]["service_quality_case_kind"]
+          opened_by: string
+          payment_hold_simulated: boolean
+          payment_mode: string
+          real_money_moved: boolean
+          service_job_id: string
+          simulated_refund_amount: number | null
+          status: Database["public"]["Enums"]["service_quality_case_status"]
+          technician_id: string
+          technician_response: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_quality_cases"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       bootstrap_technician_application: {
         Args: never
         Returns: {
@@ -1925,6 +2469,10 @@ export type Database = {
       }
       delete_unuploaded_service_job_evidence: {
         Args: { p_evidence_id: string }
+        Returns: undefined
+      }
+      delete_unuploaded_service_quality_case_attachment: {
+        Args: { p_attachment_id: string }
         Returns: undefined
       }
       disable_push_device: {
@@ -2240,6 +2788,45 @@ export type Database = {
         Args: { p_notification_id: string }
         Returns: boolean
       }
+      open_service_quality_case: {
+        Args: {
+          p_category: Database["public"]["Enums"]["service_quality_case_category"]
+          p_details: string
+          p_job_id: string
+          p_kind: Database["public"]["Enums"]["service_quality_case_kind"]
+        }
+        Returns: {
+          category: Database["public"]["Enums"]["service_quality_case_category"]
+          created_at: string
+          customer_id: string
+          customer_response: string | null
+          decided_at: string | null
+          decided_by: string | null
+          decision:
+            | Database["public"]["Enums"]["service_quality_resolution"]
+            | null
+          decision_note: string | null
+          details: string
+          id: string
+          kind: Database["public"]["Enums"]["service_quality_case_kind"]
+          opened_by: string
+          payment_hold_simulated: boolean
+          payment_mode: string
+          real_money_moved: boolean
+          service_job_id: string
+          simulated_refund_amount: number | null
+          status: Database["public"]["Enums"]["service_quality_case_status"]
+          technician_id: string
+          technician_response: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_quality_cases"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       process_due_service_job_acceptances: {
         Args: { p_limit?: number }
         Returns: number
@@ -2366,6 +2953,29 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      register_service_quality_case_attachment: {
+        Args: {
+          p_case_id: string
+          p_mime_type: string
+          p_size_bytes: number
+          p_storage_path: string
+        }
+        Returns: {
+          case_id: string
+          created_at: string
+          id: string
+          mime_type: string
+          size_bytes: number
+          storage_path: string
+          uploaded_by: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_quality_case_attachments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       request_service_job_acceptance_help: {
         Args: { p_job_id: string; p_reason: string }
         Returns: {
@@ -2412,6 +3022,71 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "service_job_additional_work_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      respond_to_service_job_review: {
+        Args: { p_response: string; p_review_id: string }
+        Returns: {
+          created_at: string
+          customer_id: string
+          editable_until: string
+          id: string
+          manners_rating: number
+          moderated_at: string | null
+          moderated_by: string | null
+          moderation_note: string | null
+          overall_rating: number
+          price_clarity_rating: number
+          punctuality_rating: number
+          quality_rating: number
+          review_text: string | null
+          service_job_id: string
+          status: Database["public"]["Enums"]["service_job_review_status"]
+          tags: string[]
+          technician_id: string
+          technician_responded_at: string | null
+          technician_response: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_job_reviews"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      respond_to_service_quality_case: {
+        Args: { p_case_id: string; p_response: string }
+        Returns: {
+          category: Database["public"]["Enums"]["service_quality_case_category"]
+          created_at: string
+          customer_id: string
+          customer_response: string | null
+          decided_at: string | null
+          decided_by: string | null
+          decision:
+            | Database["public"]["Enums"]["service_quality_resolution"]
+            | null
+          decision_note: string | null
+          details: string
+          id: string
+          kind: Database["public"]["Enums"]["service_quality_case_kind"]
+          opened_by: string
+          payment_hold_simulated: boolean
+          payment_mode: string
+          real_money_moved: boolean
+          service_job_id: string
+          simulated_refund_amount: number | null
+          status: Database["public"]["Enums"]["service_quality_case_status"]
+          technician_id: string
+          technician_response: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_quality_cases"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -2583,6 +3258,46 @@ export type Database = {
         Args: { p_job_id: string }
         Returns: undefined
       }
+      submit_service_job_review: {
+        Args: {
+          p_job_id: string
+          p_manners: number
+          p_overall: number
+          p_price_clarity: number
+          p_punctuality: number
+          p_quality: number
+          p_review_text?: string
+          p_tags: string[]
+        }
+        Returns: {
+          created_at: string
+          customer_id: string
+          editable_until: string
+          id: string
+          manners_rating: number
+          moderated_at: string | null
+          moderated_by: string | null
+          moderation_note: string | null
+          overall_rating: number
+          price_clarity_rating: number
+          punctuality_rating: number
+          quality_rating: number
+          review_text: string | null
+          service_job_id: string
+          status: Database["public"]["Enums"]["service_job_review_status"]
+          tags: string[]
+          technician_id: string
+          technician_responded_at: string | null
+          technician_response: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_job_reviews"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       submit_service_request: {
         Args: { p_request_id: string }
         Returns: {
@@ -2738,6 +3453,7 @@ export type Database = {
         | "role_management"
         | "catalog_management"
         | "audit_view"
+        | "case_management"
       appointment_status: "scheduled" | "cancelled"
       catalog_status: "draft" | "pilot" | "active" | "inactive"
       document_review_status: "pending" | "approved" | "rejected"
@@ -2752,6 +3468,7 @@ export type Database = {
       request_entry_point: "service_catalog" | "symptom"
       request_safety_status: "clear" | "stopped"
       request_urgency: "flexible" | "within_3_days" | "as_soon_as_possible"
+      service_dispute_status: "opened" | "under_review" | "resolved"
       service_job_acceptance_status:
         | "pending"
         | "help_requested"
@@ -2763,6 +3480,7 @@ export type Database = {
         | "after"
         | "additional_work"
       service_job_pin_purpose: "start" | "completion"
+      service_job_review_status: "pending_moderation" | "published" | "hidden"
       service_job_status:
         | "scheduled"
         | "technician_en_route"
@@ -2772,6 +3490,28 @@ export type Database = {
         | "awaiting_acceptance"
         | "completed"
         | "cancelled"
+      service_quality_case_category:
+        | "work_quality"
+        | "behavior"
+        | "price_scope"
+        | "safety"
+        | "other"
+      service_quality_case_kind: "warranty_claim" | "complaint"
+      service_quality_case_status:
+        | "submitted"
+        | "under_review"
+        | "awaiting_customer"
+        | "awaiting_technician"
+        | "resolved"
+        | "dismissed"
+        | "escalated"
+      service_quality_resolution:
+        | "no_action"
+        | "warranty_rework"
+        | "assign_other_technician"
+        | "partial_refund_simulated"
+        | "full_refund_simulated"
+        | "other"
       service_request_status:
         | "draft"
         | "cancelled"
@@ -2928,6 +3668,7 @@ export const Constants = {
         "role_management",
         "catalog_management",
         "audit_view",
+        "case_management",
       ],
       appointment_status: ["scheduled", "cancelled"],
       catalog_status: ["draft", "pilot", "active", "inactive"],
@@ -2944,6 +3685,7 @@ export const Constants = {
       request_entry_point: ["service_catalog", "symptom"],
       request_safety_status: ["clear", "stopped"],
       request_urgency: ["flexible", "within_3_days", "as_soon_as_possible"],
+      service_dispute_status: ["opened", "under_review", "resolved"],
       service_job_acceptance_status: [
         "pending",
         "help_requested",
@@ -2957,6 +3699,7 @@ export const Constants = {
         "additional_work",
       ],
       service_job_pin_purpose: ["start", "completion"],
+      service_job_review_status: ["pending_moderation", "published", "hidden"],
       service_job_status: [
         "scheduled",
         "technician_en_route",
@@ -2966,6 +3709,31 @@ export const Constants = {
         "awaiting_acceptance",
         "completed",
         "cancelled",
+      ],
+      service_quality_case_category: [
+        "work_quality",
+        "behavior",
+        "price_scope",
+        "safety",
+        "other",
+      ],
+      service_quality_case_kind: ["warranty_claim", "complaint"],
+      service_quality_case_status: [
+        "submitted",
+        "under_review",
+        "awaiting_customer",
+        "awaiting_technician",
+        "resolved",
+        "dismissed",
+        "escalated",
+      ],
+      service_quality_resolution: [
+        "no_action",
+        "warranty_rework",
+        "assign_other_technician",
+        "partial_refund_simulated",
+        "full_refund_simulated",
+        "other",
       ],
       service_request_status: [
         "draft",

@@ -7,7 +7,8 @@ import type { AdminViewer } from '@/features/auth/auth';
 export function ReviewShell({
   viewer,
   children,
-}: Readonly<{ viewer: AdminViewer; children: ReactNode }>) {
+  subtitle = 'คิวตรวจสอบช่าง',
+}: Readonly<{ viewer: AdminViewer; children: ReactNode; subtitle?: string }>) {
   return (
     <main className="page-shell">
       <header className="operations-header">
@@ -15,9 +16,11 @@ export function ReviewShell({
           <Link href="/technicians" className="brand-link">
             HOMECARE OPERATIONS
           </Link>
-          <p>คิวตรวจสอบช่าง</p>
+          <p>{subtitle}</p>
         </div>
         <div className="viewer-actions">
+          <Link href="/technicians">ตรวจสอบช่าง</Link>
+          <Link href={{ pathname: '/cases' }}>เคสคุณภาพงาน</Link>
           <span>ผู้ตรวจ: {viewer.displayName}</span>
           <form action={signOutAction}>
             <button type="submit" className="text-button">

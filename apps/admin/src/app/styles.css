@@ -50,7 +50,8 @@ summary:focus-visible {
   outline-offset: 3px;
 }
 input,
-textarea {
+textarea,
+select {
   background: var(--hc-color-surface);
   border: 1px solid var(--hc-color-border);
   border-radius: var(--hc-radius-button);
@@ -58,6 +59,19 @@ textarea {
   min-height: 44px;
   padding: 10px 12px;
   width: 100%;
+}
+select {
+  background: var(--hc-color-surface);
+  border: 1px solid var(--hc-color-border);
+  border-radius: var(--hc-radius-button);
+  color: var(--hc-color-text);
+  min-height: 44px;
+  padding: 10px 12px;
+  width: 100%;
+}
+label {
+  display: grid;
+  gap: 6px;
 }
 textarea {
   resize: vertical;
@@ -154,6 +168,10 @@ h3 {
 .detail-heading {
   margin-bottom: 28px;
 }
+.section-heading {
+  margin-bottom: 20px;
+  margin-top: 48px;
+}
 .metric-card {
   background: var(--hc-color-surface);
   border: 1px solid var(--hc-color-border);
@@ -240,6 +258,19 @@ dd {
   color: var(--hc-color-success);
 }
 .status-rejected {
+  color: var(--hc-color-danger);
+}
+.status-submitted,
+.status-under_review,
+.status-awaiting_customer,
+.status-awaiting_technician {
+  color: var(--hc-color-warning);
+}
+.status-resolved {
+  color: var(--hc-color-success);
+}
+.status-dismissed,
+.status-escalated {
   color: var(--hc-color-danger);
 }
 .empty-state {

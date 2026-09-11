@@ -23,7 +23,7 @@
     "db:reset": "node scripts/reset-database.mjs",
     "db:test": "node scripts/test-database.mjs",
     "db:test:identity": "node scripts/test-mobile-identity-bootstrap.mjs",
-    "db:test:storage": "node scripts/test-technician-document-storage.mjs && node scripts/test-technician-document-quota.mjs && node scripts/test-request-attachment-storage.mjs",
+    "db:test:storage": "node scripts/test-technician-document-storage.mjs && node scripts/test-technician-document-quota.mjs && node scripts/test-request-attachment-storage.mjs && node scripts/test-service-quality-evidence-storage.mjs",
     "db:lint": "node scripts/lint-database.mjs",
     "db:types": "node scripts/generate-database-types.mjs"
   },
