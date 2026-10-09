@@ -11,7 +11,7 @@ export type AdminViewer = Readonly<{
 }>;
 
 async function requireAdminPermission(
-  permission: 'technician_review' | 'case_management',
+  permission: 'technician_review' | 'case_management' | 'operations_management',
 ): Promise<AdminViewer> {
   const client = await createAdminSupabaseClient();
   const { data: userResult, error: userError } = await client.auth.getUser();
@@ -58,4 +58,8 @@ export const requireTechnicianReviewer = cache(async () =>
 
 export const requireCaseManager = cache(async () =>
   requireAdminPermission('case_management'),
+);
+
+export const requireOperationsManager = cache(async () =>
+  requireAdminPermission('operations_management'),
 );

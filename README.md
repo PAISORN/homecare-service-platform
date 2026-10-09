@@ -45,6 +45,10 @@ pnpm db:reset
 ตามไฟล์ตัวอย่างของเว็บ
 ห้ามนำ service-role key ไปใส่ตัวแปร `EXPO_PUBLIC_*` หรือ `NEXT_PUBLIC_*`
 
+ก่อนส่งขึ้น repository ให้รัน `pnpm security:check` และสำหรับการเตรียม Pilot ให้ใช้
+`pnpm db:drill:restore` เพื่อพิสูจน์ backup/restore บนฐาน local แยกตาม
+[`docs/PHASE-6B-SECURITY-OPERATIONS.md`](docs/PHASE-6B-SECURITY-OPERATIONS.md)
+
 แอปมือถือสมัครและเข้าสู่ระบบด้วยเบอร์โทรผ่าน SMS OTP จึงต้องเปิด Phone provider และตั้งค่า
 SMS provider ใน Supabase ก่อนทดสอบบนอุปกรณ์จริง หากยังไม่ตั้งค่า environment แอปจะแสดง
 หน้าสถานะการเชื่อมต่อแทนการ crash เพื่อให้ build และ CI ทำงานได้อย่างปลอดภัย

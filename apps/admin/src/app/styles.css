@@ -432,12 +432,35 @@ dd {
   padding: 32px;
   width: 100%;
 }
+.operations-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.operational-card {
+  display: grid;
+  gap: 16px;
+}
+.operational-card-heading {
+  align-items: flex-start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+.operational-card-heading h2,
+.operational-card-heading p,
+.operational-card > p {
+  margin-bottom: 0;
+}
 @media (max-width: 900px) {
   .detail-grid {
     grid-template-columns: 1fr;
   }
   .decision-summary {
     position: static;
+  }
+  .operations-grid {
+    grid-template-columns: 1fr;
   }
 }
 @media (max-width: 720px) {

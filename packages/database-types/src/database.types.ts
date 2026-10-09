@@ -511,6 +511,41 @@ export type Database = {
           },
         ]
       }
+      operational_controls: {
+        Row: {
+          control_key: Database["public"]["Enums"]["operational_control_key"]
+          enabled: boolean
+          reason: string
+          revision: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          control_key: Database["public"]["Enums"]["operational_control_key"]
+          enabled: boolean
+          reason: string
+          revision?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          control_key?: Database["public"]["Enums"]["operational_control_key"]
+          enabled?: boolean
+          reason?: string
+          revision?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operational_controls_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           account_status: Database["public"]["Enums"]["account_status"]
@@ -2554,6 +2589,14 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_operational_controls: {
+        Args: never
+        Returns: {
+          control_key: Database["public"]["Enums"]["operational_control_key"]
+          enabled: boolean
+          updated_at: string
+        }[]
+      }
       get_service_job: {
         Args: { p_job_id: string }
         Returns: {
@@ -3328,6 +3371,27 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      set_operational_control: {
+        Args: {
+          p_control_key: Database["public"]["Enums"]["operational_control_key"]
+          p_enabled: boolean
+          p_reason: string
+        }
+        Returns: {
+          control_key: Database["public"]["Enums"]["operational_control_key"]
+          enabled: boolean
+          reason: string
+          revision: number
+          updated_at: string
+          updated_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "operational_controls"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       stop_service_job_travel_sharing: {
         Args: { p_job_id: string }
         Returns: undefined
@@ -3528,6 +3592,7 @@ export type Database = {
         | "catalog_management"
         | "audit_view"
         | "case_management"
+        | "operations_management"
       appointment_status: "scheduled" | "cancelled"
       catalog_status: "draft" | "pilot" | "active" | "inactive"
       document_review_status: "pending" | "approved" | "rejected"
@@ -3537,6 +3602,7 @@ export type Database = {
         | "submitted"
         | "failed"
         | "skipped"
+      operational_control_key: "matching" | "content" | "payment"
       price_model: "fixed" | "evidence_quote" | "onsite_inspection"
       quotation_status: "submitted" | "withdrawn" | "accepted" | "declined"
       request_entry_point: "service_catalog" | "symptom"
@@ -3749,6 +3815,7 @@ export const Constants = {
         "catalog_management",
         "audit_view",
         "case_management",
+        "operations_management",
       ],
       appointment_status: ["scheduled", "cancelled"],
       catalog_status: ["draft", "pilot", "active", "inactive"],
@@ -3760,6 +3827,7 @@ export const Constants = {
         "failed",
         "skipped",
       ],
+      operational_control_key: ["matching", "content", "payment"],
       price_model: ["fixed", "evidence_quote", "onsite_inspection"],
       quotation_status: ["submitted", "withdrawn", "accepted", "declined"],
       request_entry_point: ["service_catalog", "symptom"],

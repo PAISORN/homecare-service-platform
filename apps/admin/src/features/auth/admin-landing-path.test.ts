@@ -13,6 +13,10 @@ describe('admin landing path', () => {
     expect(getAdminLandingPath(['case_management'])).toBe('/cases');
   });
 
+  it('sends an operations-only manager to the control center', () => {
+    expect(getAdminLandingPath(['operations_management'])).toBe('/operations');
+  });
+
   it('rejects an administrator without an operational permission', () => {
     expect(getAdminLandingPath([])).toBe('/unauthorized');
   });

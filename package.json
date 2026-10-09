@@ -14,6 +14,7 @@
     "lint": "pnpm -r --if-present lint",
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "pnpm -r --if-present test",
+    "security:check": "node scripts/security-preflight.mjs",
     "validate:mobile:native": "pnpm --filter @homecare/mobile validate:native",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -25,7 +26,8 @@
     "db:test:identity": "node scripts/test-mobile-identity-bootstrap.mjs",
     "db:test:storage": "node scripts/test-technician-document-storage.mjs && node scripts/test-technician-document-quota.mjs && node scripts/test-request-attachment-storage.mjs && node scripts/test-service-quality-evidence-storage.mjs",
     "db:lint": "node scripts/lint-database.mjs",
-    "db:types": "node scripts/generate-database-types.mjs"
+    "db:types": "node scripts/generate-database-types.mjs",
+    "db:drill:restore": "node scripts/verify-local-backup-restore.mjs"
   },
   "devDependencies": {
     "prettier": "3.9.6",

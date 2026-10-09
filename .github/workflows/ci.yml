@@ -26,6 +26,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
+      - run: pnpm security:check
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
@@ -62,6 +63,8 @@ jobs:
         run: pnpm db:test:storage
       - name: Lint database schema
         run: pnpm db:lint
+      - name: Verify local backup and isolated restore
+        run: pnpm db:drill:restore
       - name: Verify generated database types
         run: |
           pnpm db:types

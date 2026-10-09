@@ -21,6 +21,7 @@ export function ReviewShell({
         <div className="viewer-actions">
           <Link href="/technicians">ตรวจสอบช่าง</Link>
           <Link href={{ pathname: '/cases' }}>เคสคุณภาพงาน</Link>
+          <Link href="/operations">ควบคุมระบบ</Link>
           <span>ผู้ตรวจ: {viewer.displayName}</span>
           <form action={signOutAction}>
             <button type="submit" className="text-button">

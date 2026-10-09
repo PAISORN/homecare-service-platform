@@ -53,3 +53,8 @@ pnpm db:types
 ไม่เกินค่าที่กำหนด ชุดทดสอบทำงานกับ local stack เท่านั้น และ teardown ของ fixture จะปิดเฉพาะ trigger
 ป้องกัน retention ที่ขัดขวางการลบผู้ใช้ทดสอบเป็นการชั่วคราว โดยไม่ปิด foreign key หรือ check
 constraint และเปิด trigger คืนภายใน SQL block เดียวกัน
+
+ไฟล์ `021_operational_controls.test.sql` ทดสอบ Phase 6B สำหรับ kill switch ของ
+matching, content และ payment ครอบคลุมสิทธิ์ผู้ดูแลเฉพาะด้าน, Audit Log ที่ไม่ทำสำเนา
+เหตุผลอิสระ, การหยุดและเปิดรับคำขอใหม่, การหยุดส่งข้อความโดยยังอ่านห้องเดิมได้ และ
+ยืนยันว่า payment จริงปิดเป็นค่าเริ่มต้น
