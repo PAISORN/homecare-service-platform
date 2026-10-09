@@ -10,9 +10,21 @@
 | Operational defaults | ผ่าน | `matching=true`, `content=true`, `payment=false` |
 | Database boundary | ผ่าน | RLS เปิด, anonymous access ถูกปิด, writer ตรวจ permission ภายใน |
 | Rate limits | ผ่าน | service request และ chat indexes มีอยู่ครบ |
-| Function hardening | ผ่าน | fixed empty `search_path`; trigger helpers ไม่เปิดให้ `public` execute |
-| Security Advisor Phase 6B delta | ยอมรับแบบมีเหตุผล | 2 warnings เป็น RPC ที่ตั้งใจให้ authenticated เรียกและมี account/permission checks ภายใน |
+| Function hardening | ผ่าน | fixed `search_path`; trigger/event-trigger helpers ไม่เปิดให้ `public`, `anon`, `authenticated` หรือ `service_role` เรียกโดยตรง |
+| Security Advisor baseline | triage ครบ | ลดจาก 90 เหลือ 69 warnings: 67 authenticated RPCs ที่ตั้งใจเปิด, 1 public projection ที่ตั้งใจเปิด และ 1 Auth setting ที่ต้องใช้แผน Pro |
 | Temporary backup hygiene | ผ่าน | ตรวจ SHA256 แล้วลบ logical backup ชั่วคราวจากเครื่อง |
+
+## Security Advisor baseline หลัง privilege hardening
+
+ตรวจบน Staging หลัง apply migration `20261010090200_harden_security_definer_execute_privileges.sql`:
+
+| Advisor | จำนวน | ข้อสรุป |
+|---|---:|---|
+| `authenticated_security_definer_function_executable` | 67 | Accepted exceptions: เป็น RPC contract สำหรับผู้ล็อกอิน โดยตรวจ actor/account/permission ภายในและมี database workflow tests |
+| `anon_security_definer_function_executable` | 1 | Accepted exception: `list_public_technicians()` เป็น public projection ที่ตั้งใจเปิดและไม่คืนข้อมูล KYC/PII |
+| `auth_leaked_password_protection` | 1 | Open release gate: admin ใช้ email/password แต่ฟีเจอร์ leaked-password protection ต้องใช้ Supabase Pro |
+
+ผลรวมลดลง 21 warnings โดยตัด anonymous access ที่ไม่ได้ตั้งใจ และปิด direct execute ของ trigger/event-trigger/internal helper ทุก API role แล้ว การเหลือ warning ไม่ได้แปลว่าปลอดภัยโดยอัตโนมัติ จึงต้องคง regression tests และทบทวนใหม่ทุกครั้งที่เพิ่ม RPC
 
 ## Release blockers
 
@@ -30,10 +42,10 @@
    - ต้องใช้ project ปลายทางที่ไม่มีข้อมูลสำคัญและได้รับอนุญาตก่อน
 4. **Physical-device coverage ยังไม่ครบ**
    - iPhone text scaling, landscape และ native push ต้องมีหลักฐานจากอุปกรณ์จริง
-5. **Security Advisor baseline ยังไม่ได้ triage ครบ**
-   - รอบหลัง migration มี warning ระดับ `WARN` รวม 90 รายการ
-   - รอบนี้ตรวจเฉพาะ 2 รายการที่อ้างถึง Phase 6B RPC และยืนยันว่าเป็น intentional exception
-   - รายการที่เหลือต้องแยกเป็น fix/accepted exception พร้อมเหตุผลก่อนเปิด Pilot
+5. **Leaked-password protection ยังเปิดไม่ได้ในแผนปัจจุบัน**
+   - Staging ยังมี `auth_leaked_password_protection` 1 warning
+   - ระหว่างยังไม่อัปเกรด ให้จำกัดจำนวน admin, ใช้รหัสผ่านเฉพาะที่แข็งแรง, เปิด MFA เมื่อพร้อม และไม่เปิด public email/password signup
+   - ก่อน Production ต้องตัดสินใจอัปเกรดเพื่อเปิด leaked-password protection หรือบันทึก risk acceptance อย่างเป็นทางการ
 
 ## ลำดับดำเนินการถัดไป
 
@@ -41,7 +53,7 @@
 2. กรอก owner และ alert channels ในระบบภายใน แล้วแทน `UNASSIGNED` ใน runbook
 3. สร้างหรืออนุมัติ Supabase project สำหรับ restore drill; บันทึก source/destination refs ใน change record
 4. ทำ isolated restore, ตรวจ schema/data fingerprint, pgTAP/RLS และ health smoke tests
-5. triage Security Advisor baseline และบันทึก remediation/accepted exception
+5. ตัดสินใจเรื่อง Supabase Pro/leaked-password protection ก่อน Production และบันทึก risk acceptance หากยังไม่เปิด
 6. ทำ physical-device matrix ที่ค้าง แล้วทบทวน P0/P1 ก่อนตัดสินใจ Pilot
 
 ## ขอบเขตที่ยังห้ามเปิด
