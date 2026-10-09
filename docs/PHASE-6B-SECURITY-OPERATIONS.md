@@ -109,8 +109,12 @@ pnpm build
 - migration history ตรงกันและ `db push --dry-run` ไม่พบ migration ค้าง
 - control defaults: `matching=true`, `content=true`, `payment=false`
 - RLS เปิดอยู่, `anon` อ่านตารางไม่ได้ และไม่มี role สาธารณะเปลี่ยน control ได้
-- `authenticated` เรียก writer ได้เฉพาะผ่าน permission check ภายใน; Staging ยังไม่มี
-  administrator/`operations_management` grant จึงยังไม่มีผู้ใช้หน้า `/operations`
+- `authenticated` เรียก writer ได้เฉพาะผ่าน permission check ภายใน
+- apply `20261010090300_add_initial_operations_admin_bootstrap.sql` แล้ว และใช้ one-time bootstrap
+  มอบ `administrator` + `operations_management` ให้บัญชี email/password แบบ dedicated โดยไม่บันทึก PII ลง Git
+- ล็อกอินหน้า `/operations` สำเร็จ และทดสอบปิด/เปิด `matching` กับ `content` ผ่าน UI แล้ว;
+  ค่าปลายทางเป็น `matching=true` revision 5, `content=true` revision 5 และ `payment=false` revision 1
+- การเปลี่ยนสถานะจาก UI ทั้งสี่ครั้งมีเหตุผลและ Audit Log; `payment` ยังไม่มีปุ่มเปิด
 - rate-limit indexes ของ service request และ chat มีอยู่ครบ
 - ฟังก์ชัน Phase 6B ใช้ fixed empty `search_path`; trigger helpers ไม่เปิด `EXECUTE` แก่ `public`
 - Security Advisor รายงานคำเตือนที่เกี่ยวข้อง 2 รายการสำหรับ authenticated-callable
