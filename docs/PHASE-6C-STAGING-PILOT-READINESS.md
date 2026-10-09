@@ -11,7 +11,7 @@
 | Database boundary | ผ่าน | RLS เปิด, anonymous access ถูกปิด, writer ตรวจ permission ภายใน |
 | Rate limits | ผ่าน | service request และ chat indexes มีอยู่ครบ |
 | Function hardening | ผ่าน | fixed empty `search_path`; trigger helpers ไม่เปิดให้ `public` execute |
-| Security Advisor delta | ยอมรับแบบมีเหตุผล | 2 warnings เป็น RPC ที่ตั้งใจให้ authenticated เรียกและมี account/permission checks ภายใน |
+| Security Advisor Phase 6B delta | ยอมรับแบบมีเหตุผล | 2 warnings เป็น RPC ที่ตั้งใจให้ authenticated เรียกและมี account/permission checks ภายใน |
 | Temporary backup hygiene | ผ่าน | ตรวจ SHA256 แล้วลบ logical backup ชั่วคราวจากเครื่อง |
 
 ## Release blockers
@@ -30,6 +30,10 @@
    - ต้องใช้ project ปลายทางที่ไม่มีข้อมูลสำคัญและได้รับอนุญาตก่อน
 4. **Physical-device coverage ยังไม่ครบ**
    - iPhone text scaling, landscape และ native push ต้องมีหลักฐานจากอุปกรณ์จริง
+5. **Security Advisor baseline ยังไม่ได้ triage ครบ**
+   - รอบหลัง migration มี warning ระดับ `WARN` รวม 90 รายการ
+   - รอบนี้ตรวจเฉพาะ 2 รายการที่อ้างถึง Phase 6B RPC และยืนยันว่าเป็น intentional exception
+   - รายการที่เหลือต้องแยกเป็น fix/accepted exception พร้อมเหตุผลก่อนเปิด Pilot
 
 ## ลำดับดำเนินการถัดไป
 
@@ -37,7 +41,8 @@
 2. กรอก owner และ alert channels ในระบบภายใน แล้วแทน `UNASSIGNED` ใน runbook
 3. สร้างหรืออนุมัติ Supabase project สำหรับ restore drill; บันทึก source/destination refs ใน change record
 4. ทำ isolated restore, ตรวจ schema/data fingerprint, pgTAP/RLS และ health smoke tests
-5. ทำ physical-device matrix ที่ค้าง แล้วทบทวน P0/P1 ก่อนตัดสินใจ Pilot
+5. triage Security Advisor baseline และบันทึก remediation/accepted exception
+6. ทำ physical-device matrix ที่ค้าง แล้วทบทวน P0/P1 ก่อนตัดสินใจ Pilot
 
 ## ขอบเขตที่ยังห้ามเปิด
 
