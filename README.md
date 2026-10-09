@@ -49,6 +49,9 @@ pnpm db:reset
 `pnpm db:drill:restore` เพื่อพิสูจน์ backup/restore บนฐาน local แยกตาม
 [`docs/PHASE-6B-SECURITY-OPERATIONS.md`](docs/PHASE-6B-SECURITY-OPERATIONS.md)
 
+สถานะ Staging และ release gates สำหรับ Pilot อยู่ที่
+[`docs/PHASE-6C-STAGING-PILOT-READINESS.md`](docs/PHASE-6C-STAGING-PILOT-READINESS.md)
+
 แอปมือถือสมัครและเข้าสู่ระบบด้วยเบอร์โทรผ่าน SMS OTP จึงต้องเปิด Phone provider และตั้งค่า
 SMS provider ใน Supabase ก่อนทดสอบบนอุปกรณ์จริง หากยังไม่ตั้งค่า environment แอปจะแสดง
 หน้าสถานะการเชื่อมต่อแทนการ crash เพื่อให้ build และ CI ทำงานได้อย่างปลอดภัย

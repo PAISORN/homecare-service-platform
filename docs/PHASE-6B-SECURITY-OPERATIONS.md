@@ -1,6 +1,7 @@
 # Phase 6B — Security และ Operational Readiness
 
-สถานะ: implemented locally; staging drill และ production vendor configuration ยังเป็น release gate
+สถานะ: implemented และ apply บน HomeCare Staging แล้วเมื่อ 2026-10-10;
+isolated staging restore drill, incident ownership และ production vendor configuration ยังเป็น release gate
 
 ## เป้าหมาย
 
@@ -100,3 +101,24 @@ pnpm build
 - security preflight, pgTAP, Storage, lint, types, tests และ build ผ่าน
 - local backup กู้กลับฐานแยกและ fingerprint ตรงกัน
 - ก่อน pilot จริง ต้องซ้อม staging restore ไป project แยก, ระบุ incident owner และตั้ง alert channel
+
+## Staging verification — 2026-10-10
+
+- Linked project: `HomeCare Staging` (`opdtzlptueglotqntzzu`)
+- Applied migrations: `20261010090000` และ `20261010090100`
+- migration history ตรงกันและ `db push --dry-run` ไม่พบ migration ค้าง
+- control defaults: `matching=true`, `content=true`, `payment=false`
+- RLS เปิดอยู่, `anon` อ่านตารางไม่ได้ และไม่มี role สาธารณะเปลี่ยน control ได้
+- `authenticated` เรียก writer ได้เฉพาะผ่าน permission check ภายใน; Staging ยังไม่มี
+  administrator/`operations_management` grant จึงยังไม่มีผู้ใช้หน้า `/operations`
+- rate-limit indexes ของ service request และ chat มีอยู่ครบ
+- ฟังก์ชัน Phase 6B ใช้ fixed empty `search_path`; trigger helpers ไม่เปิด `EXECUTE` แก่ `public`
+- Security Advisor รายงานคำเตือนที่เกี่ยวข้อง 2 รายการสำหรับ authenticated-callable
+  `SECURITY DEFINER` RPC ซึ่งเป็นข้อยกเว้นโดยตั้งใจ:
+  - `get_operational_controls()` ตรวจ active account และคืนเฉพาะ safe control contract
+  - `set_operational_control(...)` ตรวจ `operations_management` ก่อน mutation ทุกครั้ง
+- logical backup ชั่วคราวถูกตรวจ SHA256 แล้วลบออกจากเครื่องหลัง verification;
+  ยังไม่ใช้เป็นหลักฐาน restore เพราะไม่มี Supabase project ปลายทางที่แยกสำหรับ drill
+
+รายละเอียด release gates และหลักฐานที่ยังต้องเก็บอยู่ใน
+[`PHASE-6C-STAGING-PILOT-READINESS.md`](PHASE-6C-STAGING-PILOT-READINESS.md)
