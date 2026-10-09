@@ -2291,6 +2291,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      bootstrap_initial_operations_admin: {
+        Args: { p_user_id: string }
+        Returns: string
+      }
       bootstrap_technician_application: {
         Args: never
         Returns: {
