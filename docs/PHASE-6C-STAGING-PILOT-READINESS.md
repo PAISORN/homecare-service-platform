@@ -1,6 +1,6 @@
 # Phase 6C — Staging และ Pilot Readiness
 
-สถานะ: Staging schema และ Operations Admin verified; ยังไม่พร้อมเปิด Pilot
+สถานะ: Staging schema, Operations Admin และ incident ownership verified; ยังไม่พร้อมเปิด Pilot
 
 ## ผลที่ยืนยันแล้ว
 
@@ -15,6 +15,7 @@
 | Temporary backup hygiene | ผ่าน | ตรวจ SHA256 แล้วลบ logical backup ชั่วคราวจากเครื่อง |
 | Operations Admin | ผ่าน | บัญชี email/password แบบ dedicated ได้ `administrator` + `operations_management` ผ่าน one-time audited bootstrap; ไม่บันทึกอีเมลหรือ PII ลง Git |
 | Operations UI smoke test | ผ่าน | ล็อกอินเข้า `/operations`; ปิด/เปิด `matching` และ `content` ผ่าน Server Action แล้วคืนค่าเป็นเปิด; `payment` คงปิด |
+| Incident ownership | ผ่าน | ผู้รับผิดชอบทั้งสามบทบาทและช่องทาง Email/LINE ถูกตรวจจาก private roster ที่ Git ignore โดยไม่บันทึกปลายทางจริงลง repository |
 
 ## Security Advisor baseline หลัง privilege hardening
 
@@ -30,32 +31,26 @@
 
 ## Release blockers
 
-1. **Incident ownership ยังเป็น `UNASSIGNED`**
-   - Incident commander
-   - Operations/support
-   - Database owner
-   - ช่องทางแจ้งเตือนหลักและสำรอง
-2. **ยังไม่มี Supabase project สำหรับ isolated restore drill**
+1. **ยังไม่มี Supabase project สำหรับ isolated restore drill**
    - ห้าม restore ทับ Staging หรือ Production
    - ต้องใช้ project ปลายทางที่ไม่มีข้อมูลสำคัญและได้รับอนุญาตก่อน
-3. **Physical-device coverage ยังไม่ครบ**
+2. **Physical-device coverage ยังไม่ครบ**
    - iPhone text scaling, landscape และ native push ต้องมีหลักฐานจากอุปกรณ์จริง
-4. **Leaked-password protection ยังเปิดไม่ได้ในแผนปัจจุบัน**
+3. **Leaked-password protection ยังเปิดไม่ได้ในแผนปัจจุบัน**
    - Staging ยังมี `auth_leaked_password_protection` 1 warning
    - ระหว่างยังไม่อัปเกรด ให้จำกัดจำนวน admin, ใช้รหัสผ่านเฉพาะที่แข็งแรง, เปิด MFA เมื่อพร้อม และไม่เปิด public email/password signup
    - ก่อน Production ต้องตัดสินใจอัปเกรดเพื่อเปิด leaked-password protection หรือบันทึก risk acceptance อย่างเป็นทางการ
 
 ## ลำดับดำเนินการถัดไป
 
-1. กรอก owner และ alert channels ในระบบภายใน แล้วแทน `UNASSIGNED` ใน runbook
-2. สร้างหรืออนุมัติ Supabase project สำหรับ restore drill; บันทึก source/destination refs ใน change record
-3. ทำ isolated restore, ตรวจ schema/data fingerprint, pgTAP/RLS และ health smoke tests
-4. ตัดสินใจเรื่อง Supabase Pro/leaked-password protection ก่อน Production และบันทึก risk acceptance หากยังไม่เปิด
-5. ทำ physical-device matrix ที่ค้าง แล้วทบทวน P0/P1 ก่อนตัดสินใจ Pilot
+1. สร้างหรืออนุมัติ Supabase project สำหรับ restore drill; บันทึก source/destination refs ใน change record
+2. ทำ isolated restore, ตรวจ schema/data fingerprint, pgTAP/RLS และ health smoke tests
+3. ตัดสินใจเรื่อง Supabase Pro/leaked-password protection ก่อน Production และบันทึก risk acceptance หากยังไม่เปิด
+4. ทำ physical-device matrix ที่ค้าง แล้วทบทวน P0/P1 ก่อนตัดสินใจ Pilot
 
 ## ขอบเขตที่ยังห้ามเปิด
 
 - `payment` ต้องคงปิดและเปิดผ่าน RPC ไม่ได้
 - ห้ามเปิด public signup ก่อน CAPTCHA/OTP abuse gate พร้อม
-- ห้ามเปิดพื้นที่ Pilot จนกว่า incident ownership, alert channels และ restore drill ผ่าน
+- ห้ามเปิดพื้นที่ Pilot จนกว่า restore drill ผ่าน
 - ห้ามเก็บ backup ที่มีข้อมูล Staging บนเครื่องส่วนตัวเกินช่วงเวลาที่อนุมัติ

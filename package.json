@@ -15,6 +15,7 @@
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "pnpm -r --if-present test",
     "security:check": "node scripts/security-preflight.mjs",
+    "ops:check:contacts": "node scripts/verify-pilot-incident-roster.mjs",
     "validate:mobile:native": "pnpm --filter @homecare/mobile validate:native",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

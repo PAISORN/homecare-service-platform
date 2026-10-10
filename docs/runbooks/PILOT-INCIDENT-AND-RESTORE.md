@@ -2,15 +2,18 @@
 
 ## ผู้รับผิดชอบก่อนเปิด pilot
 
-ต้องกรอกชื่อหรือเวรในระบบภายในก่อนเปิดบริการจริง:
+ทะเบียนผู้รับผิดชอบและปลายทางติดต่อจริงเก็บในไฟล์ภายใน
+`ops/pilot-incident-roster.local.json` ซึ่ง Git ignore และห้ามนำขึ้น repository
+ตรวจความพร้อมด้วย `pnpm ops:check:contacts` ก่อนเปิดบริการจริง
 
-- Incident commander: `UNASSIGNED`
-- Operations/support: `UNASSIGNED`
-- Database owner: `UNASSIGNED`
-- ช่องทางแจ้งเตือนหลัก: `UNASSIGNED`
-- ช่องทางสำรอง: `UNASSIGNED`
+- Incident commander: `primary_operator` (private roster)
+- Operations/support: `primary_operator` (private roster)
+- Database owner: `primary_operator` (private roster)
+- ช่องทางแจ้งเตือนหลัก: Email (private roster)
+- ช่องทางสำรอง: LINE (private roster)
 
-ค่า `UNASSIGNED` ใด ๆ ถือเป็น release blocker
+ห้ามใส่ชื่อ อีเมล เบอร์โทร หรือ LINE ID จริงในเอกสารที่ Git track ค่า `UNASSIGNED`,
+placeholder, contact ที่หาไม่พบ หรือไฟล์ภายในที่ไม่ถูก ignore ถือเป็น release blocker
 
 ## ระดับเหตุการณ์
 

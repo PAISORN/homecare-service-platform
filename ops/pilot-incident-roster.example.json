@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "contacts": {
+    "primary_operator": {
+      "display_name": "Primary operator",
+      "destinations": {
+        "email": "replace-with-private-email",
+        "line": "replace-with-private-line-id"
+      }
+    }
+  },
+  "roles": {
+    "incident_commander": "primary_operator",
+    "operations_support": "primary_operator",
+    "database_owner": "primary_operator"
+  },
+  "channels": {
+    "primary": {
+      "contact": "primary_operator",
+      "method": "email"
+    },
+    "backup": {
+      "contact": "primary_operator",
+      "method": "line"
+    }
+  }
+}
