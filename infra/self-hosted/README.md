@@ -24,6 +24,7 @@ pnpm selfhost:persistence
 pnpm selfhost:backup-restore
 pnpm selfhost:storage:backup-restore
 pnpm selfhost:load-test
+pnpm selfhost:write-flow
 ```
 
 Open Admin at `http://127.0.0.1:3200/login`. Studio and other internal services remain local.
@@ -49,6 +50,12 @@ catalog REST endpoint for 15 seconds each. Defaults are 20 concurrent workers, z
 failures, and a local p95 ceiling of 1,000 ms. Override the duration, concurrency, or p95 gate with
 `SELFHOST_LOAD_DURATION_SECONDS`, `SELFHOST_LOAD_CONCURRENCY`, and
 `SELFHOST_LOAD_MAXIMUM_P95_MS`.
+
+`selfhost:write-flow` creates two temporary local identities and verifies Auth, the profile trigger,
+customer RLS, configurable catalog reads, request drafts, private Storage ownership, cross-account
+denial, and idempotent technician application bootstrap. It removes its objects, business rows,
+and identities in `finally`, then requires the relevant database fingerprint to exactly match the
+value from before the test.
 
 ## Measured local baseline
 

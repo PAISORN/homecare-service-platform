@@ -29,6 +29,7 @@
     "selfhost:backup-restore": "node scripts/run-self-hosted-rehearsal.mjs backup-restore",
     "selfhost:storage:backup-restore": "node scripts/run-self-hosted-rehearsal.mjs storage-backup-restore",
     "selfhost:load-test": "node scripts/load-test-self-hosted-rehearsal.mjs",
+    "selfhost:write-flow": "node scripts/test-self-hosted-write-flow.mjs",
     "selfhost:down": "node scripts/run-self-hosted-rehearsal.mjs down",
     "validate:mobile:native": "pnpm --filter @homecare/mobile validate:native",
     "format": "prettier --write .",
