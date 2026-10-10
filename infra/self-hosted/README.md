@@ -23,6 +23,7 @@ pnpm selfhost:check
 pnpm selfhost:persistence
 pnpm selfhost:backup-restore
 pnpm selfhost:storage:backup-restore
+pnpm selfhost:load-test
 ```
 
 Open Admin at `http://127.0.0.1:3200/login`. Studio and other internal services remain local.
@@ -42,6 +43,12 @@ pnpm selfhost:down
 
 Do not add `-v`, run the upstream reset script, or delete `runtime/docker/volumes` unless the data
 is intentionally disposable and a verified backup exists.
+
+`selfhost:load-test` sends concurrent read-only requests to the Admin login page and the public
+catalog REST endpoint for 15 seconds each. Defaults are 20 concurrent workers, zero tolerated HTTP
+failures, and a local p95 ceiling of 1,000 ms. Override the duration, concurrency, or p95 gate with
+`SELFHOST_LOAD_DURATION_SECONDS`, `SELFHOST_LOAD_CONCURRENCY`, and
+`SELFHOST_LOAD_MAXIMUM_P95_MS`.
 
 ## Measured local baseline
 
