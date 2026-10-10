@@ -85,7 +85,8 @@ select throws_ok(
 select throws_ok(
   $$insert into public.service_categories (code, name_th, status)
     values ('ANON-SPOOF', 'ห้ามสร้าง', 'active')$$,
-  'permission denied for table service_categories',
+  '42501',
+  null,
   'anon cannot create catalog categories'
 );
 

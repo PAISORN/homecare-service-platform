@@ -65,6 +65,31 @@ pnpm dev:admin
 
 หรือเปิดพร้อมกันด้วย `pnpm dev`
 
+ทดสอบ Admin Web แบบ container ที่ใช้รูปแบบเดียวกับเป้าหมาย Hostinger VPS:
+
+```powershell
+pnpm db:start
+pnpm env:local-vps:up
+pnpm env:local-vps:check
+```
+
+รายละเอียด topology, firewall, HTTPS, backup และขั้นตอนย้ายขึ้น VPS อยู่ที่
+[`infra/hostinger/README.md`](infra/hostinger/README.md)
+
+ก่อนซื้อ VPS ให้รัน Supabase Self-hosted แบบเต็มบนเครื่อง local เพื่อทดสอบ stack เดียวกับ
+production รวม migration, pgTAP/RLS, persistence และการกู้คืน Database/Storage:
+
+```powershell
+pnpm selfhost:up
+pnpm selfhost:db:test
+pnpm selfhost:persistence
+pnpm selfhost:backup-restore
+pnpm selfhost:storage:backup-restore
+```
+
+Admin ของชุดนี้อยู่ที่ `http://127.0.0.1:3200/login` และทุก port bind เฉพาะ localhost ดูคำสั่ง
+และขอบเขตความปลอดภัยใน [`infra/self-hosted/README.md`](infra/self-hosted/README.md)
+
 ## ตรวจคุณภาพ
 
 ```powershell

@@ -17,6 +17,8 @@ supabase/.env
 .supabase-home/
 .docker-config/
 .tmp-supabase-init-probe/
+infra/self-hosted/runtime/
+infra/self-hosted/backups/
 apps/mobile/.expo/
 apps/mobile/android/
 apps/mobile/ios/

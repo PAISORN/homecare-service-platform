@@ -4,11 +4,11 @@ import type { Database } from '@homecare/database-types';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-import { resolveAdminSupabaseConfig } from './supabase-config';
+import { resolveAdminSupabaseServerConfig } from './supabase-config';
 
 export async function createAdminSupabaseClient() {
   const cookieStore = await cookies();
-  const config = resolveAdminSupabaseConfig(process.env);
+  const config = resolveAdminSupabaseServerConfig(process.env);
 
   return createServerClient<Database>(config.url, config.publishableKey, {
     cookies: {

@@ -1,0 +1,13 @@
+services:
+  api-gw:
+    ports: !override
+      - 127.0.0.1:${API_GW_HTTP_PORT:-58000}:8000/tcp
+
+  db:
+    ports:
+      - 127.0.0.1:${POSTGRES_DIRECT_PORT:-55433}:${POSTGRES_PORT:-55432}/tcp
+
+  supavisor:
+    ports: !override
+      - 127.0.0.1:${POSTGRES_PORT:-55432}:5432/tcp
+      - 127.0.0.1:${POOLER_PROXY_PORT_TRANSACTION:-56543}:6543/tcp

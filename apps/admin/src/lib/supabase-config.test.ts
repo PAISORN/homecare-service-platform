@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { resolveAdminSupabaseConfig } from './supabase-config';
+import {
+  resolveAdminSupabaseConfig,
+  resolveAdminSupabaseServerConfig,
+} from './supabase-config';
 
 function jwt(payload: Record<string, unknown>) {
   return [
@@ -42,5 +45,28 @@ describe('resolveAdminSupabaseConfig', () => {
     expect(() => resolveAdminSupabaseConfig({})).toThrow(
       'admin_supabase_configuration_missing',
     );
+  });
+
+  it('uses a private server URL without changing the public key', () => {
+    expect(
+      resolveAdminSupabaseServerConfig({
+        NEXT_PUBLIC_SUPABASE_URL: 'https://api.example.com',
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_example',
+        SUPABASE_INTERNAL_URL: 'http://api-gw:8000/',
+      }),
+    ).toEqual({
+      url: 'http://api-gw:8000',
+      publishableKey: 'sb_publishable_example',
+    });
+  });
+
+  it('rejects an invalid private server URL', () => {
+    expect(() =>
+      resolveAdminSupabaseServerConfig({
+        NEXT_PUBLIC_SUPABASE_URL: 'https://api.example.com',
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_example',
+        SUPABASE_INTERNAL_URL: 'file:///etc/passwd',
+      }),
+    ).toThrow('admin_supabase_internal_url_invalid');
   });
 });

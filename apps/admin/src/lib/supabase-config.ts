@@ -58,3 +58,28 @@ export function resolveAdminSupabaseConfig(
 
   return { url: parsedUrl.toString().replace(/\/$/, ''), publishableKey };
 }
+
+export function resolveAdminSupabaseServerConfig(
+  environment: Readonly<Record<string, string | undefined>>,
+): AdminSupabaseConfig {
+  const publicConfig = resolveAdminSupabaseConfig(environment);
+  const internalUrl = environment.SUPABASE_INTERNAL_URL?.trim();
+
+  if (!internalUrl) return publicConfig;
+
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(internalUrl);
+  } catch {
+    throw new Error('admin_supabase_internal_url_invalid');
+  }
+
+  if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+    throw new Error('admin_supabase_internal_url_invalid');
+  }
+
+  return {
+    ...publicConfig,
+    url: parsedUrl.toString().replace(/\/$/, ''),
+  };
+}
