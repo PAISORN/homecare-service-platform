@@ -5,6 +5,7 @@ import {
   useFonts,
 } from '@expo-google-fonts/noto-sans-thai';
 import { Stack } from 'expo-router';
+import Head from 'expo-router/head';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -42,6 +43,9 @@ export default function RootLayout() {
         <SessionProvider>
           <NotificationProvider>
             <AuthDraftProvider>
+              <Head>
+                <title>HomeCare</title>
+              </Head>
               <Stack screenOptions={{ headerShown: false }} />
             </AuthDraftProvider>
           </NotificationProvider>

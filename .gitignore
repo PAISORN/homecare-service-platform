@@ -9,6 +9,8 @@ node_modules/
 .expo/
 dist/
 coverage/
+playwright-report/
+test-results/
 *.tsbuildinfo
 supabase/.branches/
 supabase/.temp/

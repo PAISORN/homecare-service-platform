@@ -25,6 +25,8 @@ pnpm selfhost:backup-restore
 pnpm selfhost:storage:backup-restore
 pnpm selfhost:load-test
 pnpm selfhost:write-flow
+pnpm selfhost:cross-role
+pnpm selfhost:ui:e2e
 ```
 
 Open Admin at `http://127.0.0.1:3200/login`. Studio and other internal services remain local.
@@ -56,6 +58,17 @@ customer RLS, configurable catalog reads, request drafts, private Storage owners
 denial, and idempotent technician application bootstrap. It removes its objects, business rows,
 and identities in `finally`, then requires the relevant database fingerprint to exactly match the
 value from before the test.
+
+`selfhost:cross-role` runs the complete customer, technician, and administrator lifecycle through
+Auth, Data, and Storage APIs: matching, sealed quotation, technician selection, agreement,
+appointment, job travel, start/completion PINs, work evidence, acceptance, review, complaint,
+administrator escalation/resolution, moderation, and notifications. It then removes every fixture
+and requires the database fingerprint to return exactly to its starting value.
+
+`selfhost:ui:e2e` starts the local self-hosted stack plus Mobile Web on port 8082, prepares one
+temporary completed cross-role job, and uses Playwright Chromium to verify the customer, technician,
+and administrator rendered flows. Screenshots and failure traces stay under ignored `test-results/`;
+the temporary Auth, Database, and Storage fixtures are removed after the suite.
 
 ## Measured local baseline
 
