@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppFontFamilies } from '../../foundation/font-runtime';
 import { serviceRequestCopyTh as copy } from '../../locales/th';
 import { useSession } from '../../providers/session-provider';
+import { MobileBottomNav } from '../shared/mobile-bottom-nav';
 import { goBackOrReplace } from '../shared/navigation';
 import { formatDraftScheduleTh } from './preferred-date';
 import {
@@ -272,6 +273,7 @@ export function RequestDraftsScreen() {
           })}
         </View>
       </ScrollView>
+      <MobileBottomNav active="requests" />
     </SafeAreaView>
   );
 }
@@ -279,7 +281,7 @@ export function RequestDraftsScreen() {
 function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
   return StyleSheet.create({
     safeArea: { flex: 1, backgroundColor: colors.background },
-    content: { padding: spacing.lg, paddingBottom: spacing.xxl },
+    content: { padding: spacing.lg, paddingBottom: 116 },
     backButton: {
       alignSelf: 'flex-start',
       minHeight: 44,

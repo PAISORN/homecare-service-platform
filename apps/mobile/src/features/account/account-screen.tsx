@@ -9,6 +9,7 @@ import { useNotifications } from '../../providers/notification-provider';
 import { useSession } from '../../providers/session-provider';
 import { formatThaiPhoneForDisplay } from '../auth/phone';
 import { canUseTechnicianMode } from './account-api';
+import { MobileBottomNav } from '../shared/mobile-bottom-nav';
 
 export function AccountScreen() {
   const router = useRouter();
@@ -213,6 +214,7 @@ export function AccountScreen() {
           <Text style={styles.signOutText}>{accountCopyTh.signOut}</Text>
         </Pressable>
       </ScrollView>
+      <MobileBottomNav active="account" />
     </SafeAreaView>
   );
 }
@@ -220,7 +222,7 @@ export function AccountScreen() {
 function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
   return StyleSheet.create({
     safeArea: { flex: 1, backgroundColor: colors.background },
-    content: { padding: spacing.lg, paddingBottom: spacing.xxl },
+    content: { padding: spacing.lg, paddingBottom: 116 },
     title: {
       color: colors.text,
       fontFamily: fonts.bold,

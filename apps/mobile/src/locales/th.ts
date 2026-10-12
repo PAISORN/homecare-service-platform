@@ -4,6 +4,11 @@ export type MobileHomeCopy = Readonly<{
   brand: string;
   title: string;
   description: string;
+  greeting: string;
+  searchPlaceholder: string;
+  popularServices: string;
+  viewAll: string;
+  requestServiceDescription: string;
   requestService: string;
   serviceJobs: string;
   account: string;
@@ -21,6 +26,12 @@ export const mobileHomeCopyTh: MobileHomeCopy = {
   title: 'ดูแลบ้านได้อย่างมั่นใจ',
   description:
     'เลือกบริการหรือค้นหาช่างที่ผ่านการตรวจสอบ งานทุกชิ้นมีขอบเขต ราคา และหลักฐานที่ตรวจสอบได้',
+  greeting: 'สวัสดี ยินดีต้อนรับ',
+  searchPlaceholder: 'ค้นหาบริการที่ต้องการ',
+  popularServices: 'บริการยอดนิยม',
+  viewAll: 'ดูทั้งหมด',
+  requestServiceDescription:
+    'เล่าอาการหรือเลือกบริการ แล้วระบบจะช่วยส่งคำขอให้ช่างที่เหมาะสม',
   requestService: 'เริ่มขอรับบริการ',
   serviceJobs: 'งานบริการของฉัน',
   account: 'บัญชีของฉัน',
@@ -341,7 +352,20 @@ export const serviceRequestCopyTh = {
   retry: 'ลองอีกครั้ง',
 } as const;
 
+export const requestSavedCopyTh = {
+  title: 'บันทึกแบบร่างแล้ว',
+  description:
+    'ข้อมูลของคุณบันทึกแล้ว ยังไม่ส่งหาช่างและยังไม่ยืนยันนัดหมาย เมื่อพร้อม ให้ส่งคำขอจากหน้าคำขอของฉัน',
+  updatedTitle: 'คำขอรับบริการของคุณ',
+  updatedDescription:
+    'คำขอนี้ดำเนินการต่อแล้ว ตรวจสถานะล่าสุดจากหน้าคำขอของฉัน',
+  loadFailed: 'โหลดแบบร่างไม่สำเร็จ กรุณากลับไปตรวจในคำขอของฉัน',
+  viewRequests: 'ดูคำขอของฉัน',
+  backHome: 'กลับหน้าหลัก',
+} as const;
+
 export const requestShortlistCopyTh = {
+  viewProfile: 'ดูข้อมูลช่าง',
   back: 'ย้อนกลับ',
   title: 'รายชื่อช่างที่สนใจ',
   description:
@@ -356,7 +380,8 @@ export const requestShortlistCopyTh = {
   waitingForCatalogPrice:
     'ราคาค่าแรงมาตรฐานยังรอการอนุมัติ จึงยังเลือกช่างไม่ได้',
   chooseTechnician: 'เลือกช่างคนนี้',
-  selectedNotice: 'คุณเลือกช่างคนนี้แล้ว ขั้นตอนยืนยันงานจะแสดงในระยะถัดไป',
+  selectedNotice:
+    'คุณเลือกช่างคนนี้แล้ว ตรวจขอบเขต ราคา และนัดหมายในข้อตกลงงาน',
   emptyTitle: 'ยังไม่มีช่างแสดงความสนใจ',
   emptyBody: 'เมื่อมีช่างที่เหมาะสมสนใจรับงาน รายชื่อจะปรากฏที่หน้านี้',
   loadFailed: 'โหลดรายชื่อช่างไม่สำเร็จ กรุณาลองอีกครั้ง',
@@ -372,6 +397,24 @@ export const requestShortlistCopyTh = {
   selectFailedTitle: 'เลือกช่างไม่สำเร็จ',
   selectFailedBody:
     'รายชื่อหรือสถานะคำขออาจเปลี่ยนแล้ว กรุณาโหลดใหม่และลองอีกครั้ง',
+} as const;
+
+export const requestTechnicianCopyTh = {
+  title: 'ข้อมูลช่าง',
+  about: 'เกี่ยวกับช่าง',
+  noBio: 'ช่างยังไม่ได้เพิ่มข้อความแนะนำตัว',
+  experience: 'ประสบการณ์',
+  noExperience: 'ยังไม่ระบุ',
+  verification: 'การตรวจสอบ',
+  verified: 'ยืนยันตัวตนแล้ว',
+  priceContext: 'ราคาและขอบเขตนี้สำหรับคำขอรับบริการของคุณ',
+  scope: 'ขอบเขตงานที่เสนอ',
+  catalogScope:
+    'ขอบเขตเป็นไปตามรายการบริการที่เลือก ตรวจรายละเอียดอีกครั้งในข้อตกลงงาน',
+  unavailable: 'ไม่พบช่างในรายชื่อของคำขอนี้ หรือรายชื่อมีการเปลี่ยนแปลง',
+  backToShortlist: 'กลับรายชื่อช่าง',
+  selectionUnavailable: 'คำขอนี้ไม่พร้อมเลือกช่างเพิ่มเติม กลับไปตรวจสถานะคำขอ',
+  agreement: 'ตรวจและยืนยันข้อตกลง',
 } as const;
 
 export const serviceAgreementCopyTh = {

@@ -2,7 +2,8 @@ import { colors, radii, spacing, typography } from '@homecare/design-tokens';
 import * as ImagePicker from 'expo-image-picker';
 import * as Crypto from 'expo-crypto';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Check, Minus, Plus } from 'phosphor-react-native';
 import {
   ActivityIndicator,
   Image,
@@ -26,6 +27,11 @@ import { serviceRequestCopyTh as copy } from '../../locales/th';
 import { useSession } from '../../providers/session-provider';
 import { goBackOrReplace } from '../shared/navigation';
 import { PreferredDateField } from './preferred-date-field';
+import {
+  formatDraftScheduleTh,
+  formatPreferredDateTh,
+  toPreferredDateValue,
+} from './preferred-date';
 import {
   emptySafetyAnswers,
   deleteOwnRequestAttachment,
@@ -61,6 +67,12 @@ const safetyKeys = [
   'uncontrolledWater',
   'outOfScopeAccess',
 ] as const;
+const formSteps = [
+  'สถานที่และอาการ',
+  'วันเวลาและรูป',
+  'ตรวจสอบและบันทึก',
+] as const;
+const suggestedTimes = ['09:00–12:00', '13:00–16:00', '16:00–18:00'] as const;
 
 export function RequestFormScreen() {
   const router = useRouter();
@@ -97,6 +109,8 @@ export function RequestFormScreen() {
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [step, setStep] = useState(0);
+  const scroll = useRef<ScrollView>(null);
   const fonts = useAppFontFamilies();
   const styles = createStyles(fonts);
 
@@ -169,12 +183,58 @@ export function RequestFormScreen() {
     today.setHours(0, 0, 0, 0);
     return today;
   }, []);
+  const quickDates = useMemo(
+    () =>
+      Array.from({ length: 5 }, (_, offset) => {
+        const date = new Date(minimumPreferredDate);
+        date.setDate(date.getDate() + offset);
+        return {
+          value: toPreferredDateValue(date),
+          label:
+            offset === 0
+              ? 'วันนี้'
+              : offset === 1
+                ? 'พรุ่งนี้'
+                : new Intl.DateTimeFormat('th-TH', { weekday: 'short' }).format(
+                    date,
+                  ),
+          day: date.getDate(),
+        };
+      }),
+    [minimumPreferredDate],
+  );
+
+  function changeStep(next: number) {
+    if (saving) return;
+    if (next > step) {
+      const result = validateServiceRequestDraft(input);
+      setValidation(result);
+      const fields =
+        step === 0
+          ? ([
+              'serviceLocationId',
+              'serviceCategoryId',
+              'serviceItemId',
+              'problemDescription',
+              'quantity',
+            ] as const)
+          : (['preferredDate', 'preferredTimeWindow'] as const);
+      if (fields.some((field) => result.errors[field])) return;
+    }
+    setStep(next);
+    setMessage(null);
+    scroll.current?.scrollTo({ y: 0, animated: false });
+  }
 
   function update<Key extends keyof ServiceRequestDraftInput>(
     key: Key,
     value: ServiceRequestDraftInput[Key],
   ) {
     setInput((current) => ({ ...current, [key]: value }));
+    setValidation((current) => ({
+      ...current,
+      errors: { ...current.errors, [key]: undefined },
+    }));
     setMessage(null);
   }
 
@@ -233,6 +293,16 @@ export function RequestFormScreen() {
     const result = validateServiceRequestDraft(input);
     setValidation(result);
     if (Object.keys(result.errors).length > 0) {
+      setStep(
+        result.errors.serviceLocationId ||
+          result.errors.problemDescription ||
+          result.errors.serviceCategoryId ||
+          result.errors.serviceItemId ||
+          result.errors.quantity
+          ? 0
+          : 1,
+      );
+      scroll.current?.scrollTo({ y: 0, animated: false });
       setMessage(copy.saveFailed);
       return;
     }
@@ -253,7 +323,7 @@ export function RequestFormScreen() {
       setPhotos([]);
       setMessage(copy.savedDraft);
       router.replace({
-        pathname: '/requests/edit',
+        pathname: '/requests/saved',
         params: { requestId: draft.id },
       });
     } catch {
@@ -291,18 +361,24 @@ export function RequestFormScreen() {
     );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView testID="request-form" style={styles.safeArea}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.flex}
       >
         <ScrollView
+          ref={scroll}
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
         >
           <Pressable
             accessibilityRole="button"
-            onPress={() => goBackOrReplace(router, '/requests')}
+            disabled={saving}
+            onPress={() =>
+              step > 0
+                ? changeStep(step - 1)
+                : goBackOrReplace(router, '/requests')
+            }
             style={styles.backButton}
           >
             <Text style={styles.backText}>{copy.back}</Text>
@@ -311,6 +387,50 @@ export function RequestFormScreen() {
             {input.requestId ? copy.editFormTitle : copy.formTitle}
           </Text>
           <Text style={styles.description}>{copy.formDescription}</Text>
+          <View accessibilityRole="tablist" style={styles.steps}>
+            {formSteps.map((label, index) => (
+              <Pressable
+                key={label}
+                accessibilityRole="tab"
+                accessibilityLabel={`ขั้น ${index + 1} ${label}`}
+                accessibilityState={{
+                  selected: step === index,
+                  disabled: saving || index > step,
+                }}
+                disabled={saving || index > step}
+                onPress={() => changeStep(index)}
+                style={[styles.stepItem, step === index && styles.stepActive]}
+              >
+                <View
+                  style={[
+                    styles.stepNumber,
+                    step === index && styles.stepNumberActive,
+                  ]}
+                >
+                  {index < step ? (
+                    <Check size={16} color={colors.primary} />
+                  ) : (
+                    <Text
+                      style={[
+                        styles.stepDigit,
+                        step === index && styles.stepDigitActive,
+                      ]}
+                    >
+                      {index + 1}
+                    </Text>
+                  )}
+                </View>
+                <Text
+                  style={[
+                    styles.stepLabel,
+                    step === index && styles.stepLabelActive,
+                  ]}
+                >
+                  {label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
 
           <View style={styles.summaryCard}>
             <Text style={styles.summaryTitle}>
@@ -323,189 +443,304 @@ export function RequestFormScreen() {
             </Text>
           </View>
 
-          <FormSection title={copy.locationLabel} styles={styles}>
-            {locations.length === 0 ? (
-              <Pressable
-                onPress={() => router.push('/account/locations/new')}
-                style={styles.secondaryButton}
-              >
-                <Text style={styles.secondaryText}>{copy.addLocation}</Text>
-              </Pressable>
-            ) : (
-              locations.map((location) => (
-                <Choice
-                  key={location.id}
-                  label={location.label}
-                  selected={input.serviceLocationId === location.id}
-                  onPress={() => update('serviceLocationId', location.id)}
-                  styles={styles}
-                />
-              ))
-            )}
-            <FieldError text={errorText('serviceLocationId')} styles={styles} />
-          </FormSection>
-
-          <FormSection title={copy.descriptionLabel} styles={styles}>
-            <TextInput
-              accessibilityLabel={copy.descriptionLabel}
-              multiline
-              onChangeText={(value) => update('problemDescription', value)}
-              placeholder={copy.descriptionPlaceholder}
-              placeholderTextColor={colors.textMuted}
-              style={[styles.input, styles.textArea]}
-              value={input.problemDescription}
-            />
-            <FieldError
-              text={errorText('problemDescription')}
-              styles={styles}
-            />
-          </FormSection>
-
-          <FormSection title={copy.quantityLabel} styles={styles}>
-            <View style={styles.counter}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="ลดจำนวน"
-                disabled={input.quantity <= 1}
-                onPress={() => update('quantity', input.quantity - 1)}
-                style={[
-                  styles.counterButton,
-                  input.quantity <= 1 && styles.disabled,
-                ]}
-              >
-                <Text style={styles.counterText}>−</Text>
-              </Pressable>
-              <Text style={styles.quantity}>{input.quantity}</Text>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="เพิ่มจำนวน"
-                disabled={input.quantity >= 50}
-                onPress={() => update('quantity', input.quantity + 1)}
-                style={styles.counterButton}
-              >
-                <Text style={styles.counterText}>+</Text>
-              </Pressable>
-            </View>
-          </FormSection>
-
-          <FormSection title={copy.urgencyLabel} styles={styles}>
-            {urgencyOptions.map((urgency) => (
-              <Choice
-                key={urgency}
-                label={copy.urgency[urgency]}
-                selected={input.urgency === urgency}
-                onPress={() => update('urgency', urgency)}
+          {step === 0 ? (
+            <>
+              <FieldError
+                text={
+                  errorText('serviceCategoryId') || errorText('serviceItemId')
+                }
                 styles={styles}
               />
-            ))}
-          </FormSection>
 
-          <FormSection title={copy.preferredDateLabel} styles={styles}>
-            <PreferredDateField
-              clearLabel={copy.clearPreferredDate}
-              fontFamily={fonts.regular}
-              minimumDate={minimumPreferredDate}
-              onChange={(value) => update('preferredDate', value)}
-              placeholder={copy.preferredDatePlaceholder}
-              value={input.preferredDate}
-            />
-            <FieldError text={errorText('preferredDate')} styles={styles} />
-            <Text style={styles.fieldLabel}>{copy.preferredTimeLabel}</Text>
-            <TextInput
-              accessibilityLabel={copy.preferredTimeLabel}
-              onChangeText={(value) => update('preferredTimeWindow', value)}
-              placeholder={copy.preferredTimePlaceholder}
-              placeholderTextColor={colors.textMuted}
-              style={styles.input}
-              value={input.preferredTimeWindow}
-            />
-            <FieldError
-              text={errorText('preferredTimeWindow')}
-              styles={styles}
-            />
-          </FormSection>
+              <FormSection title={copy.locationLabel} styles={styles}>
+                {locations.length === 0 ? (
+                  <Pressable
+                    onPress={() => router.push('/account/locations/new')}
+                    style={styles.secondaryButton}
+                  >
+                    <Text style={styles.secondaryText}>{copy.addLocation}</Text>
+                  </Pressable>
+                ) : (
+                  locations.map((location) => (
+                    <Choice
+                      key={location.id}
+                      label={location.label}
+                      selected={input.serviceLocationId === location.id}
+                      onPress={() => update('serviceLocationId', location.id)}
+                      styles={styles}
+                    />
+                  ))
+                )}
+                <FieldError
+                  text={errorText('serviceLocationId')}
+                  styles={styles}
+                />
+              </FormSection>
 
-          <FormSection title={copy.photosLabel} styles={styles}>
-            <Text style={styles.helper}>{copy.photosHelper}</Text>
-            <View style={styles.photoGrid}>
-              {existingPhotos.map((photo, index) => (
-                <View key={photo.id} style={styles.photoWrap}>
-                  <Image
-                    accessible
-                    accessibilityLabel={`รูปหน้างานเดิมที่ ${index + 1}`}
-                    source={{ uri: photo.signedUrl }}
-                    style={styles.photo}
-                  />
+              <FormSection title={copy.descriptionLabel} styles={styles}>
+                <TextInput
+                  accessibilityLabel={copy.descriptionLabel}
+                  multiline
+                  onChangeText={(value) => update('problemDescription', value)}
+                  placeholder={copy.descriptionPlaceholder}
+                  placeholderTextColor={colors.textMuted}
+                  style={[styles.input, styles.textArea]}
+                  value={input.problemDescription}
+                />
+                <FieldError
+                  text={errorText('problemDescription')}
+                  styles={styles}
+                />
+              </FormSection>
+
+              <FormSection title={copy.quantityLabel} styles={styles}>
+                <View style={styles.counter}>
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={`ลบรูปเดิมที่ ${index + 1}`}
-                    hitSlop={8}
-                    onPress={() => void removeExistingPhoto(photo)}
-                    style={styles.photoRemove}
+                    accessibilityLabel="ลดจำนวน"
+                    disabled={input.quantity <= 1}
+                    onPress={() => update('quantity', input.quantity - 1)}
+                    style={[
+                      styles.counterButton,
+                      input.quantity <= 1 && styles.disabled,
+                    ]}
                   >
-                    <Text style={styles.photoRemoveText}>×</Text>
+                    <Minus size={22} color={colors.surface} />
                   </Pressable>
-                </View>
-              ))}
-              {photos.map((photo, index) => (
-                <View key={`${photo.uri}-${index}`} style={styles.photoWrap}>
-                  <Image
-                    accessible
-                    accessibilityLabel={`รูปหน้างานใหม่ที่ ${index + 1}`}
-                    source={{ uri: photo.uri }}
-                    style={styles.photo}
-                  />
+                  <Text style={styles.quantity}>{input.quantity}</Text>
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={`ลบรูปใหม่ที่ ${index + 1}`}
-                    hitSlop={8}
-                    onPress={() =>
-                      setPhotos((current) =>
-                        current.filter((_, itemIndex) => itemIndex !== index),
-                      )
-                    }
-                    style={styles.photoRemove}
+                    accessibilityLabel="เพิ่มจำนวน"
+                    disabled={input.quantity >= 50}
+                    onPress={() => update('quantity', input.quantity + 1)}
+                    style={styles.counterButton}
                   >
-                    <Text style={styles.photoRemoveText}>×</Text>
+                    <Plus size={22} color={colors.surface} />
                   </Pressable>
                 </View>
-              ))}
-            </View>
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => void choosePhotos()}
-              style={styles.secondaryButton}
-            >
-              <Text style={styles.secondaryText}>{copy.choosePhotos}</Text>
-            </Pressable>
-          </FormSection>
+                <FieldError text={errorText('quantity')} styles={styles} />
+              </FormSection>
+            </>
+          ) : null}
+          {step === 1 ? (
+            <>
+              <FormSection title={copy.urgencyLabel} styles={styles}>
+                {urgencyOptions.map((urgency) => (
+                  <Choice
+                    key={urgency}
+                    label={copy.urgency[urgency]}
+                    selected={input.urgency === urgency}
+                    onPress={() => update('urgency', urgency)}
+                    styles={styles}
+                  />
+                ))}
+              </FormSection>
 
-          <FormSection title={copy.safetyTitle} styles={styles}>
-            <Text style={styles.helper}>{copy.safetyDescription}</Text>
-            {safetyKeys.map((key) => (
-              <View key={key} style={styles.safetyQuestion}>
-                <Text style={styles.safetyQuestionText}>
-                  {copy.safetyQuestions[key]}
+              <FormSection title={copy.preferredDateLabel} styles={styles}>
+                <Text style={styles.helper}>
+                  วันที่และเวลานี้เป็นความสะดวกของคุณ
+                  นัดหมายจะยืนยันอีกครั้งในข้อตกลงงาน
                 </Text>
-                <View style={styles.binaryRow}>
-                  <Choice
-                    compact
-                    label={copy.no}
-                    selected={!input.safetyAnswers[key]}
-                    onPress={() => updateSafety(key, false)}
-                    styles={styles}
-                  />
-                  <Choice
-                    compact
-                    label={copy.yes}
-                    selected={input.safetyAnswers[key]}
-                    onPress={() => updateSafety(key, true)}
-                    styles={styles}
-                  />
+                <View style={styles.quickDates}>
+                  {quickDates.map((date) => (
+                    <Pressable
+                      key={date.value}
+                      accessibilityRole="radio"
+                      accessibilityLabel={`วันที่สะดวก ${formatPreferredDateTh(date.value)}`}
+                      accessibilityState={{
+                        checked: input.preferredDate === date.value,
+                      }}
+                      onPress={() => update('preferredDate', date.value)}
+                      style={[
+                        styles.dateTile,
+                        input.preferredDate === date.value &&
+                          styles.dateTileSelected,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.dateLabel,
+                          input.preferredDate === date.value &&
+                            styles.dateTextSelected,
+                        ]}
+                      >
+                        {date.label}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.dateDay,
+                          input.preferredDate === date.value &&
+                            styles.dateTextSelected,
+                        ]}
+                      >
+                        {date.day}
+                      </Text>
+                    </Pressable>
+                  ))}
                 </View>
+                <PreferredDateField
+                  clearLabel={copy.clearPreferredDate}
+                  fontFamily={fonts.regular}
+                  minimumDate={minimumPreferredDate}
+                  onChange={(value) => update('preferredDate', value)}
+                  placeholder={copy.preferredDatePlaceholder}
+                  value={input.preferredDate}
+                />
+                <FieldError text={errorText('preferredDate')} styles={styles} />
+                <Text style={styles.fieldLabel}>{copy.preferredTimeLabel}</Text>
+                <View style={styles.timeChoices}>
+                  {suggestedTimes.map((time) => (
+                    <Pressable
+                      key={time}
+                      accessibilityRole="radio"
+                      accessibilityLabel={`ช่วงเวลา ${time}`}
+                      accessibilityState={{
+                        checked: input.preferredTimeWindow === time,
+                      }}
+                      onPress={() => update('preferredTimeWindow', time)}
+                      style={[
+                        styles.timeChoice,
+                        input.preferredTimeWindow === time &&
+                          styles.choiceSelected,
+                      ]}
+                    >
+                      <Text style={styles.timeText}>{time}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+                <TextInput
+                  accessibilityLabel={copy.preferredTimeLabel}
+                  onChangeText={(value) => update('preferredTimeWindow', value)}
+                  placeholder={copy.preferredTimePlaceholder}
+                  placeholderTextColor={colors.textMuted}
+                  style={styles.input}
+                  value={input.preferredTimeWindow}
+                />
+                <FieldError
+                  text={errorText('preferredTimeWindow')}
+                  styles={styles}
+                />
+              </FormSection>
+
+              <FormSection title={copy.photosLabel} styles={styles}>
+                <Text style={styles.helper}>{copy.photosHelper}</Text>
+                <View style={styles.photoGrid}>
+                  {existingPhotos.map((photo, index) => (
+                    <View key={photo.id} style={styles.photoWrap}>
+                      <Image
+                        accessible
+                        accessibilityLabel={`รูปหน้างานเดิมที่ ${index + 1}`}
+                        source={{ uri: photo.signedUrl }}
+                        style={styles.photo}
+                      />
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={`ลบรูปเดิมที่ ${index + 1}`}
+                        hitSlop={8}
+                        onPress={() => void removeExistingPhoto(photo)}
+                        style={styles.photoRemove}
+                      >
+                        <Text style={styles.photoRemoveText}>×</Text>
+                      </Pressable>
+                    </View>
+                  ))}
+                  {photos.map((photo, index) => (
+                    <View
+                      key={`${photo.uri}-${index}`}
+                      style={styles.photoWrap}
+                    >
+                      <Image
+                        accessible
+                        accessibilityLabel={`รูปหน้างานใหม่ที่ ${index + 1}`}
+                        source={{ uri: photo.uri }}
+                        style={styles.photo}
+                      />
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={`ลบรูปใหม่ที่ ${index + 1}`}
+                        hitSlop={8}
+                        onPress={() =>
+                          setPhotos((current) =>
+                            current.filter(
+                              (_, itemIndex) => itemIndex !== index,
+                            ),
+                          )
+                        }
+                        style={styles.photoRemove}
+                      >
+                        <Text style={styles.photoRemoveText}>×</Text>
+                      </Pressable>
+                    </View>
+                  ))}
+                </View>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => void choosePhotos()}
+                  style={styles.secondaryButton}
+                >
+                  <Text style={styles.secondaryText}>{copy.choosePhotos}</Text>
+                </Pressable>
+              </FormSection>
+            </>
+          ) : null}
+          {step === 2 ? (
+            <>
+              <View style={styles.reviewCard}>
+                <Text style={styles.sectionTitle}>สรุปคำขอรับบริการ</Text>
+                <Text style={styles.reviewValue}>
+                  {
+                    locations.find(
+                      (location) => location.id === input.serviceLocationId,
+                    )?.label
+                  }
+                </Text>
+                <Text style={styles.helper}>{input.problemDescription}</Text>
+                <Text style={styles.helper}>
+                  จำนวน {input.quantity} · {copy.urgency[input.urgency]}
+                </Text>
+                <Text style={styles.helper}>
+                  {formatDraftScheduleTh(
+                    input.preferredDate,
+                    input.preferredTimeWindow,
+                  ) || 'ยังไม่ระบุวันและเวลาที่สะดวก'}
+                </Text>
+                <Text style={styles.helper}>
+                  รูปหน้างาน {photos.length + existingPhotos.length} รูป
+                </Text>
               </View>
-            ))}
-          </FormSection>
+
+              <FormSection title={copy.safetyTitle} styles={styles}>
+                <Text style={styles.helper}>{copy.safetyDescription}</Text>
+                {safetyKeys.map((key) => (
+                  <View
+                    testID={`safety-${key}`}
+                    key={key}
+                    style={styles.safetyQuestion}
+                  >
+                    <Text style={styles.safetyQuestionText}>
+                      {copy.safetyQuestions[key]}
+                    </Text>
+                    <View style={styles.binaryRow}>
+                      <Choice
+                        compact
+                        label={copy.no}
+                        selected={!input.safetyAnswers[key]}
+                        onPress={() => updateSafety(key, false)}
+                        styles={styles}
+                      />
+                      <Choice
+                        compact
+                        label={copy.yes}
+                        selected={input.safetyAnswers[key]}
+                        onPress={() => updateSafety(key, true)}
+                        styles={styles}
+                      />
+                    </View>
+                  </View>
+                ))}
+              </FormSection>
+            </>
+          ) : null}
 
           {stopCode ? (
             <View accessibilityLiveRegion="assertive" style={styles.safetyStop}>
@@ -530,16 +765,18 @@ export function RequestFormScreen() {
           ) : null}
           <Pressable
             accessibilityRole="button"
-            accessibilityState={{ disabled: saving || Boolean(stopCode) }}
-            disabled={saving || Boolean(stopCode)}
-            onPress={() => void save()}
+            accessibilityState={{
+              disabled: saving || (step === 2 && Boolean(stopCode)),
+            }}
+            disabled={saving || (step === 2 && Boolean(stopCode))}
+            onPress={() => (step < 2 ? changeStep(step + 1) : void save())}
             style={[
               styles.primaryButton,
-              (saving || Boolean(stopCode)) && styles.disabled,
+              (saving || (step === 2 && Boolean(stopCode))) && styles.disabled,
             ]}
           >
             <Text style={styles.primaryText}>
-              {saving ? copy.savingDraft : copy.saveDraft}
+              {step < 2 ? 'ถัดไป' : saving ? copy.savingDraft : copy.saveDraft}
             </Text>
           </Pressable>
         </ScrollView>
@@ -619,6 +856,89 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
       padding: spacing.lg,
     },
     content: { padding: spacing.lg, paddingBottom: spacing.xxl },
+    steps: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.lg },
+    stepItem: {
+      flex: 1,
+      minWidth: 0,
+      alignItems: 'center',
+      gap: spacing.xs,
+      padding: spacing.sm,
+      borderRadius: radii.button,
+      minHeight: 72,
+    },
+    stepActive: { backgroundColor: colors.mint },
+    stepNumber: {
+      backgroundColor: colors.surfaceMuted,
+      width: 28,
+      height: 28,
+      borderRadius: radii.pill,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    stepNumberActive: { backgroundColor: colors.primary },
+    stepDigit: {
+      color: colors.textMuted,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.supportSize,
+    },
+    stepDigitActive: { color: colors.surface },
+    stepLabel: {
+      color: colors.textMuted,
+      fontFamily: fonts.regular,
+      fontSize: 12,
+      textAlign: 'center',
+      lineHeight: 18,
+    },
+    stepLabelActive: { color: colors.primary, fontFamily: fonts.semiBold },
+    quickDates: { flexDirection: 'row', gap: spacing.xs },
+    dateTile: {
+      flex: 1,
+      minWidth: 0,
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: radii.button,
+      paddingVertical: spacing.md,
+    },
+    dateTileSelected: { backgroundColor: colors.primary },
+    dateLabel: {
+      color: colors.textMuted,
+      fontFamily: fonts.regular,
+      fontSize: 12,
+    },
+    dateDay: {
+      color: colors.text,
+      fontFamily: fonts.bold,
+      fontSize: typography.sectionTitleSize,
+      marginTop: spacing.xs,
+    },
+    dateTextSelected: { color: colors.surface },
+    timeChoices: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    timeChoice: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      borderRadius: radii.button,
+      paddingHorizontal: spacing.md,
+      minHeight: 44,
+      justifyContent: 'center',
+    },
+    timeText: {
+      color: colors.primary,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.supportSize,
+    },
+    reviewCard: {
+      backgroundColor: colors.mint,
+      borderRadius: radii.card,
+      padding: spacing.lg,
+      marginTop: spacing.lg,
+      gap: spacing.sm,
+    },
+    reviewValue: {
+      color: colors.primary,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.bodySize,
+    },
     backButton: {
       alignSelf: 'flex-start',
       minHeight: 44,

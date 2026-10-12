@@ -594,6 +594,35 @@ try {
   assert.equal(events.at(-1).to_status, 'completed');
 
   if (fixtureOutputPath) {
+    // Keep a second request open so UI E2E can exercise technician selection.
+    const selectionDraft = await rpc(
+      'save_service_request_draft',
+      customerToken,
+      {
+        p_service_location_id: location.id,
+        p_service_category_id: categories[0].id,
+        p_service_item_id: null,
+        p_entry_point: 'symptom',
+        p_problem_description: 'ทดสอบเลือกช่างจากหน้าข้อมูลช่าง',
+        p_quantity: 1,
+        p_urgency: 'flexible',
+        p_preferred_date: null,
+        p_preferred_time_window: null,
+        p_intake_answers: {},
+        p_safety_answers: {},
+      },
+    );
+    await rpc('submit_service_request', customerToken, {
+      p_request_id: selectionDraft.id,
+    });
+    await rpc('express_technician_interest', technicianToken, {
+      p_request_id: selectionDraft.id,
+    });
+    await rpc('submit_technician_quotation', technicianToken, {
+      p_request_id: selectionDraft.id,
+      p_scope_description: 'ล้างแอร์ตามขอบเขตที่ลูกค้าขอ',
+      p_labor_amount: 900,
+    });
     writeFileSync(
       fixtureOutputPath,
       `${JSON.stringify(
@@ -611,6 +640,7 @@ try {
             administrator: administratorSession,
           },
           requestId: draft.id,
+          selectionRequestId: selectionDraft.id,
           jobId: job.job_id,
           jobNumber: job.job_number,
           qualityCaseId: qualityCase.id,

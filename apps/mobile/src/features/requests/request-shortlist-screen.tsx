@@ -5,7 +5,8 @@ import {
   useLocalSearchParams,
   useRouter,
 } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { MagnifyingGlass, SealCheck, UserCircle } from 'phosphor-react-native';
 import {
   ActivityIndicator,
   Alert,
@@ -13,6 +14,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -38,7 +40,20 @@ export function RequestShortlistScreen() {
   );
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
+  const [readyOnly, setReadyOnly] = useState(false);
   const styles = createStyles(useAppFontFamilies());
+  const visibleItems = useMemo(
+    () =>
+      items.filter(
+        (item) =>
+          `${item.display_name} ${item.technician_bio ?? ''}`
+            .toLocaleLowerCase('th')
+            .includes(query.trim().toLocaleLowerCase('th')) &&
+          (!readyOnly || getShortlistPrice(item).ready),
+      ),
+    [items, query, readyOnly],
+  );
 
   const load = useCallback(async () => {
     if (!client || !requestId) return;
@@ -102,6 +117,43 @@ export function RequestShortlistScreen() {
           {copy.title}
         </Text>
         <Text style={styles.description}>{copy.description}</Text>
+        <View style={styles.search}>
+          <MagnifyingGlass size={21} color={colors.textMuted} />
+          <TextInput
+            accessibilityLabel="ค้นหาช่างในรายชื่อ"
+            placeholder="ค้นหาชื่อหรือทักษะของช่าง"
+            placeholderTextColor={colors.textMuted}
+            value={query}
+            onChangeText={setQuery}
+            style={styles.searchInput}
+          />
+        </View>
+        <View style={styles.filters}>
+          {[
+            { label: 'ทั้งหมด', value: false },
+            { label: 'มีราคาพร้อมเลือก', value: true },
+          ].map((filter) => (
+            <Pressable
+              key={filter.label}
+              accessibilityRole="button"
+              accessibilityState={{ selected: readyOnly === filter.value }}
+              onPress={() => setReadyOnly(filter.value)}
+              style={[
+                styles.filter,
+                readyOnly === filter.value && styles.filterSelected,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.filterText,
+                  readyOnly === filter.value && styles.filterTextSelected,
+                ]}
+              >
+                {filter.label}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
 
         {state === 'loading' ? (
           <ActivityIndicator color={colors.action} style={styles.loader} />
@@ -127,27 +179,60 @@ export function RequestShortlistScreen() {
           </View>
         ) : null}
 
+        {state === 'ready' && items.length > 0 && visibleItems.length === 0 ? (
+          <Text accessibilityLiveRegion="polite" style={styles.emptyBody}>
+            ไม่พบช่างที่ตรงกับตัวกรอง ลองเปลี่ยนคำค้นหรือเลือกทั้งหมด
+          </Text>
+        ) : null}
+
         <View style={styles.list}>
-          {items.map((item) => {
+          {visibleItems.map((item) => {
             const price = getShortlistPrice(item);
             const selected = item.is_selected;
             return (
               <View key={item.technician_id} style={styles.card}>
                 <View style={styles.cardHeader}>
+                  <View style={styles.avatar}>
+                    <UserCircle
+                      size={44}
+                      color={colors.primary}
+                      weight="duotone"
+                    />
+                  </View>
                   <View style={styles.nameGroup}>
                     <Text style={styles.rank}>
                       {copy.rank(item.shortlist_rank)}
                     </Text>
                     <Text style={styles.name}>{item.display_name}</Text>
                   </View>
-                  <Text
-                    style={
-                      selected ? styles.selectedBadge : styles.verifiedBadge
-                    }
-                  >
-                    {selected ? copy.selectedBadge : copy.verifiedBadge}
-                  </Text>
+                  <View style={styles.verification}>
+                    <SealCheck size={18} color={colors.success} />
+                    <Text
+                      style={
+                        selected ? styles.selectedBadge : styles.verifiedBadge
+                      }
+                    >
+                      {selected ? copy.selectedBadge : copy.verifiedBadge}
+                    </Text>
+                  </View>
                 </View>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`${copy.viewProfile} ${item.display_name}`}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/requests/technician',
+                      params: { requestId, technicianId: item.technician_id },
+                    })
+                  }
+                  style={({ pressed }) => [
+                    styles.secondaryButton,
+                    styles.profileButton,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <Text style={styles.secondaryText}>{copy.viewProfile}</Text>
+                </Pressable>
                 {item.years_experience !== null ? (
                   <Text style={styles.experience}>
                     {copy.experience(item.years_experience)}
@@ -184,12 +269,31 @@ export function RequestShortlistScreen() {
                 </View>
 
                 {selected ? (
-                  <Text
-                    accessibilityLiveRegion="polite"
-                    style={styles.selectedNotice}
-                  >
-                    {copy.selectedNotice}
-                  </Text>
+                  <View>
+                    <Text
+                      accessibilityLiveRegion="polite"
+                      style={styles.selectedNotice}
+                    >
+                      {copy.selectedNotice}
+                    </Text>
+                    <Pressable
+                      accessibilityRole="button"
+                      onPress={() =>
+                        router.push({
+                          pathname: '/requests/agreement',
+                          params: { requestId },
+                        })
+                      }
+                      style={({ pressed }) => [
+                        styles.primaryButton,
+                        pressed && styles.pressed,
+                      ]}
+                    >
+                      <Text style={styles.primaryText}>
+                        ตรวจและยืนยันข้อตกลง
+                      </Text>
+                    </Pressable>
+                  </View>
                 ) : (
                   <Pressable
                     accessibilityRole="button"
@@ -223,6 +327,61 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
   return StyleSheet.create({
     safeArea: { flex: 1, backgroundColor: colors.background },
     content: { padding: spacing.lg, paddingBottom: spacing.xxl },
+    search: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: colors.surface,
+      borderColor: colors.border,
+      borderWidth: 1,
+      borderRadius: radii.button,
+      paddingHorizontal: spacing.md,
+      marginTop: spacing.lg,
+      minHeight: 52,
+    },
+    searchInput: {
+      flex: 1,
+      minWidth: 0,
+      color: colors.text,
+      fontFamily: fonts.regular,
+      fontSize: typography.bodySize,
+      minHeight: 52,
+    },
+    filters: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+      marginTop: spacing.md,
+    },
+    filter: {
+      minHeight: 44,
+      justifyContent: 'center',
+      paddingHorizontal: spacing.md,
+      borderRadius: radii.pill,
+      backgroundColor: colors.surfaceMuted,
+    },
+    filterSelected: { backgroundColor: colors.primary },
+    filterText: {
+      color: colors.textMuted,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.supportSize,
+    },
+    filterTextSelected: { color: colors.surface },
+    avatar: {
+      width: 56,
+      height: 64,
+      borderRadius: radii.button,
+      backgroundColor: colors.mint,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    verification: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: spacing.xs,
+      maxWidth: 100,
+    },
     backButton: {
       alignSelf: 'flex-start',
       justifyContent: 'center',
@@ -262,6 +421,7 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
       justifyContent: 'center',
       minHeight: 48,
     },
+    profileButton: { marginTop: spacing.md },
     secondaryText: {
       color: colors.action,
       fontFamily: fonts.semiBold,
@@ -339,6 +499,7 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
       marginTop: spacing.sm,
     },
     quoteBox: {
+      backgroundColor: colors.surfaceMuted,
       borderColor: colors.border,
       borderRadius: radii.button,
       borderWidth: 1,

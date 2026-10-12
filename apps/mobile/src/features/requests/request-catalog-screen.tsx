@@ -2,11 +2,19 @@ import { colors, radii, spacing, typography } from '@homecare/design-tokens';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
+  ArrowRight,
+  Drop,
+  Lightning,
+  MagnifyingGlass,
+  Snowflake,
+} from 'phosphor-react-native';
+import {
   ActivityIndicator,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -30,6 +38,10 @@ export function RequestCatalogScreen() {
   const { client } = useSession();
   const [categories, setCategories] = useState<readonly CatalogCategory[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [query, setQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(
+    params.categoryCode ?? 'all',
+  );
   const styles = createStyles(useAppFontFamilies());
   const entryPoint =
     params.entryPoint === 'symptom' ? 'symptom' : 'service_catalog';
@@ -62,11 +74,27 @@ export function RequestCatalogScreen() {
 
   const visibleCategories = useMemo(
     () =>
-      categories.filter(
-        (category) =>
-          !params.categoryCode || category.code === params.categoryCode,
-      ),
-    [categories, params.categoryCode],
+      categories
+        .filter(
+          (category) =>
+            selectedCategory === 'all' || category.code === selectedCategory,
+        )
+        .map((category) => ({
+          ...category,
+          service_items: category.service_items.filter((item) =>
+            `${category.name_th} ${item.name_th} ${item.description_th ?? ''}`
+              .toLocaleLowerCase('th')
+              .includes(query.trim().toLocaleLowerCase('th')),
+          ),
+        }))
+        .filter((category) =>
+          entryPoint === 'symptom'
+            ? `${category.name_th} ${category.description_th ?? ''}`
+                .toLocaleLowerCase('th')
+                .includes(query.trim().toLocaleLowerCase('th'))
+            : category.service_items.length > 0,
+        ),
+    [categories, selectedCategory, query, entryPoint],
   );
 
   function openSymptom(category: CatalogCategory) {
@@ -91,6 +119,46 @@ export function RequestCatalogScreen() {
             ? copy.symptomCatalogTitle
             : copy.catalogTitle}
         </Text>
+
+        <View style={styles.search}>
+          <MagnifyingGlass size={21} color={colors.textMuted} />
+          <TextInput
+            accessibilityLabel="ค้นหารายการบริการ"
+            placeholder="ค้นหาบริการหรืออาการ"
+            placeholderTextColor={colors.textMuted}
+            value={query}
+            onChangeText={setQuery}
+            style={styles.searchInput}
+          />
+        </View>
+        <View style={styles.filters}>
+          {[{ code: 'all', name_th: 'ทั้งหมด' }, ...categories].map(
+            (category) => (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{
+                  selected: selectedCategory === category.code,
+                }}
+                key={category.code}
+                onPress={() => setSelectedCategory(category.code)}
+                style={[
+                  styles.filter,
+                  selectedCategory === category.code && styles.filterSelected,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.filterText,
+                    selectedCategory === category.code &&
+                      styles.filterTextSelected,
+                  ]}
+                >
+                  {category.name_th}
+                </Text>
+              </Pressable>
+            ),
+          )}
+        </View>
         <Text style={styles.description}>
           {entryPoint === 'symptom'
             ? copy.symptomCatalogDescription
@@ -115,7 +183,11 @@ export function RequestCatalogScreen() {
           </View>
         ) : null}
         {state === 'ready' && visibleCategories.length === 0 ? (
-          <Text style={styles.empty}>{copy.noCatalog}</Text>
+          <Text accessibilityLiveRegion="polite" style={styles.empty}>
+            {query.trim() || selectedCategory !== 'all'
+              ? 'ไม่พบบริการที่ตรงกับการค้นหา ลองเปลี่ยนคำค้นหรือหมวดบริการ'
+              : copy.noCatalog}
+          </Text>
         ) : null}
 
         {visibleCategories.map((category) => (
@@ -155,6 +227,27 @@ export function RequestCatalogScreen() {
                     pressed && styles.pressed,
                   ]}
                 >
+                  <View
+                    style={[
+                      styles.serviceIcon,
+                      {
+                        backgroundColor:
+                          category.code === 'AIR-CONDITIONING'
+                            ? colors.sky
+                            : category.code === 'PLUMBING'
+                              ? colors.mint
+                              : colors.blush,
+                      },
+                    ]}
+                  >
+                    {category.code === 'AIR-CONDITIONING' ? (
+                      <Snowflake size={26} color={colors.primary} />
+                    ) : category.code === 'PLUMBING' ? (
+                      <Drop size={26} color={colors.primary} />
+                    ) : (
+                      <Lightning size={26} color={colors.primary} />
+                    )}
+                  </View>
                   <View style={styles.itemBody}>
                     <Text style={styles.itemTitle}>{item.name_th}</Text>
                     {item.description_th ? (
@@ -164,7 +257,7 @@ export function RequestCatalogScreen() {
                     ) : null}
                     <Text style={styles.price}>{formatCatalogPrice(item)}</Text>
                   </View>
-                  <Text style={styles.choose}>{copy.choose}</Text>
+                  <ArrowRight size={22} color={colors.action} />
                 </Pressable>
               ))
             )}
@@ -179,6 +272,54 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
   return StyleSheet.create({
     safeArea: { flex: 1, backgroundColor: colors.background },
     content: { padding: spacing.lg, paddingBottom: spacing.xxl },
+    search: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: colors.surface,
+      borderColor: colors.border,
+      borderWidth: 1,
+      borderRadius: radii.button,
+      paddingHorizontal: spacing.md,
+      marginTop: spacing.lg,
+      minHeight: 52,
+    },
+    searchInput: {
+      flex: 1,
+      minWidth: 0,
+      color: colors.text,
+      fontFamily: fonts.regular,
+      fontSize: typography.bodySize,
+      minHeight: 52,
+    },
+    filters: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+      marginTop: spacing.md,
+    },
+    filter: {
+      minHeight: 44,
+      justifyContent: 'center',
+      paddingHorizontal: spacing.md,
+      borderRadius: radii.pill,
+      backgroundColor: colors.surfaceMuted,
+    },
+    filterSelected: { backgroundColor: colors.primary },
+    filterText: {
+      color: colors.textMuted,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.supportSize,
+    },
+    filterTextSelected: { color: colors.surface },
+    serviceIcon: {
+      width: 48,
+      height: 56,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: radii.button,
+      marginRight: spacing.md,
+    },
     backButton: {
       alignSelf: 'flex-start',
       minHeight: 44,
@@ -250,7 +391,7 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
       borderWidth: 1,
       flexDirection: 'row',
       minHeight: 104,
-      padding: spacing.lg,
+      padding: spacing.md,
     },
     actionCard: {
       alignItems: 'center',

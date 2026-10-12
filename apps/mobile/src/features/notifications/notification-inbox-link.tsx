@@ -1,5 +1,6 @@
 import { colors, radii, spacing, typography } from '@homecare/design-tokens';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { Bell } from 'phosphor-react-native';
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -9,7 +10,8 @@ import { getUnreadNotificationCount } from './notification-inbox-api';
 
 export function NotificationInboxLink({
   mode,
-}: Readonly<{ mode: 'customer' | 'technician' }>) {
+  compact = false,
+}: Readonly<{ mode: 'customer' | 'technician'; compact?: boolean }>) {
   const router = useRouter();
   const { client } = useSession();
   const [unreadCount, setUnreadCount] = useState(0);
@@ -43,11 +45,19 @@ export function NotificationInboxLink({
       onPress={() =>
         router.push({ pathname: '/notifications' as never, params: { mode } })
       }
-      style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      style={({ pressed }) => [
+        styles.button,
+        compact && styles.compactButton,
+        pressed && styles.pressed,
+      ]}
     >
-      <Text style={styles.label}>การแจ้งเตือน</Text>
+      {compact ? (
+        <Bell color={colors.primary} size={24} weight="regular" />
+      ) : (
+        <Text style={styles.label}>การแจ้งเตือน</Text>
+      )}
       {unreadCount > 0 ? (
-        <View style={styles.badge}>
+        <View style={[styles.badge, compact && styles.compactBadge]}>
           <Text style={styles.badgeText}>{countLabel}</Text>
         </View>
       ) : null}
@@ -66,6 +76,17 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
       minHeight: 44,
       paddingHorizontal: spacing.md,
     },
+    compactButton: {
+      alignSelf: 'auto',
+      backgroundColor: colors.surface,
+      borderColor: colors.border,
+      borderRadius: radii.pill,
+      borderWidth: 1,
+      justifyContent: 'center',
+      minHeight: 48,
+      minWidth: 48,
+      paddingHorizontal: 0,
+    },
     label: {
       color: colors.action,
       fontFamily: fonts.semiBold,
@@ -79,6 +100,11 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
       minHeight: 24,
       minWidth: 24,
       paddingHorizontal: spacing.xs,
+    },
+    compactBadge: {
+      position: 'absolute',
+      right: -2,
+      top: -2,
     },
     badgeText: {
       color: colors.surface,

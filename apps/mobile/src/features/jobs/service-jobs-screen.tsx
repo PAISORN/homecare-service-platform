@@ -1,6 +1,7 @@
 import { colors, radii, spacing, typography } from '@homecare/design-tokens';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
+import { CalendarBlank, Clock, MapPin } from 'phosphor-react-native';
 import {
   ActivityIndicator,
   Pressable,
@@ -14,7 +15,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppFontFamilies } from '../../foundation/font-runtime';
 import { serviceJobsCopyTh as copy } from '../../locales/th';
 import { useSession } from '../../providers/session-provider';
-import { formatPreferredDateTh } from '../requests/preferred-date';
+import {
+  formatPreferredDateTh,
+  parsePreferredDate,
+} from '../requests/preferred-date';
+import { MobileBottomNav } from '../shared/mobile-bottom-nav';
 import { goBackOrReplace } from '../shared/navigation';
 import {
   listServiceJobs,
@@ -32,6 +37,7 @@ export function ServiceJobsScreen({ mode, fallback }: Props) {
   const { client } = useSession();
   const [jobs, setJobs] = useState<readonly ServiceJobListItem[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [filter, setFilter] = useState<'all' | 'active' | 'history'>('all');
   const styles = createStyles(useAppFontFamilies());
 
   const load = useCallback(async () => {
@@ -51,6 +57,11 @@ export function ServiceJobsScreen({ mode, fallback }: Props) {
   const title = mode === 'customer' ? copy.customerTitle : copy.technicianTitle;
   const description =
     mode === 'customer' ? copy.customerDescription : copy.technicianDescription;
+  const visibleJobs = jobs.filter((job) => {
+    const finished =
+      job.job_status === 'completed' || job.job_status === 'cancelled';
+    return filter === 'all' || (filter === 'history' ? finished : !finished);
+  });
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -69,6 +80,35 @@ export function ServiceJobsScreen({ mode, fallback }: Props) {
           {title}
         </Text>
         <Text style={styles.description}>{description}</Text>
+        <View style={styles.filters}>
+          {(
+            [
+              { key: 'all', label: 'ทั้งหมด' },
+              { key: 'active', label: 'กำลังดำเนินการ' },
+              { key: 'history', label: 'ประวัติ' },
+            ] as const
+          ).map((option) => (
+            <Pressable
+              key={option.key}
+              accessibilityRole="button"
+              accessibilityState={{ selected: filter === option.key }}
+              onPress={() => setFilter(option.key)}
+              style={[
+                styles.filter,
+                filter === option.key && styles.filterSelected,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.filterText,
+                  filter === option.key && styles.filterTextSelected,
+                ]}
+              >
+                {option.label}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
 
         {state === 'loading' ? (
           <ActivityIndicator color={colors.action} style={styles.loader} />
@@ -87,21 +127,28 @@ export function ServiceJobsScreen({ mode, fallback }: Props) {
             </Pressable>
           </View>
         ) : null}
-        {state === 'ready' && jobs.length === 0 ? (
+        {state === 'ready' && visibleJobs.length === 0 ? (
           <View style={styles.emptyCard}>
             <Text style={styles.emptyText}>
-              {mode === 'customer' ? copy.emptyCustomer : copy.emptyTechnician}
+              {jobs.length > 0
+                ? filter === 'active'
+                  ? 'ยังไม่มีงานที่กำลังดำเนินการ'
+                  : 'ยังไม่มีงานในประวัติ'
+                : mode === 'customer'
+                  ? copy.emptyCustomer
+                  : copy.emptyTechnician}
             </Text>
           </View>
         ) : null}
 
         <View style={styles.list}>
-          {jobs.map((job) => {
+          {visibleJobs.map((job) => {
             const path =
               mode === 'customer' ? '/jobs/detail' : '/technician/jobs/detail';
             const date =
               formatPreferredDateTh(job.appointment_date, 'short') ??
               job.appointment_date;
+            const appointment = parsePreferredDate(job.appointment_date);
             return (
               <Pressable
                 accessibilityRole="button"
@@ -118,12 +165,29 @@ export function ServiceJobsScreen({ mode, fallback }: Props) {
                 ]}
               >
                 <View style={styles.cardHeader}>
+                  <View style={styles.dateTile}>
+                    {appointment ? (
+                      <>
+                        <Text style={styles.dateDay}>
+                          {appointment.getDate()}
+                        </Text>
+                        <Text style={styles.dateMonth}>
+                          {new Intl.DateTimeFormat('th-TH', {
+                            month: 'short',
+                          }).format(appointment)}
+                        </Text>
+                      </>
+                    ) : (
+                      <CalendarBlank size={28} color={colors.surface} />
+                    )}
+                  </View>
                   <Text selectable style={styles.jobNumber}>
                     {job.job_number}
                   </Text>
                   <Text
                     style={[
                       styles.status,
+                      job.job_status === 'completed' && styles.completed,
                       job.job_status === 'cancelled' && styles.cancelled,
                     ]}
                   >
@@ -139,16 +203,23 @@ export function ServiceJobsScreen({ mode, fallback }: Props) {
                     ? copy.counterpartTechnician(job.counterpart_display_name)
                     : copy.counterpartCustomer(job.counterpart_display_name)}
                 </Text>
-                <Text style={styles.meta}>
-                  {copy.appointment(date, job.appointment_time_window)}
-                </Text>
-                <Text style={styles.meta}>{job.location_label}</Text>
+                <View style={styles.metaRow}>
+                  <Clock size={18} color={colors.primary} />
+                  <Text style={styles.meta}>
+                    {copy.appointment(date, job.appointment_time_window)}
+                  </Text>
+                </View>
+                <View style={styles.metaRow}>
+                  <MapPin size={18} color={colors.textMuted} />
+                  <Text style={styles.meta}>{job.location_label}</Text>
+                </View>
                 <Text style={styles.open}>{copy.open}</Text>
               </Pressable>
             );
           })}
         </View>
       </ScrollView>
+      {mode === 'customer' ? <MobileBottomNav active="jobs" /> : null}
     </SafeAreaView>
   );
 }
@@ -156,7 +227,47 @@ export function ServiceJobsScreen({ mode, fallback }: Props) {
 function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
   return StyleSheet.create({
     safeArea: { flex: 1, backgroundColor: colors.background },
-    content: { padding: spacing.lg, paddingBottom: spacing.xxl },
+    content: { padding: spacing.lg, paddingBottom: 116 },
+    filters: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+      marginTop: spacing.lg,
+    },
+    filter: {
+      backgroundColor: colors.surfaceMuted,
+      minHeight: 44,
+      borderRadius: radii.pill,
+      paddingHorizontal: spacing.md,
+      justifyContent: 'center',
+    },
+    filterSelected: { backgroundColor: colors.primary },
+    filterText: {
+      color: colors.textMuted,
+      fontFamily: fonts.semiBold,
+      fontSize: typography.supportSize,
+    },
+    filterTextSelected: { color: colors.surface },
+    dateTile: {
+      minWidth: 52,
+      padding: spacing.sm,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: radii.button,
+      backgroundColor: colors.primary,
+    },
+    dateDay: {
+      color: colors.surface,
+      fontFamily: fonts.bold,
+      fontSize: typography.sectionTitleSize,
+    },
+    dateMonth: { color: colors.mint, fontFamily: fonts.regular, fontSize: 12 },
+    metaRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginTop: spacing.sm,
+    },
     backButton: {
       alignSelf: 'flex-start',
       justifyContent: 'center',
@@ -239,12 +350,17 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
       fontSize: typography.supportSize,
     },
     status: {
-      color: colors.success,
+      color: colors.primary,
+      backgroundColor: colors.mint,
+      borderRadius: radii.button,
+      padding: spacing.sm,
+      flexShrink: 1,
       fontFamily: fonts.semiBold,
       fontSize: typography.supportSize,
       textAlign: 'right',
     },
     cancelled: { color: colors.danger },
+    completed: { color: colors.success, backgroundColor: colors.surfaceMuted },
     cardTitle: {
       color: colors.text,
       fontFamily: fonts.bold,
@@ -252,6 +368,7 @@ function createStyles(fonts: ReturnType<typeof useAppFontFamilies>) {
       marginTop: spacing.md,
     },
     meta: {
+      flexShrink: 1,
       color: colors.textMuted,
       fontFamily: fonts.regular,
       fontSize: typography.supportSize,
